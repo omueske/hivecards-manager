@@ -1,0 +1,1 @@
+# hivecards-manager
