@@ -22,10 +22,13 @@
 
 <script setup lang="ts">
 import { useUserStore } from './stores/user';
+import { useRouter } from 'vue-router';
 const store = useUserStore();
 const token = store.token;
+const router = useRouter();
 function logout() {
   store.clear();
+  router.push('/login');
 }
 </script>
 
@@ -45,8 +48,8 @@ q-layout {
   display: block;
 }
 q-toolbar {
-  background: #1976d2;
-  color: white;
+  background: linear-gradient(90deg, #f6b93b 0%, #ffb86b 100%);
+  color: #3e2723;
   padding: 8px 12px;
 }
 q-toolbar-title {
@@ -56,7 +59,7 @@ q-toolbar-title {
 q-btn {
   background: transparent;
   border: none;
-  color: white;
+  color: #3e2723;
   cursor: pointer;
   margin-left: 8px;
 }
