@@ -14,7 +14,7 @@
           color="secondary"
           icon="add"
           label="Create"
-          @click="openCreate"
+          @click="createVisible = true"
           class="q-mr-sm"
         >
           <q-tooltip>Create Hive</q-tooltip>
@@ -26,6 +26,8 @@
     </q-toolbar>
 
     <div class="app-content">
+      <!-- debug: show token and createVisible state -->
+      <div style="font-size:12px; color:rgba(0,0,0,0.6); margin-bottom:8px">token: {{ token }} — createVisible: {{ createVisible }}</div>
       <div v-if="!token">
         <q-card>
           <q-card-section>
