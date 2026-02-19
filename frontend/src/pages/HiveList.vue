@@ -8,6 +8,7 @@
           <q-tooltip>Refresh</q-tooltip>
         </q-btn>
         <q-btn
+          v-if="token"
           flat
           dense
           color="secondary"
@@ -106,6 +107,7 @@ function goTo(id: string) {
 }
 
 function openCreate() {
+  console.log('HiveList.openCreate called')
   createVisible.value = true;
 }
 
