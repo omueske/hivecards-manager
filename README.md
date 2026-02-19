@@ -101,20 +101,24 @@ Das Frontend ist dann unter [http://localhost:5173](http://localhost:5173) errei
 
 ## Produktion / Build
 
-### Frontend bauen
+Das Frontend wird in Produktion direkt vom NestJS-Backend serviert (Port 3000).  
+**Einstiegspunkt: `http://<server>:3000`**
+
+### Schritte
 
 ```bash
+# 1. Frontend bauen (generiert API-Client + Vite-Build nach frontend/dist/)
 npm run build:frontend
-```
 
-Generiert den API-Client aus `doc/openapi.yaml` und baut anschließend das Frontend nach `frontend/dist/`.
-
-### Backend bauen & starten
-
-```bash
+# 2. Backend kompilieren
 npm run build
+
+# 3. Starten
 npm run start:prod
 ```
+
+Danach ist die App unter [http://localhost:3000](http://localhost:3000) erreichbar.  
+Die REST-API liegt unter `/api/v1/...`, Swagger-Docs unter `/api-docs`.
 
 ---
 
