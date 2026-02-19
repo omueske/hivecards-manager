@@ -1,8 +1,9 @@
 import { IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateHiveDto {
+  @IsOptional()
   @IsString()
-  apiaryId!: string;
+  apiaryId?: string;
 
   @IsString()
   hiveNumber!: string;

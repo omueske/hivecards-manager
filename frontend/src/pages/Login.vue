@@ -18,12 +18,12 @@
 
       <main>
         <h1 style="font-size: 32px; margin: 8px 0">
-          {{ mode === 'login' ? 'Login' : 'Register' }}
+          {{ mode === 'login' ? t('auth.login') : t('auth.register') }}
         </h1>
 
         <form @submit.prevent="onSubmit" aria-labelledby="login-heading">
           <div style="margin-bottom: 12px">
-            <label for="email">Email</label>
+            <label for="email">{{ t('auth.email') }}</label>
             <input
               id="email"
               type="email"
@@ -36,7 +36,7 @@
           </div>
 
           <div style="margin-bottom: 12px">
-            <label for="password">Password</label>
+            <label for="password">{{ t('auth.password') }}</label>
             <input
               id="password"
               type="password"
@@ -49,7 +49,7 @@
           </div>
 
           <div v-if="mode === 'register'" style="margin-bottom: 12px">
-            <label for="username">Username</label>
+            <label for="username">{{ t('auth.username') }}</label>
             <input
               id="username"
               type="text"
@@ -61,9 +61,13 @@
 
           <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px">
             <button type="submit" :disabled="loading" aria-busy="false" style="padding: 8px 12px">
-              {{ loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Register' }}
+              {{
+                loading ? 'Please wait...' : mode === 'login' ? t('auth.login') : t('auth.register')
+              }}
             </button>
-            <button type="button" @click="onCancel" style="padding: 8px 12px">Cancel</button>
+            <button type="button" @click="onCancel" style="padding: 8px 12px">
+              {{ t('form.cancel') }}
+            </button>
             <button
               type="button"
               @click="toggleMode"
@@ -75,7 +79,11 @@
                 cursor: pointer;
               "
             >
-              {{ mode === 'login' ? 'No account? Register' : 'Have an account? Login' }}
+              {{
+                mode === 'login'
+                  ? 'No account? ' + t('auth.register')
+                  : 'Have an account? ' + t('auth.login')
+              }}
             </button>
           </div>
         </form>
@@ -88,6 +96,7 @@
 
 <script lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { AuthLogin, AuthTokens } from '../api-client';
 import { DefaultService } from '../api-client/services/DefaultService';
 import { useUserStore } from '../stores/user';
@@ -105,6 +114,7 @@ export default {
     const store = useUserStore();
     const router = useRouter();
     const route = useRoute();
+    const { t } = useI18n();
 
     // if redirected after registration, prefill email and show a notice
     if ((route.query as any).registered) {
@@ -137,16 +147,32 @@ export default {
         if (mode.value === 'register') {
           const valid = await formRef.value?.validate?.();
           if (valid === false) return;
-            const mod = await import('../api-client/services/DefaultService');
-            const fn = (mod as any).postApiV1AuthRegister ?? (mod as any).DefaultService?.postApiV1AuthRegister;
-            await fn({ email: email.value, password: password.value, username: username.value } as any);
-            // after successful register, attempt to auto-login
-            const loginFn = (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
-            if (loginFn) {
-              const loginRes = await loginFn({ email: email.value, password: password.value } as AuthLogin);
-              const token = (loginRes as unknown as AuthTokens).accessToken;
+          const mod = await import('../api-client/services/DefaultService');
+          const fn =
+            (mod as any).postApiV1AuthRegister ??
+            (mod as any).DefaultService?.postApiV1AuthRegister;
+          await fn({
+            email: email.value,
+            password: password.value,
+            username: username.value,
+          } as any);
+          // after successful register, attempt to auto-login
+          const loginFn =
+            (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
+          if (loginFn) {
+            const loginRes = (await loginFn({
+              email: email.value,
+              password: password.value,
+            } as AuthLogin)) as unknown as AuthTokens;
+            const token = loginRes.accessToken;
+            if (token) {
               store.setToken(token);
+              try {
+                localStorage.setItem('hc_has_refresh', '1');
+              } catch (e) {}
             }
+            // server sets refresh token as httpOnly cookie
+          }
           // after register: redirect to login view so user can sign in manually
           // show a success notification and navigate to login (keep email in query)
           // @ts-ignore
@@ -157,10 +183,20 @@ export default {
           return;
         } else {
           const mod = await import('../api-client/services/DefaultService');
-          const fn = (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
-          const res = await fn({ email: email.value, password: password.value } as AuthLogin);
-          const token = (res as unknown as AuthTokens).accessToken;
-          store.setToken(token);
+          const fn =
+            (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
+          const res = (await fn({
+            email: email.value,
+            password: password.value,
+          } as AuthLogin)) as unknown as AuthTokens;
+          const token = res.accessToken;
+          if (token) {
+            store.setToken(token);
+            try {
+              localStorage.setItem('hc_has_refresh', '1');
+            } catch (e) {}
+          }
+          // server sets refresh token as httpOnly cookie
           const dest = (route.query.redirect as string) || '/';
           router.push(dest);
         }
@@ -205,7 +241,19 @@ export default {
       return true;
     }
 
-    return { mode, email, password, username, error, loading, onSubmit, toggleMode, onCancel, formRef };
+    return {
+      mode,
+      email,
+      password,
+      username,
+      error,
+      loading,
+      onSubmit,
+      toggleMode,
+      onCancel,
+      formRef,
+      t,
+    };
   },
 };
 </script>

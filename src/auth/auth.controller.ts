@@ -1,4 +1,5 @@
-import { Controller, Post, Body, BadRequestException, Logger } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Logger, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 
 class RegisterDto {
@@ -27,7 +28,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     this.logger.log(`Login attempt for email=${dto.email}`);
     const user = await this.authService.validateUser(dto.email, dto.password);
     if (!user) {
@@ -36,6 +37,44 @@ export class AuthController {
     }
     const tokens = this.authService.signTokens(user._id.toString());
     this.logger.log(`Login successful for userId=${user._id.toString()}`);
-    return tokens;
+    // set refresh token as httpOnly cookie
+    const secure = process.env.NODE_ENV === 'production';
+    res.cookie('hc_refresh', tokens.refreshToken, {
+      httpOnly: true,
+      secure,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { accessToken: tokens.accessToken };
+  }
+
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const cookie = req.cookies?.hc_refresh;
+    if (!cookie) {
+      // No refresh cookie present — return No Content so clients know there's nothing to refresh.
+      return res.status(204).send();
+    }
+    const payload = this.authService.verifyToken(cookie);
+    if (!payload || !payload.sub) {
+      // Invalid refresh token: clear cookie and return 204 to avoid noisy client errors.
+      res.clearCookie('hc_refresh');
+      return res.status(204).send();
+    }
+    const tokens = this.authService.signTokens(payload.sub as string);
+    const secure = process.env.NODE_ENV === 'production';
+    res.cookie('hc_refresh', tokens.refreshToken, {
+      httpOnly: true,
+      secure,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { accessToken: tokens.accessToken };
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('hc_refresh');
+    return { ok: true };
   }
 }

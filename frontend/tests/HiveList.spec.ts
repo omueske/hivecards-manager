@@ -8,6 +8,7 @@ Object.defineProperty(globalThis, 'document', { value: window.document, configur
 Object.defineProperty(globalThis, 'navigator', { value: window.navigator, configurable: true })
 import { mount } from '@vue/test-utils'
 import HiveList from '../src/pages/HiveList.vue'
+import { setToken } from '../src/auth/token'
 import { createPinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
@@ -33,7 +34,7 @@ vi.mock('../src/api-client/services/DefaultService', () => {
 
 describe('HiveList', () => {
   beforeEach(() => {
-    localStorage.setItem('hc_token', 'test-token')
+    setToken('test-token')
   })
 
   it('renders hive cards when API returns items', async () => {

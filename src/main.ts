@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
+import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 
@@ -29,19 +30,28 @@ async function bootstrap() {
   }
 
   // enable CORS for local dev (frontend dev server origins)
-  app.enableCors({ origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176',
-    'http://localhost:4173',
-    'http://localhost:3000'
-  ], credentials: true });
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
+      'http://localhost:4173',
+      'http://localhost:3000',
+    ],
+    credentials: true,
+    allowedHeaders: 'Authorization,Content-Type',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  });
+
+  // enable cookie parser so controllers can read httpOnly refresh cookie
+  app.use(cookieParser());
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
   logger.log(`Server listening on http://localhost:${port}`);
-  logger.log(`CORS allowed origins: ${JSON.stringify([ 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:4173', 'http://localhost:3000' ])}`);
+  logger.log(`CORS allowed origins: ${JSON.stringify([ 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:4173', 'http://localhost:3000' ])}`);
 }
 
 bootstrap();

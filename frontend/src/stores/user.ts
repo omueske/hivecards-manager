@@ -1,17 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+import { getToken, setToken as setInMemoryToken, clearToken } from '../auth/token'
+
 export const useUserStore = defineStore('user', () => {
-  const token = ref<string | null>(localStorage.getItem('hc_token'))
+  const token = ref<string | null>(getToken())
 
   function setToken(t: string) {
     token.value = t
-    localStorage.setItem('hc_token', t)
+    try {
+      setInMemoryToken(t)
+    } catch (e) {
+      // ignore
+    }
   }
 
   function clear() {
     token.value = null
-    localStorage.removeItem('hc_token')
+    try {
+      clearToken()
+    } catch (e) {}
   }
 
   return { token, setToken, clear }

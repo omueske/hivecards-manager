@@ -9,50 +9,62 @@ export class HiveService {
   private readonly logger = new Logger(HiveService.name);
   constructor(@InjectModel(Hive.name) private hiveModel: Model<HiveDocument>) {}
 
-  async create(dto: CreateHiveDto) {
+  async create(dto: CreateHiveDto, userId: string) {
     this.logger.log(`Creating hive in DB hiveNumber=${dto.hiveNumber}`);
-    const doc = new this.hiveModel(dto);
+    const doc = new this.hiveModel({ ...dto, userId });
     await doc.save();
     this.logger.log(`Saved hive to DB id=${doc._id.toString()}`);
     return this.toResponse(doc);
   }
 
-  async findAll(filter = {}, page = 1, limit = 25) {
+  async findAll(filter: any = {}, userId: string, page = 1, limit = 25) {
+    const scope = { ...filter, userId };
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.hiveModel.find(filter).skip(skip).limit(limit).lean().exec(),
-      this.hiveModel.countDocuments(filter).exec(),
+      this.hiveModel.find(scope).skip(skip).limit(limit).lean().exec(),
+      this.hiveModel.countDocuments(scope).exec(),
     ]);
     this.logger.log(`DB findAll returned ${total} items (page=${page} limit=${limit})`);
-    return { pagination: { page, limit, total }, items } as any;
+    const mapped = (items as any[]).map((d) => ({ ...d, id: d._id }));
+    return { pagination: { page, limit, total }, items: mapped } as any;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
     this.logger.log(`DB findOne id=${id}`);
-    const doc = await this.hiveModel.findById(id).lean().exec();
+    const doc = await this.hiveModel.findOne({ _id: id, userId }).lean().exec();
     if (!doc) {
-      this.logger.warn(`Hive not found id=${id}`);
+      this.logger.warn(`Hive not found or not owned id=${id}`);
       throw new NotFoundException('Hive not found');
     }
-    return doc;
+    return { ...doc, id: (doc as any)._id } as any;
   }
 
-  async update(id: string, dto: Partial<CreateHiveDto>) {
+  async update(id: string, dto: Partial<CreateHiveDto>, userId: string) {
     this.logger.log(`DB update id=${id} changes=${JSON.stringify(dto)}`);
-    const doc = await this.hiveModel.findByIdAndUpdate(id, dto, { new: true }).lean().exec();
+    const update: any = { ...dto };
+    if ('apiaryId' in dto && (dto.apiaryId === null || dto.apiaryId === '')) {
+      delete update.apiaryId;
+      (update as any).$unset = { apiaryId: 1 };
+    }
+    const doc = await this.hiveModel
+      .findOneAndUpdate({ _id: id, userId }, update, { new: true })
+      .lean()
+      .exec();
     if (!doc) {
-      this.logger.warn(`Update failed - hive not found id=${id}`);
+      this.logger.warn(`Update failed - hive not found or not owned id=${id}`);
       throw new NotFoundException('Hive not found');
     }
-    return doc;
+    return { ...doc, id: (doc as any)._id } as any;
   }
 
-  async remove(id: string) {
-    // soft delete: set status=archived
+  async remove(id: string, userId: string) {
     this.logger.log(`DB archive hive id=${id}`);
-    const doc = await this.hiveModel.findByIdAndUpdate(id, { status: 'archived' }, { new: true }).lean().exec();
+    const doc = await this.hiveModel
+      .findOneAndUpdate({ _id: id, userId }, { status: 'archived' }, { new: true })
+      .lean()
+      .exec();
     if (!doc) {
-      this.logger.warn(`Archive failed - hive not found id=${id}`);
+      this.logger.warn(`Archive failed - hive not found or not owned id=${id}`);
       throw new NotFoundException('Hive not found');
     }
     return;

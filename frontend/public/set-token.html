@@ -11,10 +11,11 @@
         const dest = params.get('dest') || '/'
         if (token) {
           try {
-            localStorage.setItem('hc_token', token)
-            console.log('token set')
+            // modern flow stores refresh indicator; this page is a dev helper
+            localStorage.setItem('hc_has_refresh', '1')
+            console.log('refresh-flag set')
           } catch (e) {
-            console.error('failed to set token', e)
+            console.error('failed to set refresh flag', e)
           }
         }
         location.replace(dest)

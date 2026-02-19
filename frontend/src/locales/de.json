@@ -1,0 +1,79 @@
+{
+    "app": {
+        "title": "Hivecards"
+    },
+    "nav": {
+        "hives": "Völker",
+        "apiaries": "Standorte"
+    },
+    "apiary": {
+        "title": "Standorte",
+        "create": "Standort anlegen",
+        "edit": "Standort bearbeiten",
+        "edit_short": "Bearbeiten",
+        "delete": "Standort löschen",
+        "none": "Noch keine Standorte",
+        "hive_count": "{n} Volk/Völker"
+    },
+    "hive": {
+        "title": "Völker",
+        "edit": "Beute bearbeiten",
+        "create": "Beute anlegen",
+        "no_hives": "Noch keine Völker",
+        "details": "Details",
+        "delete": "Löschen",
+        "frames": "Rähmchen"
+    },
+    "auth": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "username": "Nutzername",
+        "logout": "Abmelden",
+        "profile": "Profil"
+    },
+    "toolbar": {
+        "refresh": "Aktualisieren",
+        "show_archived": "Archivierte anzeigen",
+        "back": "Zurück",
+        "create": "Anlegen",
+        "home": "Start",
+        "language": "Sprache"
+    },
+    "form": {
+        "cancel": "Abbrechen",
+        "submit": "Anlegen",
+        "save": "Speichern",
+        "new_location": "Neuer Ort-Name",
+        "location": "Ort",
+        "new": "Neu",
+        "status": "Status",
+        "color": "Farbe",
+        "installationDate": "Installationsdatum",
+        "notes": "Notizen"
+    },
+    "messages": {
+        "created": "Erstellt",
+        "deleted": "Gelöscht",
+        "moved": "Volk verschoben",
+        "failed": "Aktion fehlgeschlagen",
+        "hive_created": "Volk erstellt",
+        "hive_updated": "Volk aktualisiert",
+        "hive_deleted": "Volk gelöscht",
+        "login_first": "Bitte zuerst anmelden",
+        "no_location": "Kein Ort",
+        "location_created": "Ort erstellt",
+        "drop_here": "hier ablegen",
+        "confirm_delete": "Dieses Volk löschen? Es wird archiviert.",
+        "token_state": "token: {token} — createVisible: {visible}",
+        "apiary_missing": "(Ort nicht gefunden)",
+        "loading": "Wird geladen…",
+        "hive_not_found": "Volk nicht gefunden.",
+        "profile_saved": "Profil gespeichert",
+        "save_failed": "Speichern fehlgeschlagen",
+        "updated": "Aktualisiert",
+        "edit_location": "Standort bearbeiten",
+        "confirm_delete_location": "Standort löschen? Zugeordnete Völker werden auf 'Kein Ort' gesetzt."
+    }
+}

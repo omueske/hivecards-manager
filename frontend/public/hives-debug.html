@@ -12,8 +12,8 @@
     <script>
       (async ()=>{
         const params = new URLSearchParams(location.search)
-        const token = params.get('token') || localStorage.getItem('hc_token')
-        if(!token){ document.getElementById('out').textContent = 'No token'; return }
+        const token = params.get('token')
+        if(!token){ document.getElementById('out').textContent = 'No token provided (use ?token=...)'; return }
         try{
           const res = await fetch('http://localhost:3000/api/v1/hives',{headers:{'Authorization':'Bearer '+token}})
           const json = await res.json()

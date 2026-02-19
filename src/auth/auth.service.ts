@@ -55,7 +55,8 @@ export class AuthService {
     try {
       const secret = process.env.JWT_SECRET || 'dev-secret';
       return jwt.verify(token, secret) as { sub: string };
-    } catch (e) {
+    } catch (e: any) {
+      this.logger.warn(`verifyToken failed: ${e?.name || 'Error'} - ${e?.message || ''}`);
       return null;
     }
   }

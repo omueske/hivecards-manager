@@ -7,6 +7,7 @@ export type Apiary = {
     name?: string;
     location?: string;
     notes?: string;
+    color?: string;
     createdAt?: string;
     updatedAt?: string;
 };

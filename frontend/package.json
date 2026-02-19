@@ -15,7 +15,8 @@
     "hivecards-backend": "file:..",
     "pinia": "^2.0.0",
     "quasar": "^2.13.0",
-    "vue": "^3.3.0"
+    "vue": "^3.3.0",
+    "vue-i18n": "^9.14.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",

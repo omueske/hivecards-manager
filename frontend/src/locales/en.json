@@ -1,0 +1,79 @@
+{
+    "app": {
+        "title": "Hivecards"
+    },
+    "nav": {
+        "hives": "Hives",
+        "apiaries": "Locations"
+    },
+    "apiary": {
+        "title": "Locations",
+        "create": "New location",
+        "edit": "Edit location",
+        "edit_short": "Edit",
+        "delete": "Delete location",
+        "none": "No locations yet",
+        "hive_count": "{n} hive(s)"
+    },
+    "hive": {
+        "title": "Hives",
+        "edit": "Edit Hive",
+        "create": "Create Hive",
+        "no_hives": "No hives yet",
+        "details": "Details",
+        "delete": "Delete",
+        "frames": "Frames"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "email": "Email",
+        "password": "Password",
+        "username": "Username",
+        "logout": "Logout",
+        "profile": "Profile"
+    },
+    "toolbar": {
+        "refresh": "Refresh",
+        "show_archived": "Show archived",
+        "back": "Back",
+        "create": "Create",
+        "home": "Home",
+        "language": "Language"
+    },
+    "form": {
+        "cancel": "Cancel",
+        "submit": "Create",
+        "save": "Save",
+        "new_location": "New location name",
+        "location": "Location",
+        "new": "New",
+        "status": "Status",
+        "color": "Color",
+        "installationDate": "Installation Date",
+        "notes": "Notes"
+    },
+    "messages": {
+        "created": "Created",
+        "deleted": "Deleted",
+        "moved": "Hive moved",
+        "failed": "Operation failed",
+        "hive_created": "Hive created",
+        "hive_updated": "Hive updated",
+        "hive_deleted": "Hive deleted",
+        "login_first": "Please login first",
+        "no_location": "No location",
+        "location_created": "Location created",
+        "drop_here": "drop here",
+        "confirm_delete": "Delete this hive? This will archive it.",
+        "token_state": "token: {token} — createVisible: {visible}",
+        "apiary_missing": "(apiary not found)",
+        "loading": "Loading…",
+        "hive_not_found": "Hive not found.",
+        "profile_saved": "Profile saved",
+        "updated": "Updated",
+        "save_failed": "Saving profile failed",
+        "confirm_delete_location": "Delete this location? Hives will be moved to no-location.",
+        "edit_location": "Edit location"
+    }
+}
