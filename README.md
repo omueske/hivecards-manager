@@ -120,6 +120,32 @@ npm run start:prod
 Danach ist die App unter [http://localhost:3000](http://localhost:3000) erreichbar.  
 Die REST-API liegt unter `/api/v1/...`, Swagger-Docs unter `/api-docs`.
 
+### Reverse Proxy (nginx)
+
+Typisches nginx-Setup, das Port 443 auf den NestJS-Server weiterleitet:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name hivecards.example.com;
+
+    location / {
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+**Wichtig**: In der `.env` den Produktionsdomain als CORS-Origin eintragen:
+
+```dotenv
+CORS_ORIGIN=https://hivecards.example.com
+```
+
 ---
 
 ## API-Client generieren

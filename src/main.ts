@@ -29,21 +29,33 @@ async function bootstrap() {
     logger.warn('Could not write OpenAPI document to disk (readonly?)');
   }
 
-  // enable CORS for local dev (frontend dev server origins)
+  // trust reverse proxy (nginx etc.) so scheme/IP forwarding works
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
+  // CORS: in production configure CORS_ORIGIN in .env (comma-separated)
+  // In production the frontend is served from the same origin, so same-origin
+  // requests need no CORS – but the env var handles cases where proxy changes the origin.
+  const corsOriginEnv = process.env.CORS_ORIGIN;
+  const corsOrigins: (string | RegExp)[] = corsOriginEnv
+    ? corsOriginEnv.split(',').map((o) => o.trim())
+    : [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'http://localhost:5176',
+        'http://localhost:5177',
+        'http://localhost:4173',
+        'http://localhost:3000',
+      ];
+
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-      'http://localhost:5176',
-      'http://localhost:5177',
-      'http://localhost:4173',
-      'http://localhost:3000',
-    ],
+    origin: corsOrigins,
     credentials: true,
     allowedHeaders: 'Authorization,Content-Type',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
+
+  logger.log(`CORS allowed origins: ${JSON.stringify(corsOrigins)}`);
 
   // enable cookie parser so controllers can read httpOnly refresh cookie
   app.use(cookieParser());
@@ -51,7 +63,6 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
   logger.log(`Server listening on http://localhost:${port}`);
-  logger.log(`CORS allowed origins: ${JSON.stringify([ 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:4173', 'http://localhost:3000' ])}`);
 }
 
 bootstrap();
