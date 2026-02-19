@@ -3,6 +3,9 @@ import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import { join } from 'path';
+import { existsSync } from 'fs';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 
@@ -59,6 +62,34 @@ async function bootstrap() {
 
   // enable cookie parser so controllers can read httpOnly refresh cookie
   app.use(cookieParser());
+
+  // Serve frontend/dist as Express static middleware.
+  // Runs BEFORE NestJS route handlers → assets are served correctly.
+  const distPath = join(__dirname, '..', 'frontend', 'dist');
+  const serveRoot = (process.env.SERVE_ROOT || '').replace(/\/+$/, ''); // e.g. '/hivecards-manager'
+
+  if (existsSync(distPath)) {
+    // Serve all static files under the subpath
+    app.use(serveRoot + '/', express.static(distPath));
+
+    // SPA fallback: non-API GET requests without file extension → index.html
+    app.use((req: any, res: any, next: any) => {
+      const p: string = req.path;
+      if (
+        req.method !== 'GET' ||
+        p.startsWith('/api') ||
+        p.startsWith('/api-docs') ||
+        /\.[a-zA-Z0-9]+$/.test(p)
+      ) {
+        return next();
+      }
+      res.sendFile(join(distPath, 'index.html'));
+    });
+
+    logger.log('Serving frontend from ' + distPath + ' at "' + (serveRoot || '/') + '"');
+  } else {
+    logger.warn('Frontend dist not found at ' + distPath + ' – run npm run build:frontend first');
+  }
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
