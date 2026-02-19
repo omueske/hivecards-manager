@@ -20,3 +20,10 @@ button { padding: 6px 10px }
 .my-card { border: 1px solid rgba(62,39,35,0.06); box-shadow: 0 1px 4px rgba(62,39,35,0.04); }
 .text-hive { color: var(--hive-contrast); }
 .brand { color: var(--hive-contrast); font-weight: 700 }
+
+/* Soften corners and buttons for friendlier look */
+.rounded-card { border-radius: 12px; overflow: hidden }
+.q-card-section { padding: 12px }
+.hive-btn { background: linear-gradient(90deg, var(--hive-primary), var(--hive-accent)); color: #3e2723; border-radius: 20px }
+.hive-btn--ghost { background: transparent; color: var(--hive-contrast); border-radius: 12px }
+.q-input__control, .q-select__control, input, textarea { border-radius: 8px }

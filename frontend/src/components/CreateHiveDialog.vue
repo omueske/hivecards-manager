@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="visible">
-    <q-card style="min-width: 320px; max-width: 90vw">
+    <q-card style="min-width: 320px; max-width: 90vw" class="rounded-card">
       <q-card-section>
         <div class="text-h6">Create Hive</div>
       </q-card-section>
@@ -21,8 +21,8 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn label="Cancel" flat @click="close" />
-        <q-btn label="Create" color="primary" @click="submit" icon="check" />
+        <q-btn label="Cancel" flat @click="close" class="hive-btn hive-btn--ghost" />
+        <q-btn label="Create" class="hive-btn" @click="submit" icon="check" rounded />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -64,19 +64,22 @@ export default {
       try {
         const valid = await formRef.value?.validate?.();
         if (valid === false) return;
-        const res = await DefaultService.postApiV1Hives(form.value as any);
+        // ensure date is ISO formatted if provided
+        const payload = { ...form.value } as any;
+        if (payload.installationDate) {
+          payload.installationDate = new Date(payload.installationDate).toISOString();
+        }
+        const res = await DefaultService.postApiV1Hives(payload as any);
         emit('created', res);
         close();
         // notify success
         // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'positive', message: 'Hive created' }),
-        );
+        import('quasar').then(({ Notify }) => Notify.create({ type: 'positive', message: 'Hive created' }));
       } catch (e: any) {
-        console.error(e);
+        console.error('CreateHiveDialog submit error:', e);
         // @ts-ignore
         import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: e?.message || 'Create failed' }),
+          Notify.create({ type: 'negative', message: e?.response?.data?.message || e?.message || 'Create failed' }),
         );
       }
     }
