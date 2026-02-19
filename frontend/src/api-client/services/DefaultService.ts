@@ -287,6 +287,65 @@ requestBody: Queen,
         });
     }
 
+    public static getApiV1Queens1(
+id: string,
+): CancelablePromise<Queen> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/queens/{id}',
+            path: { 'id': id },
+        });
+    }
+
+    public static putApiV1Queens(
+id: string,
+requestBody: Partial<Queen>,
+): CancelablePromise<Queen> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/queens/{id}',
+            path: { 'id': id },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
+    public static deleteApiV1Queens(
+id: string,
+): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/queens/{id}',
+            path: { 'id': id },
+        });
+    }
+
+    public static postApiV1QueensAssign(
+id: string,
+requestBody: { hiveId: string; from?: string },
+): CancelablePromise<Queen> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/queens/{id}/assign',
+            path: { 'id': id },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
+    public static postApiV1QueensRemoveFromHive(
+id: string,
+requestBody?: { to?: string },
+): CancelablePromise<Queen> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/queens/{id}/remove-from-hive',
+            path: { 'id': id },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
     /**
      * Create breeding record
      * @param requestBody 
@@ -485,6 +544,42 @@ items?: Array<Inspection>;
                 'page': page,
                 'limit': limit,
             },
+        });
+    }
+
+    /**
+     * Update inspection
+     * @param id Inspection ID
+     * @param requestBody 
+     * @returns Inspection updated
+     * @throws ApiError
+     */
+    public static putApiV1Inspections(
+id: string,
+requestBody: Inspection,
+): CancelablePromise<Inspection> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/inspections/{id}',
+            path: { 'id': id },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
+    /**
+     * Delete inspection
+     * @param id Inspection ID
+     * @returns void
+     * @throws ApiError
+     */
+    public static deleteApiV1Inspections(
+id: string,
+): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/inspections/{id}',
+            path: { 'id': id },
         });
     }
 

@@ -7,9 +7,10 @@ import './api'
 import i18n from './i18n'
 import { setToken, clearToken } from './auth/token'
 import { Quasar, Notify, ClosePopup,
-	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QSpace,
+	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
-	QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon
+	QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
+	QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip
 } from 'quasar'
 import 'quasar/dist/quasar.css'
 
@@ -20,9 +21,10 @@ app.use(Quasar, {
 	plugins: { Notify },
 	directives: { ClosePopup },
 	components: {
-		QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QSpace,
+		QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 		QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
-		QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon
+		QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
+		QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip
 	}
 })
 app.use(i18n)

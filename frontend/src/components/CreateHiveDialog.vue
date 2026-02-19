@@ -45,6 +45,37 @@
             dense
           />
           <q-input v-model="form.notes" :label="t('form.notes')" type="textarea" dense />
+
+          <!-- Beute -->
+          <div class="text-subtitle2 q-mt-md q-mb-xs text-grey-7">{{ t('hive.hive_section') }}</div>
+          <q-select
+            v-model="form.hiveBoxType"
+            :options="['Zander', 'Dadant', 'Langstroth', 'DNM', 'Sonstiges']"
+            :label="t('hive.hiveBoxType')"
+            dense clearable
+          />
+          <q-select
+            v-model="form.hiveType"
+            :options="['Wirtschaftsvolk', 'Jungvolk', 'Ableger']"
+            :label="t('hive.hiveType')"
+            dense clearable
+          />
+
+          <!-- Königin -->
+          <div class="text-subtitle2 q-mt-md q-mb-xs text-grey-7">🐝 {{ t('hive.queen_section') }}</div>
+          <q-select
+            v-model="selectedQueenId"
+            :options="queenOptions"
+            :label="t('queen.select')"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            dense
+            clearable
+            :loading="loadingQueens"
+            :hint="t('queen.select_hint')"
+          />
         </q-form>
       </q-card-section>
 
@@ -60,6 +91,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DefaultService } from '../api-client/services/DefaultService';
+import type { Queen } from '../api-client/models/Queen';
 
 export default {
   props: ['visible', 'hive'],
@@ -81,7 +113,13 @@ export default {
       frameCount: 0,
       installationDate: '',
       notes: '',
+      hiveBoxType: '',
+      hiveType: 'Wirtschaftsvolk',
     });
+    const selectedQueenId = ref<string | null>(null);
+    const queens = ref<Queen[]>([]);
+    const loadingQueens = ref(false);
+    const queenOptions = ref<{ label: string; value: string }[]>([]);
     // if editing, populate form from props.hive
     watch(
       () => props.hive,
@@ -96,6 +134,8 @@ export default {
               ? new Date(h.installationDate).toISOString().slice(0, 10)
               : '',
             notes: h.notes || '',
+            hiveBoxType: h.hiveBoxType || '',
+            hiveType: h.hiveType || '',
           };
         }
       },
@@ -121,6 +161,36 @@ export default {
       }
     }
 
+    async function loadQueens(hiveId?: string) {
+      loadingQueens.value = true;
+      try {
+        const all = await DefaultService.getApiV1Queens() as unknown as Queen[];
+        queens.value = all;
+        // Build options: spare queens + current queen of this hive
+        queenOptions.value = all
+          .filter((q: Queen) => {
+            if (q.status === 'spare') return true;
+            // include queen currently assigned to this hive
+            if (hiveId && (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)) return true;
+            return false;
+          })
+          .map((q: Queen) => ({
+            label: `${q.name || `K-${q.queenYear ?? '?'}`} (${q.queenColor || '–'})`,
+            value: (q as any).id as string,
+          }));
+        // Pre-select current queen if editing
+        if (hiveId) {
+          const current = all.find((q: Queen) =>
+            (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)
+          );
+          selectedQueenId.value = current ? (current as any).id : null;
+        } else {
+          selectedQueenId.value = null;
+        }
+      } catch { queens.value = []; queenOptions.value = []; }
+      finally { loadingQueens.value = false; }
+    }
+
     function close() {
       visible.value = false;
     }
@@ -138,9 +208,13 @@ export default {
         if (props.hive && (props.hive.id || props.hive._id)) {
           const id = props.hive.id || props.hive._id;
           res = await DefaultService.putApiV1Hives(id, payload as any);
+          // Handle queen assignment
+          await applyQueenAssignment(id, res);
           emit('updated', res);
         } else {
           res = await DefaultService.postApiV1Hives(payload as any);
+          const newId = (res as any).id || (res as any)._id;
+          if (newId) await applyQueenAssignment(newId, res);
           emit('created', res);
         }
         close();
@@ -161,6 +235,19 @@ export default {
             message: e?.response?.data?.message || e?.message || t('messages.failed'),
           }),
         );
+      }
+    }
+
+    async function applyQueenAssignment(hiveId: string, _hiveRes: any) {
+      if (!selectedQueenId.value) return;
+      // Check if selected queen is already assigned to this hive
+      const q = queens.value.find((x: any) => x.id === selectedQueenId.value);
+      if (!q) return;
+      const alreadyAssigned = (q.hiveHistory ?? []).some(
+        (e: any) => e.hiveId === hiveId && !e.to
+      );
+      if (!alreadyAssigned) {
+        await DefaultService.postApiV1QueensAssign(selectedQueenId.value, { hiveId });
       }
     }
 
@@ -191,9 +278,13 @@ export default {
       }
     }
 
-    // load apiaries when dialog is opened
+    // load apiaries + queens when dialog is opened
     watch(visible, (v) => {
-      if (v) loadApiaries();
+      if (v) {
+        loadApiaries();
+        const hiveId = props.hive?.id || props.hive?._id;
+        loadQueens(hiveId);
+      }
     });
 
     const editing = ref<boolean>(!!props.hive);
@@ -214,6 +305,9 @@ export default {
       t,
       editing,
       newApiaryColor,
+      selectedQueenId,
+      queenOptions,
+      loadingQueens,
     };
   },
 };

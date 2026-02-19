@@ -1,14 +1,14 @@
 <template>
   <q-page padding>
-    <q-toolbar class="q-mb-md">
-      <q-toolbar-title>{{ t('apiary.title') }}</q-toolbar-title>
+    <div class="row items-center q-mb-md q-gutter-x-xs">
+      <div class="text-h5 q-mr-sm">{{ t('apiary.title') }}</div>
       <q-btn flat dense round icon="refresh" @click="load">
         <q-tooltip>{{ t('toolbar.refresh') }}</q-tooltip>
       </q-btn>
       <q-btn flat dense round icon="add" color="secondary" @click="openCreate">
         <q-tooltip>{{ t('apiary.create') }}</q-tooltip>
       </q-btn>
-    </q-toolbar>
+    </div>
 
     <!-- Create / Edit Dialog -->
     <q-dialog v-model="dialogVisible">

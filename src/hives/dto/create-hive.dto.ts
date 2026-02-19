@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateHiveDto {
   @IsOptional()
@@ -23,4 +23,32 @@ export class CreateHiveDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  hiveBoxType?: string;
+
+  @IsOptional()
+  @IsString()
+  hiveType?: string;
+
+  @IsOptional()
+  @IsNumber()
+  queenYear?: number;
+
+  @IsOptional()
+  @IsString()
+  queenColor?: string;
+
+  @IsOptional()
+  @IsString()
+  queenOrigin?: string;
+
+  @IsOptional()
+  @IsString()
+  matingType?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  queenMarked?: boolean;
 }

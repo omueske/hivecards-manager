@@ -1,36 +1,32 @@
 <template>
   <q-page padding>
-    <q-toolbar class="q-mb-md">
-      <q-toolbar-title>{{ t('hive.title') }}</q-toolbar-title>
-      <div class="row items-center">
-        <q-btn flat dense round icon="refresh" aria-label="Refresh" @click="fetch" class="q-mr-sm">
-          <q-tooltip>{{ t('toolbar.refresh') }}</q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          dense
-          :color="showArchived ? 'primary' : undefined"
-          icon="archive"
-          @click="showArchived = !showArchived"
-          class="q-mr-sm"
-        >
-          <q-tooltip>{{ t('toolbar.show_archived') }}</q-tooltip>
-        </q-btn>
-        <q-btn
-          v-if="token"
-          flat
-          dense
-          color="secondary"
-          icon="add"
-          :label="t('toolbar.create')"
-          @click="openCreate"
-          class="q-mr-sm"
-        >
-          <q-tooltip>{{ t('hive.create') }}</q-tooltip>
-        </q-btn>
-        <q-space />
-      </div>
-    </q-toolbar>
+    <div class="row items-center q-mb-md q-gutter-x-xs">
+      <div class="text-h5 q-mr-sm">{{ t('hive.title') }}</div>
+      <q-btn flat dense round icon="refresh" aria-label="Refresh" @click="fetch">
+        <q-tooltip>{{ t('toolbar.refresh') }}</q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        dense
+        round
+        :color="showArchived ? 'primary' : undefined"
+        icon="archive"
+        @click="showArchived = !showArchived"
+      >
+        <q-tooltip>{{ t('toolbar.show_archived') }}</q-tooltip>
+      </q-btn>
+      <q-btn
+        v-if="token"
+        flat
+        dense
+        color="secondary"
+        icon="add"
+        :label="t('toolbar.create')"
+        @click="openCreate"
+      >
+        <q-tooltip>{{ t('hive.create') }}</q-tooltip>
+      </q-btn>
+    </div>
 
     <div class="app-content">
       <!-- debug: token output removed -->

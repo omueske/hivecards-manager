@@ -30,8 +30,50 @@ export class Hive {
   @Prop()
   notes?: string;
 
+  // Stockkarte – Beute
+  @Prop()
+  hiveBoxType?: string; // z.B. Zander, Dadant, Langstroth
+
+  @Prop({ default: 'Wirtschaftsvolk' })
+  hiveType?: string; // Wirtschaftsvolk | Jungvolk | Ableger
+
+  // Stockkarte – Königin
+  @Prop()
+  queenYear?: number; // Schlupfjahr
+
+  @Prop()
+  queenColor?: string; // Zeichenfarbe (Weiß/Gelb/Rot/Grün/Blau)
+
+  @Prop()
+  queenOrigin?: string; // Zucht | Schwarm | Ableger | Kauf
+
+  @Prop()
+  matingType?: string; // Standbegattet | Belegstelle | instrumentell
+
+  @Prop({ default: false })
+  queenMarked?: boolean;
+
   @Prop({ type: Array, default: [] })
   attachments?: Array<any>;
+
+  /** @deprecated queen data moved to Queen collection – kept for migration detection only */
+  @Prop()
+  queenYear?: number;
+
+  @Prop()
+  queenColor?: string;
+
+  @Prop()
+  queenOrigin?: string;
+
+  @Prop()
+  matingType?: string;
+
+  @Prop()
+  queenMarked?: boolean;
+
+  @Prop({ default: false })
+  _queenMigrated?: boolean;
 }
 
 export const HiveSchema = SchemaFactory.createForClass(Hive);

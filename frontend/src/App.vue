@@ -21,9 +21,16 @@
           <div v-if="burgerMenu" class="burger-nav" role="navigation">
             <button
               class="burger-nav-item"
+              @click="burgerMenu = false; router.push('/')"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              {{ $t ? $t('nav.home') : 'Start' }}
+            </button>
+            <button
+              class="burger-nav-item"
               @click="
                 burgerMenu = false;
-                router.push('/');
+                router.push('/hives');
               "
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -45,6 +52,16 @@
               </svg>
               {{ $t ? $t('nav.apiaries') : 'Standorte' }}
             </button>
+            <button
+              class="burger-nav-item"
+              @click="
+                burgerMenu = false;
+                router.push('/queens');
+              "
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 5c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
+              {{ $t ? $t('nav.queens') : 'Königinnen' }}
+            </button>
           </div>
         </template>
         <q-toolbar-title>Hivecards</q-toolbar-title>
@@ -57,7 +74,6 @@
           :options="langOptions"
           v-model="lang"
           option-label="label"
-          option-value="value"
         />
         <template v-if="isLoggedIn">
           <q-btn
@@ -111,7 +127,9 @@
         class="bg-white text-grey-7"
         dense
       >
-        <q-route-tab to="/" exact icon="hive" :label="$t ? $t('nav.hives') : 'Hives'" />
+        <q-route-tab to="/" exact icon="home" :label="$t ? $t('nav.home') : 'Start'" />
+        <q-route-tab to="/hives" icon="hive" :label="$t ? $t('nav.hives') : 'Hives'" />
+        <q-route-tab to="/queens" icon="emoji_nature" :label="$t ? $t('nav.queens') : 'Königinnen'" />
         <q-route-tab
           to="/apiaries"
           icon="location_on"
@@ -132,11 +150,12 @@ const router = useRouter();
 const menu = ref(false);
 const burgerMenu = ref(false);
 const isLoggedIn = computed(() => !!store.token);
-const lang = ref((localStorage.getItem('hc_lang') as 'en' | 'de') || 'de');
 const langOptions = [
   { label: 'Deutsch', value: 'de' },
   { label: 'English', value: 'en' },
 ];
+const savedLang = localStorage.getItem('hc_lang') || 'de';
+const lang = ref(langOptions.find((o) => o.value === savedLang) ?? langOptions[0]);
 
 onMounted(() => {
   if (!store.token || store.token === null) {
@@ -154,9 +173,8 @@ watch(
 );
 
 watch(lang, (v) => {
-  if (v) {
-    setLocale(v as any);
-    localStorage.setItem('hc_lang', v);
+  if (v?.value) {
+    setLocale(v.value as 'en' | 'de');
   }
 });
 
@@ -351,5 +369,16 @@ q-page-container {
 }
 .avatar-menu-item:hover {
   background: #f5f5f5;
+}
+
+@media print {
+  .q-header,
+  .q-footer,
+  .q-drawer {
+    display: none !important;
+  }
+  .q-page-container {
+    padding: 0 !important;
+  }
 }
 </style>

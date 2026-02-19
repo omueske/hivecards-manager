@@ -12,6 +12,15 @@ export type Hive = {
     frameCount?: number;
     installationDate?: string;
     notes?: string;
+    // Stockkarte – Beute
+    hiveBoxType?: string;
+    hiveType?: string;
+    // Stockkarte – Königin
+    queenYear?: number;
+    queenColor?: string;
+    queenOrigin?: string;
+    matingType?: string;
+    queenMarked?: boolean;
     attachments?: Array<Attachment>;
     createdAt?: string;
     updatedAt?: string;

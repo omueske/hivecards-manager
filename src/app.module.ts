@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { HiveModule } from './hives/hives.module';
 import { ApiariesModule } from './apiaries/apiaries.module';
 import { AuthModule } from './auth/auth.module';
+import { InspectionsModule } from './inspections/inspections.module';
+import { QueensModule } from './queens/queens.module';
 
 @Module({
   imports: [
@@ -10,6 +12,8 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     HiveModule,
     ApiariesModule,
+    InspectionsModule,
+    QueensModule,
   ],
 })
 export class AppModule {}

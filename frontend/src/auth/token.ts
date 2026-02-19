@@ -1,15 +1,19 @@
-let currentToken: string | null = null;
+const TOKEN_KEY = 'hc_token';
 
 export function getToken(): string | null {
-  return currentToken;
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(t: string | null) {
-  currentToken = t;
+  if (t) {
+    localStorage.setItem(TOKEN_KEY, t);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+  }
 }
 
 export function clearToken() {
-  currentToken = null;
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 export default { getToken, setToken, clearToken };
