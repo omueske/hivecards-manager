@@ -37,40 +37,29 @@ export class Hive {
   @Prop({ default: 'Wirtschaftsvolk' })
   hiveType?: string; // Wirtschaftsvolk | Jungvolk | Ableger
 
-  // Stockkarte – Königin
+  // Stockkarte – Königin (@deprecated – moved to Queen collection, kept for migration)
+  /** @deprecated queen data moved to Queen collection */
   @Prop()
-  queenYear?: number; // Schlupfjahr
+  queenYear?: number;
 
+  /** @deprecated */
   @Prop()
-  queenColor?: string; // Zeichenfarbe (Weiß/Gelb/Rot/Grün/Blau)
+  queenColor?: string;
 
+  /** @deprecated */
   @Prop()
-  queenOrigin?: string; // Zucht | Schwarm | Ableger | Kauf
+  queenOrigin?: string;
 
+  /** @deprecated */
   @Prop()
-  matingType?: string; // Standbegattet | Belegstelle | instrumentell
+  matingType?: string;
 
+  /** @deprecated */
   @Prop({ default: false })
   queenMarked?: boolean;
 
   @Prop({ type: Array, default: [] })
   attachments?: Array<any>;
-
-  /** @deprecated queen data moved to Queen collection – kept for migration detection only */
-  @Prop()
-  queenYear?: number;
-
-  @Prop()
-  queenColor?: string;
-
-  @Prop()
-  queenOrigin?: string;
-
-  @Prop()
-  matingType?: string;
-
-  @Prop()
-  queenMarked?: boolean;
 
   @Prop({ default: false })
   _queenMigrated?: boolean;

@@ -6,10 +6,10 @@ export type ApiaryDocument = Apiary & Document;
 @Schema({ timestamps: true })
 export class Apiary {
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true, index: true })
-  userId: string;
+  userId!: string;
 
   @Prop()
   description?: string;

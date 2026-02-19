@@ -35,20 +35,20 @@ describe('HiveService (unit)', () => {
 
   it('creates a hive', async () => {
     const dto = { apiaryId: 'a1', hiveNumber: 'H-100', status: 'active' };
-    const res = await service.create(dto as any);
+    const res = await service.create(dto as any, 'user1');
     expect(res).toHaveProperty('id');
   });
 
   it('findAll returns items and pagination', async () => {
     mockFind.mockReturnValue({ skip: () => ({ limit: () => ({ lean: () => ({ exec: jest.fn().mockResolvedValue([ { hiveNumber: 'x' } ]) }) }) }) });
     mockCount.mockReturnValue({ exec: jest.fn().mockResolvedValue(1) });
-    const res = await service.findAll({}, 1, 10);
+    const res = await service.findAll({}, 'user1', 1, 10);
     expect(res).toHaveProperty('items');
     expect(res.pagination.total).toBe(1);
   });
 
   it('findOne throws when not found', async () => {
     mockFindById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
-    await expect(service.findOne('nope')).rejects.toThrow();
+    await expect(service.findOne('nope', 'user1')).rejects.toThrow();
   });
 });

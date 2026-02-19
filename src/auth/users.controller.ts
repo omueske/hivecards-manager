@@ -34,6 +34,7 @@ export class UsersController {
     }
     await this.userModel.findByIdAndUpdate(uid, update).exec();
     const u = await this.userModel.findById(uid).lean().exec();
-    return { id: u._id.toString(), email: u.email, username: u.username };
+    if (!u) throw new Error('User not found');
+    return { id: (u._id as any).toString(), email: u.email, username: u.username };
   }
 }
