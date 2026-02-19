@@ -29,22 +29,20 @@
 </template>
 
 <script lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch } from 'vue';
 import { DefaultService } from '../api-client/services/DefaultService';
 
-const props = defineProps<{ modelValue: boolean }>();
-const emit = defineEmits(['update:modelValue', 'created']);
-
 export default {
-  props: ['modelValue'],
+  props: ['visible'],
+  emits: ['update:visible', 'created'],
   setup(props: any, { emit }: any) {
-    const visible = ref(!!props.modelValue);
+    const visible = ref(!!props.visible);
 
     watch(
-      () => props.modelValue,
+      () => props.visible,
       (v) => (visible.value = v),
     );
-    watch(visible, (v) => emit('update:modelValue', v));
+    watch(visible, (v) => emit('update:visible', v));
 
     const form = ref<any>({
       apiaryId: '',
