@@ -13,6 +13,7 @@ import { QueensModule } from './queens/queens.module';
     MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/hivecards'),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend', 'dist'),
+      serveRoot: process.env.SERVE_ROOT || '/',
       exclude: ['/api*', '/api-docs*'],
     }),
     AuthModule,

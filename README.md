@@ -122,28 +122,47 @@ Die REST-API liegt unter `/api/v1/...`, Swagger-Docs unter `/api-docs`.
 
 ### Reverse Proxy (nginx)
 
-Typisches nginx-Setup, das Port 443 auf den NestJS-Server weiterleitet:
+Die App kann unter einem Unterpfad (z.B. `/hivecards-manager/`) oder direkt als Root betrieben werden.
+
+**nginx-Konfiguration für Unterpfad `/hivecards-manager/`:**
 
 ```nginx
 server {
     listen 443 ssl;
-    server_name hivecards.example.com;
+    server_name olli-home.duckdns.org;
 
-    location / {
-        proxy_pass         http://127.0.0.1:3000;
+    location /hivecards-manager/ {
+        proxy_pass         http://127.0.0.1:3000/hivecards-manager/;
         proxy_http_version 1.1;
         proxy_set_header   Host              $host;
         proxy_set_header   X-Real-IP         $remote_addr;
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
+
+    # API direkt weiterleiten (kein Subpfad-Prefix)
+    location /api/ {
+        proxy_pass         http://127.0.0.1:3000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
 }
 ```
 
-**Wichtig**: In der `.env` den Produktionsdomain als CORS-Origin eintragen:
+**Backend `.env` Werte:**
 
 ```dotenv
-CORS_ORIGIN=https://hivecards.example.com
+SERVE_ROOT=/hivecards-manager
+CORS_ORIGIN=https://olli-home.duckdns.org
+```
+
+**Frontend `.env.production` Werte** (vor `build:frontend` setzen):
+
+```dotenv
+VITE_BASE=/hivecards-manager/
+VITE_API_BASE=
 ```
 
 ---

@@ -18,7 +18,7 @@ const routes = [
   { path: '/queens', component: Queens, meta: { requiresAuth: true } },
 ]
 
-const router = createRouter({ history: createWebHistory(), routes })
+const router = createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes })
 
 // simple auth guard: checks for token in localStorage
 router.beforeEach((to, from, next) => {
