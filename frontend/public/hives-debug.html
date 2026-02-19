@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hives Debug</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:16px}</style>
+  </head>
+  <body>
+    <h1>Hives Debug</h1>
+    <pre id="out">loading...</pre>
+    <script>
+      (async ()=>{
+        const params = new URLSearchParams(location.search)
+        const token = params.get('token') || localStorage.getItem('hc_token')
+        if(!token){ document.getElementById('out').textContent = 'No token'; return }
+        try{
+          const res = await fetch('http://localhost:3000/api/v1/hives',{headers:{'Authorization':'Bearer '+token}})
+          const json = await res.json()
+          document.getElementById('out').textContent = JSON.stringify(json, null, 2)
+        }catch(e){ document.getElementById('out').textContent = 'Fetch error: '+e }
+      })()
+    </script>
+  </body>
+</html>

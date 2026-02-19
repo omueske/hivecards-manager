@@ -1,0 +1,10 @@
+.app-content { max-width: 1100px; margin: 16px auto; }
+body { margin: 0; padding: 0; font-family: Inter, Arial, Helvetica, sans-serif; }
+input { padding: 6px; margin: 6px 0; }
+button { padding: 6px 10px }
+
+.my-card { cursor: pointer; }
+.q-page-container { padding: 16px }
+
+/* small helper for toolbar buttons spacing */
+.q-toolbar .q-btn { margin-left: 6px }

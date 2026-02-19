@@ -1,0 +1,882 @@
+openapi: 3.0.3
+info:
+  title: Hivecards Manager API (MVP)
+  version: 0.1.0
+  description: API for managing apiaries, hives, queens, breeding, honey and medication records (MVP)
+servers:
+  - url: http://localhost:3000
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "607f1f77bcf86cd799439011"
+        email: "imker@example.com"
+        username: "honeyfarmer"
+        createdAt: "2026-02-19T10:00:00Z"
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+      example:
+        accessToken: "eyJhbGciOiJIUzI1Ni..."
+        refreshToken: "d1f5b3a7-9c2b-4d6f-8a2b-123456789abc"
+    Apiary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        location: { type: string }
+        notes: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    Hive:
+      type: object
+      properties:
+        id: { type: string }
+        apiaryId: { type: string }
+        hiveNumber: { type: string }
+        status: { type: string, enum: [active,inactive,archived] }
+        frameCount: { type: integer }
+        installationDate: { type: string, format: date }
+        notes: { type: string }
+        attachments: 
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      example:
+        id: "624b2f9a9c0a4b6e8f7d1234"
+        apiaryId: "607f1f77bcf86cd799439022"
+        hiveNumber: "A-12"
+        status: "active"
+        frameCount: 10
+        installationDate: "2024-04-15"
+        notes: "Western hive near oak tree"
+        attachments:
+          - url: "/uploads/hive-A12-202402.jpg"
+            filename: "hive-A12-202402.jpg"
+            contentType: "image/jpeg"
+        createdAt: "2026-02-19T09:00:00Z"
+        updatedAt: "2026-02-19T12:00:00Z"
+    Queen:
+      type: object
+      properties:
+        id: { type: string }
+        hiveId: { type: string }
+        birthDate: { type: string, format: date }
+        origin: { type: string }
+        status: { type: string, enum: [alive,removed,replaced] }
+        matingDate: { type: string, format: date }
+        breederNotes: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+    BreedingRecord:
+      type: object
+      properties:
+        id: { type: string }
+        queenId: { type: string }
+        date: { type: string, format: date }
+        breeder: { type: string }
+        method: { type: string }
+        pedigree: { type: string }
+        notes: { type: string }
+        result: { type: string, enum: [success,failure,unknown] }
+    HoneyRecord:
+      type: object
+      properties:
+        id: { type: string }
+        hiveId: { type: string }
+        date: { type: string, format: date }
+        harvestWeightKg: { type: number }
+        honeyType: { type: string }
+        storageLocation: { type: string }
+        notes: { type: string }
+    MedicationRecord:
+      type: object
+      properties:
+        id: { type: string }
+        hiveId: { type: string }
+        date: { type: string, format: date }
+        medication: { type: string }
+        dosage: { type: string }
+        operator: { type: string }
+        notes: { type: string }
+    Inspection:
+      type: object
+      properties:
+        id: { type: string }
+        hiveId: { type: string }
+        date: { type: string, format: date }
+        inspector: { type: string }
+        conditionSummary: { type: string }
+        actionsTaken: { type: string }
+        varroaCheck: { type: string }
+        broodStatus: { type: string }
+        notes: { type: string }
+    Attachment:
+      type: object
+      properties:
+        url: { type: string }
+        filename: { type: string }
+        contentType: { type: string }
+      example:
+        url: "/uploads/hive-A12-202402.jpg"
+        filename: "hive-A12-202402.jpg"
+        contentType: "image/jpeg"
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
+          type: object
+      example:
+        code: 400
+        message: "Invalid request payload"
+        details:
+          field: "email"
+          issue: "invalid format"
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        items:
+          type: array
+          items: {}
+      example:
+        page: 1
+        limit: 25
+        total: 2
+        items:
+          - id: "624b2f9a9c0a4b6e8f7d1234"
+            hiveNumber: "A-12"
+          - id: "624b2f9a9c0a4b6e8f7d1235"
+            hiveNumber: "A-13"
+    ValidationError:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+      example:
+        code: 422
+        message: "Validation failed"
+        errors:
+          - field: "hiveNumber"
+            message: "hiveNumber is required"
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Validation failed (detailed field errors)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number (starting at 1)
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Page size
+      schema:
+        type: integer
+        default: 25
+    apiaryId:
+      name: apiaryId
+      in: query
+      schema: { type: string }
+    hiveId:
+      name: hiveId
+      in: query
+      schema: { type: string }
+    tag:
+      name: tag
+      in: query
+      description: Filter by tag
+      schema: { type: string }
+    sort:
+      name: sort
+      in: query
+      description: Sort field, prefix with - for desc
+      schema: { type: string }
+    fromDate:
+      name: fromDate
+      in: query
+      description: Filter from date (inclusive)
+      schema: { type: string, format: date }
+    toDate:
+      name: toDate
+      in: query
+      description: Filter to date (inclusive)
+      schema: { type: string, format: date }
+  
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email,password]
+              properties:
+                email: { type: string }
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                createdUser:
+                  summary: Example created user
+                  value:
+                    id: "607f1f77bcf86cd799439011"
+                    email: "imker@example.com"
+                    username: "honeyfarmer"
+                    createdAt: "2026-02-19T10:00:00Z"
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidEmail:
+                  summary: Missing or invalid email
+                  value:
+                    code: 400
+                    message: "Invalid request payload"
+                    details:
+                      field: "email"
+                      issue: "missing or invalid format"
+  /api/v1/auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+              examples:
+                loginSuccess:
+                  summary: Example tokens
+                  value:
+                    accessToken: "eyJhbGciOiJIUzI1Ni..."
+                    refreshToken: "d1f5b3a7-9c2b-4d6f-8a2b-123456789abc"
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingPassword:
+                  summary: Missing password
+                  value:
+                    code: 400
+                    message: "Invalid request payload"
+                    details:
+                      field: "password"
+                      issue: "required"
+  /api/v1/auth/refresh:
+    post:
+      summary: Refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+  /api/v1/apiaries:
+    get:
+      summary: List apiaries
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Apiary'
+    post:
+      summary: Create apiary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Apiary'
+            examples:
+              newApiary:
+                summary: Example create apiary payload
+                value:
+                  name: "Backyard Apiary"
+                  location: "51.1657 N, 10.4515 E"
+                  notes: "South facing, near hedge"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Apiary'
+              examples:
+                createdApiary:
+                  summary: Example created apiary
+                  value:
+                    id: "607f1f77bcf86cd799439022"
+                    name: "Backyard Apiary"
+                    location: "51.1657 N, 10.4515 E"
+                    notes: "South facing, near hedge"
+                    createdAt: "2026-02-19T09:00:00Z"
+                    updatedAt: "2026-02-19T09:00:00Z"
+  /api/v1/apiaries/{id}:
+    get:
+      summary: Get apiary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Apiary'
+  /api/v1/hives:
+    get:
+      summary: List hives (filtered & paginated)
+      parameters:
+        - $ref: '#/components/parameters/apiaryId'
+        - $ref: '#/components/parameters/tag'
+        - name: status
+          in: query
+          schema: { type: string }
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Hive'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      summary: Create hive (stockkarte)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hive'
+            examples:
+              newHive:
+                summary: Example create hive payload
+                value:
+                  apiaryId: "607f1f77bcf86cd799439022"
+                  hiveNumber: "A-12"
+                  status: "active"
+                  frameCount: 10
+                  installationDate: "2024-04-15"
+                  notes: "Installed after spring split"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hive'
+              examples:
+                createdHive:
+                  summary: Example created hive
+                  value:
+                    id: "624b2f9a9c0a4b6e8f7d1234"
+                    apiaryId: "607f1f77bcf86cd799439022"
+                    hiveNumber: "A-12"
+                    status: "active"
+                    frameCount: 10
+                    installationDate: "2024-04-15"
+                    notes: "Installed after spring split"
+                    attachments: []
+                    createdAt: "2026-02-19T09:00:00Z"
+                    updatedAt: "2026-02-19T09:00:00Z"
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingHiveNumber:
+                  summary: Missing hiveNumber
+                  value:
+                    code: 400
+                    message: "Invalid request payload"
+                    details:
+                      field: "hiveNumber"
+                      issue: "required"
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /api/v1/hives/{id}:
+    get:
+      summary: Get hive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hive'
+    put:
+      summary: Update hive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hive'
+      responses:
+        '200':
+          description: updated
+    delete:
+      summary: Delete hive (soft)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: deleted
+  /api/v1/queens:
+    get:
+      summary: List queens
+      parameters:
+        - name: hiveId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Queen'
+    post:
+      summary: Create queen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queen'
+            examples:
+              newQueen:
+                summary: Example create queen payload
+                value:
+                  hiveId: "624b2f9a9c0a4b6e8f7d1234"
+                  birthDate: "2025-05-01"
+                  origin: "Local breeder"
+                  status: "alive"
+                  tags: ["bred-2025"]
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queen'
+              examples:
+                createdQueen:
+                  summary: Example created queen
+                  value:
+                    id: "70bb3f77bcf86cd799439099"
+                    hiveId: "624b2f9a9c0a4b6e8f7d1234"
+                    birthDate: "2025-05-01"
+                    origin: "Local breeder"
+                    status: "alive"
+                    tags: ["bred-2025"]
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /api/v1/breeding-records:
+    post:
+      summary: Create breeding record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BreedingRecord'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreedingRecord'
+              examples:
+                createdBreeding:
+                  summary: Example breeding record
+                  value:
+                    id: "80cc3f77bcf86cd7994390aa"
+                    queenId: "70bb3f77bcf86cd799439099"
+                    date: "2026-02-01"
+                    breeder: "Hans Imker"
+                    method: "controlled mating"
+                    pedigree: "Line A"
+                    notes: "Successful mating"
+                    result: "success"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      summary: List breeding records
+      parameters:
+        - name: hiveId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BreedingRecord'
+  /api/v1/honey-records:
+    post:
+      summary: Create honey record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HoneyRecord'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoneyRecord'
+              examples:
+                createdHoney:
+                  summary: Example honey record
+                  value:
+                    id: "90dd3f77bcf86cd7994390bb"
+                    hiveId: "624b2f9a9c0a4b6e8f7d1234"
+                    date: "2026-08-15"
+                    harvestWeightKg: 12.4
+                    honeyType: "Wildflower"
+                    storageLocation: "Pantry Shelf 1"
+                    notes: "Good yield"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      summary: List honey records (filtered & paginated)
+      parameters:
+        - $ref: '#/components/parameters/hiveId'
+        - $ref: '#/components/parameters/fromDate'
+        - $ref: '#/components/parameters/toDate'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HoneyRecord'
+    
+  /api/v1/medication-records:
+    post:
+      summary: Create medication record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationRecord'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationRecord'
+              examples:
+                createdMedication:
+                  summary: Example medication record
+                  value:
+                    id: "a0ee3f77bcf86cd7994390cc"
+                    hiveId: "624b2f9a9c0a4b6e8f7d1234"
+                    date: "2026-03-10"
+                    medication: "Oxalic acid"
+                    dosage: "3g"
+                    operator: "J. Meier"
+                    notes: "Winter treatment"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      summary: List medication records (filtered & paginated)
+      parameters:
+        - $ref: '#/components/parameters/hiveId'
+        - $ref: '#/components/parameters/fromDate'
+        - $ref: '#/components/parameters/toDate'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicationRecord'
+  /api/v1/inspections:
+    post:
+      summary: Create inspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inspection'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inspection'
+              examples:
+                createdInspection:
+                  summary: Example inspection
+                  value:
+                    id: "b1ff3f77bcf86cd7994390dd"
+                    hiveId: "624b2f9a9c0a4b6e8f7d1234"
+                    date: "2026-02-10"
+                    inspector: "J. Meier"
+                    conditionSummary: "Healthy brood, low varroa"
+                    actionsTaken: "Added feeder"
+                    varroaCheck: "1%"
+                    broodStatus: "Good"
+                    notes: "No immediate action"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      summary: List inspections (filtered & paginated)
+      parameters:
+        - $ref: '#/components/parameters/hiveId'
+        - $ref: '#/components/parameters/fromDate'
+        - $ref: '#/components/parameters/toDate'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inspection'
+
+  /api/v1/hives/{id}/attachments:
+    post:
+      summary: Upload attachment for hive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/queens/{id}/attachments:
+    post:
+      summary: Upload attachment for queen
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  
