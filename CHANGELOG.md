@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.3] - 2026-02-20
+
+### Added
+- group changelog entries by Conventional Commits type (50f1b61)
+
 All notable changes to this project will be documented in this file.
 Versions are bumped automatically before each push.
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
