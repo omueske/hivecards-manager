@@ -9,6 +9,7 @@ import HiveList from '../pages/HiveList.vue'
 import HiveDetail from '../pages/HiveDetail.vue'
 import Apiaries from '../pages/Apiaries.vue'
 import Queens from '../pages/Queens.vue'
+import Changelog from '../pages/Changelog.vue'
 import { getToken } from '../auth/token'
 
 const routes = [
@@ -22,6 +23,7 @@ const routes = [
   { path: '/hives/:id', component: HiveDetail, meta: { requiresAuth: true } },
   { path: '/apiaries', component: Apiaries, meta: { requiresAuth: true } },
   { path: '/queens', component: Queens, meta: { requiresAuth: true } },
+  { path: '/changelog', component: Changelog },
 ]
 
 const router = createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes })

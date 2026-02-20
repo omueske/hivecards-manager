@@ -6,7 +6,8 @@
         "home": "Start",
         "hives": "Völker",
         "apiaries": "Standorte",
-        "queens": "Königinnen"
+        "queens": "Königinnen",
+        "changelog": "Changelog"
     },
     "apiary": {
         "title": "Standorte",

@@ -6,7 +6,8 @@
         "home": "Home",
         "hives": "Hives",
         "apiaries": "Apiaries",
-        "queens": "Queens"
+        "queens": "Queens",
+        "changelog": "Changelog"
     },
     "apiary": {
         "title": "Locations",
