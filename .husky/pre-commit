@@ -1,0 +1,2 @@
+# Run linter before every commit
+npm run lint --if-present
