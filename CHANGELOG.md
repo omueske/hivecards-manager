@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.5] - 2026-02-20
+
+### Added
+- move changelog link from menu to dashboard card (f2ad0c4)
+
 ## [0.1.4] - 2026-02-20
 
 ### Added
