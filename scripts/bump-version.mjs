@@ -3,6 +3,7 @@
  * Pre-push version bump script.
  * - Bumps the patch version in package.json (root)
  * - Collects commit messages since the last version-bump commit (or last 20)
+ * - Groups commits by Conventional Commits type (feat/fix/perf/refactor/docs/chore/…)
  * - Prepends a new entry to CHANGELOG.md
  * - Stages both files and creates a "chore: bump version" commit
  */
@@ -31,6 +32,73 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Maps Conventional Commits type → changelog section heading
+const TYPE_MAP = {
+  feat:     '### Added',
+  fix:      '### Fixed',
+  perf:     '### Performance',
+  refactor: '### Changed',
+  style:    '### Changed',
+  docs:     '### Documentation',
+  test:     '### Tests',
+  build:    '### Build',
+  ci:       '### CI',
+  chore:    '### Chore',
+  revert:   '### Reverted',
+};
+
+// Regex: "feat(scope): message (abc1234)" or "feat: message (abc1234)"
+const CONVENTIONAL_RE = /^-\s+([\w]+)(?:\([^)]*\))?!?:\s+(.+?)(\s+\([a-f0-9]+\))?$/;
+
+/**
+ * Parses raw git log lines and returns a markdown string grouped by type.
+ * Lines that don't follow Conventional Commits fall into a generic "Other" bucket.
+ */
+function groupByType(rawLines) {
+  // buckets: { sectionHeading -> [message (hash), ...] }
+  const buckets = new Map();
+
+  for (const line of rawLines) {
+    const m = line.match(CONVENTIONAL_RE);
+    if (m) {
+      const type = m[1].toLowerCase();
+      const msg  = m[2].trim();
+      const hash = m[3] ? m[3].trim() : '';
+      const heading = TYPE_MAP[type] ?? '### Other';
+      if (!buckets.has(heading)) buckets.set(heading, []);
+      buckets.get(heading).push(`- ${msg}${hash ? ' ' + hash : ''}`);
+    } else {
+      // Non-conventional line: strip leading "- " if present, put in Other
+      const clean = line.replace(/^-\s+/, '');
+      if (!buckets.has('### Other')) buckets.set('### Other', []);
+      buckets.get('### Other').push(`- ${clean}`);
+    }
+  }
+
+  if (buckets.size === 0) return '- minor improvements';
+
+  // Preferred display order
+  const order = [
+    '### Added', '### Fixed', '### Performance', '### Changed',
+    '### Reverted', '### Documentation', '### Tests',
+    '### Build', '### CI', '### Chore', '### Other',
+  ];
+
+  const sections = [];
+  for (const heading of order) {
+    if (buckets.has(heading)) {
+      sections.push(`${heading}\n${buckets.get(heading).join('\n')}`);
+      buckets.delete(heading);
+    }
+  }
+  // Any remaining types not in the order list
+  for (const [heading, lines] of buckets) {
+    sections.push(`${heading}\n${lines.join('\n')}`);
+  }
+
+  return sections.join('\n\n');
+}
+
 // ── Read current version ────────────────────────────────────────────────────
 
 const pkgPath = resolve(ROOT, 'package.json');
@@ -42,7 +110,6 @@ const newVersion = bumpPatch(oldVersion);
 
 let sinceRef = '';
 try {
-  // Find the most recent "chore: bump version" commit
   sinceRef = run('git log --oneline --all --grep="chore: bump version" -1 --format=%H');
 } catch {
   sinceRef = '';
@@ -53,24 +120,22 @@ try {
   if (sinceRef) {
     rawLog = run(`git log ${sinceRef}..HEAD --format="- %s (%h)" --no-merges`);
   } else {
-    // Fallback: commits not yet on the remote branch, or last 20
     rawLog = run('git log @{u}..HEAD --format="- %s (%h)" --no-merges');
   }
 } catch {
-  // @{u} fails when there is no upstream yet; fall back to last 20
   try {
     rawLog = run('git log HEAD~20..HEAD --format="- %s (%h)" --no-merges');
   } catch {
-    rawLog = '- initial release';
+    rawLog = '';
   }
 }
 
 const commitLines = rawLog
   .split('\n')
   .map(l => l.trim())
-  // Skip version bump commits themselves so the changelog stays clean
-  .filter(l => l && !l.toLowerCase().includes('chore: bump version'))
-  .join('\n');
+  .filter(l => l && !l.match(/chore.*bump version/i));
+
+const grouped = groupByType(commitLines);
 
 // ── Build changelog entry ──────────────────────────────────────────────────
 
@@ -82,7 +147,7 @@ try {
   existingChangelog = '';
 }
 
-const entry = `## [${newVersion}] - ${today()}\n\n${commitLines || '- minor improvements'}\n\n`;
+const entry = `## [${newVersion}] - ${today()}\n\n${grouped}\n\n`;
 
 // Strip any existing "# Changelog" header so we can prepend cleanly
 let body = existingChangelog.replace(/\r\n/g, '\n');
