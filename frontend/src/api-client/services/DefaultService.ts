@@ -288,6 +288,46 @@ requestBody: Queen,
     }
 
     /**
+     * Update queen
+     * @param id 
+     * @param requestBody 
+     * @returns Queen updated
+     * @throws ApiError
+     */
+    public static putApiV1Queens(
+id: string,
+requestBody: Partial<Queen>,
+): CancelablePromise<Queen> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/queens/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
+    /**
+     * Delete queen
+     * @param id 
+     * @returns void 
+     * @throws ApiError
+     */
+    public static deleteApiV1Queens(
+id: string,
+): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/queens/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
+
+    /**
      * Create breeding record
      * @param requestBody 
      * @returns BreedingRecord created

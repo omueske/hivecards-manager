@@ -4,22 +4,21 @@
 
 export type Queen = {
     id?: string;
-    hiveId?: string;
-    birthDate?: string;
-    origin?: string;
-    status?: Queen.status;
-    matingDate?: string;
-    breederNotes?: string;
-    tags?: Array<string>;
+    userId?: string;
+    name?: string;
+    queenYear?: number | null;
+    queenColor?: string;
+    queenOrigin?: string;
+    matingType?: string;
+    queenMarked?: boolean;
+    status?: string;
+    notes?: string;
+    hiveId?: string | null;
+    hiveHistory?: Array<{
+        hiveId: string;
+        from: string;
+        to?: string;
+    }>;
+    createdAt?: string;
+    updatedAt?: string;
 };
-
-export namespace Queen {
-
-    export enum status {
-        ALIVE = 'alive',
-        REMOVED = 'removed',
-        REPLACED = 'replaced',
-    }
-
-
-}

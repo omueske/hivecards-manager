@@ -6,6 +6,7 @@ import './styles.css'
 import './api'
 import i18n from './i18n'
 import { setToken, clearToken } from './auth/token'
+import { scheduleRefresh } from './auth/tokenRefresh'
 import { Quasar, Notify, ClosePopup,
 	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
@@ -48,6 +49,7 @@ async function trySilentRefresh() {
 		const body = await resp.json()
 		if (body && body.accessToken) {
 			setToken(body.accessToken)
+			scheduleRefresh(body.accessToken)
 		} else {
 			clearToken()
 			localStorage.removeItem('hc_has_refresh')

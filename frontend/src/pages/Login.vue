@@ -1,9 +1,8 @@
 <template>
   <div
-    class="login-wrap"
     style="display: flex; align-items: flex-start; justify-content: center; padding: 24px"
   >
-    <div style="max-width: 560px; width: 100%">
+    <div style="max-width: 480px; width: 100%">
       <header
         style="
           display: flex;
@@ -17,78 +16,98 @@
       </header>
 
       <main>
-        <h1 style="font-size: 32px; margin: 8px 0">
-          {{ mode === 'login' ? t('auth.login') : t('auth.register') }}
-        </h1>
+        <h1 style="font-size: 32px; margin: 8px 0">{{ t('auth.login') }}</h1>
 
+        <div
+          v-if="emailVerified"
+          style="
+            background: #eafaea;
+            border: 1px solid #2a7a2a;
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #1a5a1a;
+            font-size: 0.95em;
+          "
+        >
+          {{ t('auth.email_verified_notice') }}
+        </div>
         <form @submit.prevent="onSubmit" aria-labelledby="login-heading">
-          <div style="margin-bottom: 12px">
+          <div style="margin-bottom: 16px">
             <label for="email">{{ t('auth.email') }}</label>
             <input
               id="email"
               type="email"
               v-model="email"
               required
+              autocomplete="email"
               aria-required="true"
-              aria-label="Email address"
-              style="width: 100%; padding: 8px; margin-top: 4px"
+              style="width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box"
             />
           </div>
 
-          <div style="margin-bottom: 12px">
-            <label for="password">{{ t('auth.password') }}</label>
-            <input
-              id="password"
-              type="password"
-              v-model="password"
-              required
-              aria-required="true"
-              aria-label="Password"
-              style="width: 100%; padding: 8px; margin-top: 4px"
-            />
+          <div style="margin-bottom: 8px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <label for="password">{{ t('auth.password') }}</label>
+              <router-link
+                to="/forgot-password"
+                style="font-size: 0.85em"
+              >{{ t('auth.forgot_password_link') }}</router-link>
+            </div>
+            <div style="position: relative; margin-top: 4px">
+              <input
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                required
+                autocomplete="current-password"
+                aria-required="true"
+                style="width: 100%; padding: 8px; padding-right: 88px; box-sizing: border-box"
+              />
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                style="
+                  position: absolute;
+                  right: 8px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  color: #555;
+                  font-size: 0.82em;
+                  padding: 0;
+                  white-space: nowrap;
+                "
+              >
+                {{ showPassword ? t('auth.hide_password') : t('auth.show_password') }}
+              </button>
+            </div>
           </div>
 
-          <div v-if="mode === 'register'" style="margin-bottom: 12px">
-            <label for="username">{{ t('auth.username') }}</label>
-            <input
-              id="username"
-              type="text"
-              v-model="username"
-              aria-label="Username"
-              style="width: 100%; padding: 8px; margin-top: 4px"
-            />
-          </div>
+          <div style="margin-bottom: 20px"></div>
 
-          <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px">
-            <button type="submit" :disabled="loading" aria-busy="false" style="padding: 8px 12px">
-              {{
-                loading ? 'Please wait...' : mode === 'login' ? t('auth.login') : t('auth.register')
-              }}
-            </button>
-            <button type="button" @click="onCancel" style="padding: 8px 12px">
-              {{ t('form.cancel') }}
-            </button>
-            <button
-              type="button"
-              @click="toggleMode"
-              style="
-                margin-left: auto;
-                background: transparent;
-                border: none;
-                color: #06c;
-                cursor: pointer;
-              "
-            >
-              {{
-                mode === 'login'
-                  ? 'No account? ' + t('auth.register')
-                  : 'Have an account? ' + t('auth.login')
-              }}
-            </button>
-          </div>
+          <button
+            type="submit"
+            :disabled="loading"
+            style="width: 100%; padding: 10px; font-size: 1em; cursor: pointer"
+          >
+            {{ loading ? t('auth.logging_in') : t('auth.login') }}
+          </button>
         </form>
 
-        <div v-if="error" role="alert" style="color: #c00; margin-top: 12px">{{ error }}</div>
+        <div v-if="error" role="alert" style="margin-top: 12px">
+          <span style="color: #c00">{{ error }}</span>
+          <span v-if="emailNotVerified" style="display: block; margin-top: 6px; font-size: 0.9em">
+            {{ t('auth.email_not_verified_hint') }}
+          </span>
+        </div>
+
+        <p style="margin-top: 20px; text-align: center; font-size: 0.9em">
+          {{ t('auth.no_account') }}
+          <router-link to="/register">{{ t('auth.register') }}</router-link>
+        </p>
       </main>
     </div>
   </div>
@@ -98,110 +117,54 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { AuthLogin, AuthTokens } from '../api-client';
-import { DefaultService } from '../api-client/services/DefaultService';
 import { useUserStore } from '../stores/user';
 import { useRouter, useRoute } from 'vue-router';
 
 export default {
   setup() {
-    const mode = ref<'login' | 'register'>('login');
     const email = ref<string>('');
     const password = ref<string>('');
-    const username = ref<string>('');
+    const showPassword = ref(false);
     const error = ref<string>('');
+    const emailNotVerified = ref(false);
     const loading = ref<boolean>(false);
-    const formRef = ref<any>(null);
     const store = useUserStore();
     const router = useRouter();
     const route = useRoute();
     const { t } = useI18n();
 
-    // if redirected after registration, prefill email and show a notice
-    if ((route.query as any).registered) {
-      const pre = (route.query as any).email;
-      if (pre) email.value = String(pre);
-      // @ts-ignore
-      import('quasar').then(({ Notify }) =>
-        Notify.create({ type: 'positive', message: 'Registration successful — please login' }),
-      );
-    }
-
-    function toggleMode() {
-      mode.value = mode.value === 'login' ? 'register' : 'login';
-      error.value = '';
-    }
-
-    function onCancel() {
-      email.value = '';
-      password.value = '';
-      username.value = '';
-      error.value = '';
-    }
+    const emailVerified = ref(route.query.verified === '1');
 
     async function onSubmit() {
       error.value = '';
-      // basic client-side validation
-      if (!validateFields()) return;
+      emailNotVerified.value = false;
       loading.value = true;
       try {
-        if (mode.value === 'register') {
-          const valid = await formRef.value?.validate?.();
-          if (valid === false) return;
-          const mod = await import('../api-client/services/DefaultService');
-          const fn =
-            (mod as any).postApiV1AuthRegister ??
-            (mod as any).DefaultService?.postApiV1AuthRegister;
-          await fn({
-            email: email.value,
-            password: password.value,
-            username: username.value,
-          } as any);
-          // after successful register, attempt to auto-login
-          const loginFn =
-            (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
-          if (loginFn) {
-            const loginRes = (await loginFn({
-              email: email.value,
-              password: password.value,
-            } as AuthLogin)) as unknown as AuthTokens;
-            const token = loginRes.accessToken;
-            if (token) {
-              store.setToken(token);
-              try {
-                localStorage.setItem('hc_has_refresh', '1');
-              } catch (e) {}
-            }
-            // server sets refresh token as httpOnly cookie
-          }
-          // after register: redirect to login view so user can sign in manually
-          // show a success notification and navigate to login (keep email in query)
-          // @ts-ignore
-          import('quasar').then(({ Notify }) =>
-            Notify.create({ type: 'positive', message: 'Registered — please log in' }),
-          );
-          router.push({ path: '/login', query: { registered: '1', email: email.value } });
-          return;
-        } else {
-          const mod = await import('../api-client/services/DefaultService');
-          const fn =
-            (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
-          const res = (await fn({
-            email: email.value,
-            password: password.value,
-          } as AuthLogin)) as unknown as AuthTokens;
-          const token = res.accessToken;
-          if (token) {
-            store.setToken(token);
-            try {
-              localStorage.setItem('hc_has_refresh', '1');
-            } catch (e) {}
-          }
-          // server sets refresh token as httpOnly cookie
-          const dest = (route.query.redirect as string) || '/';
-          router.push(dest);
+        const mod = await import('../api-client/services/DefaultService');
+        const fn =
+          (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
+        const res = (await fn({
+          email: email.value,
+          password: password.value,
+        } as AuthLogin)) as unknown as AuthTokens;
+        const token = res.accessToken;
+        if (token) {
+          store.setToken(token);
+          try {
+            localStorage.setItem('hc_has_refresh', '1');
+          } catch {}
         }
+        const dest = (route.query.redirect as string) || '/';
+        router.push(dest);
       } catch (e: any) {
-        error.value = e?.response?.data?.message || e?.message || 'Authentication failed';
+        const msg: string =
+          e?.body?.message || e?.response?.data?.message || e?.message || '';
+        if (msg.toLowerCase().includes('not verified')) {
+          emailNotVerified.value = true;
+          error.value = t('auth.email_not_verified');
+        } else {
+          error.value = msg || t('auth.login_failed');
+        }
         // @ts-ignore
         import('quasar').then(({ Notify }) =>
           Notify.create({ type: 'negative', message: error.value }),
@@ -211,47 +174,15 @@ export default {
       }
     }
 
-    function validateFields() {
-      // simple email + password + username checks
-      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRe.test(email.value)) {
-        error.value = 'Please enter a valid email address';
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: error.value }),
-        );
-        return false;
-      }
-      if (password.value.length < 8) {
-        error.value = 'Password must be at least 8 characters';
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: error.value }),
-        );
-        return false;
-      }
-      if (mode.value === 'register' && !username.value.trim()) {
-        error.value = 'Please choose a username';
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: error.value }),
-        );
-        return false;
-      }
-      return true;
-    }
-
     return {
-      mode,
       email,
       password,
-      username,
+      showPassword,
       error,
+      emailNotVerified,
       loading,
+      emailVerified,
       onSubmit,
-      toggleMode,
-      onCancel,
-      formRef,
       t,
     };
   },

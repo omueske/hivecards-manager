@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../pages/Login.vue'
+import Register from '../pages/Register.vue'
+import ForgotPassword from '../pages/ForgotPassword.vue'
+import ResetPassword from '../pages/ResetPassword.vue'
 import Profile from '../pages/Profile.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import HiveList from '../pages/HiveList.vue'
@@ -12,6 +15,9 @@ const routes = [
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/hives', component: HiveList, meta: { requiresAuth: true } },
   { path: '/login', component: Login },
+  { path: '/register', component: Register },
+  { path: '/forgot-password', component: ForgotPassword },
+  { path: '/reset-password', component: ResetPassword },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
   { path: '/hives/:id', component: HiveDetail, meta: { requiresAuth: true } },
   { path: '/apiaries', component: Apiaries, meta: { requiresAuth: true } },
