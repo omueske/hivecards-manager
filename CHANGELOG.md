@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.4] - 2026-02-20
+
+### Added
+- add Changelog page rendering CHANGELOG.md with markdown (3b7c0f3)
+
 ## [0.1.3] - 2026-02-20
 
 ### Added
