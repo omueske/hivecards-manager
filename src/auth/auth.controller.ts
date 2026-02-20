@@ -1,4 +1,4 @@
-import { Controller, Post, Body, BadRequestException, Logger, Req, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, BadRequestException, Logger, Req, Res, Query } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 
@@ -10,6 +10,15 @@ class RegisterDto {
 
 class LoginDto {
   email!: string;
+  password!: string;
+}
+
+class ForgotPasswordDto {
+  email!: string;
+}
+
+class ResetPasswordDto {
+  token!: string;
   password!: string;
 }
 
@@ -27,6 +36,28 @@ export class AuthController {
     return res;
   }
 
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string, @Res() res: Response) {
+    if (!token) throw new BadRequestException('token required');
+    await this.authService.verifyEmail(token);
+    // Redirect to frontend with success flag
+    const appUrl = process.env.APP_URL || 'http://localhost:5173';
+    return res.redirect(`${appUrl}/login?verified=1`);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    if (!dto.email) throw new BadRequestException('email required');
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    if (!dto.token || !dto.password) throw new BadRequestException('token and password required');
+    if (dto.password.length < 8) throw new BadRequestException('password too short');
+    return this.authService.resetPassword(dto.token, dto.password);
+  }
+
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     this.logger.log(`Login attempt for email=${dto.email}`);
@@ -37,7 +68,6 @@ export class AuthController {
     }
     const tokens = this.authService.signTokens(user._id.toString());
     this.logger.log(`Login successful for userId=${user._id.toString()}`);
-    // set refresh token as httpOnly cookie
     const secure = process.env.NODE_ENV === 'production';
     res.cookie('hc_refresh', tokens.refreshToken, {
       httpOnly: true,
@@ -52,12 +82,10 @@ export class AuthController {
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const cookie = req.cookies?.hc_refresh;
     if (!cookie) {
-      // No refresh cookie present — return No Content so clients know there's nothing to refresh.
       return res.status(204).send();
     }
     const payload = this.authService.verifyToken(cookie);
     if (!payload || !payload.sub) {
-      // Invalid refresh token: clear cookie and return 204 to avoid noisy client errors.
       res.clearCookie('hc_refresh');
       return res.status(204).send();
     }

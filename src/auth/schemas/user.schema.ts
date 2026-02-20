@@ -14,6 +14,21 @@ export class User {
   @Prop()
   username?: string;
 
+  @Prop({ default: false })
+  emailVerified!: boolean;
+
+  @Prop()
+  emailVerificationToken?: string;
+
+  @Prop()
+  emailVerificationExpires?: Date;
+
+  @Prop()
+  passwordResetToken?: string;
+
+  @Prop()
+  passwordResetExpires?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
