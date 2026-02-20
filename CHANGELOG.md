@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-02-20
+
+- chore: add husky git hooks and update lock file (338dacd)
+- feat: register page, forgot/reset password pages, token auto-refresh, profile session info (5225a39)
+- feat: add email verification, forgot/reset password, and mail service (bbcc7d6)
+
 All notable changes to this project will be documented in this file.
 Versions are bumped automatically before each push.
 
