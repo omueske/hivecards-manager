@@ -54,6 +54,22 @@
       </div>
     </div>
 
+    <!-- Changelog teaser -->
+    <q-card
+      flat bordered
+      class="changelog-teaser q-mb-xl cursor-pointer"
+      @click="router.push('/changelog')"
+    >
+      <q-card-section class="row items-center q-pa-md">
+        <q-icon name="history" size="1.6rem" color="amber-8" class="q-mr-md" />
+        <div class="col">
+          <div class="text-subtitle1 text-weight-bold">{{ t('dashboard.changelog_title') }}</div>
+          <div class="text-caption text-grey-6">{{ t('dashboard.changelog_subtitle') }}</div>
+        </div>
+        <q-icon name="chevron_right" color="grey-5" />
+      </q-card-section>
+    </q-card>
+
     <!-- Workflow Steps -->
     <div class="text-h6 q-mb-md">{{ t('dashboard.how_it_works') }}</div>
     <div class="row q-col-gutter-md">
@@ -203,5 +219,12 @@ export default {
 .step-num {
   font-weight: 700;
   font-size: 1rem;
+}
+.changelog-teaser {
+  border-radius: 12px;
+  transition: box-shadow 120ms;
+}
+.changelog-teaser:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 </style>

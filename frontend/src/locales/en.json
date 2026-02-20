@@ -160,6 +160,8 @@
         "welcome": "Welcome to Hivecards 🐝",
         "subtitle": "Get a quick overview of what's going on – and where to continue next.",
         "how_it_works": "How Hivecards works",
+        "changelog_title": "What's new",
+        "changelog_subtitle": "See the latest changes and improvements",
         "stat_inspections": "Inspections",
         "stat_treatments": "Treatments",
         "stat_queens": "Queens",

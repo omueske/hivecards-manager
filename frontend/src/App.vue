@@ -107,9 +107,6 @@
             <button class="avatar-menu-item" @click="(menu = false), router.push('/profile')">
               {{ $t ? $t('auth.profile') : 'Profile' }}
             </button>
-            <button class="avatar-menu-item" @click="(menu = false), router.push('/changelog')">
-              {{ $t ? $t('nav.changelog') : 'Changelog' }}
-            </button>
             <button class="avatar-menu-item" @click="onLogoutClicked">
               {{ $t ? $t('auth.logout') : 'Logout' }}
             </button>
