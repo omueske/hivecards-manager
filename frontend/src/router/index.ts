@@ -10,6 +10,7 @@ import HiveDetail from '../pages/HiveDetail.vue'
 import Apiaries from '../pages/Apiaries.vue'
 import Queens from '../pages/Queens.vue'
 import Changelog from '../pages/Changelog.vue'
+import EmailVerified from '../pages/EmailVerified.vue'
 import { getToken } from '../auth/token'
 
 const routes = [
@@ -19,6 +20,7 @@ const routes = [
   { path: '/register', component: Register },
   { path: '/forgot-password', component: ForgotPassword },
   { path: '/reset-password', component: ResetPassword },
+  { path: '/email-verified', component: EmailVerified },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
   { path: '/hives/:id', component: HiveDetail, meta: { requiresAuth: true } },
   { path: '/apiaries', component: Apiaries, meta: { requiresAuth: true } },

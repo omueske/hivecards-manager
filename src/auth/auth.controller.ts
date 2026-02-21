@@ -42,9 +42,9 @@ export class AuthController {
     this.logger.log(`Email verification attempt token=${token.slice(0, 8)}...`);
     await this.authService.verifyEmail(token);
     this.logger.log('Email verified successfully, redirecting');
-    // Redirect to frontend with success flag
+    // Redirect to dedicated success page
     const appUrl = process.env.APP_URL || 'http://localhost:5173';
-    return res.redirect(`${appUrl}/login?verified=1`);
+    return res.redirect(`${appUrl}/email-verified`);
   }
 
   @Post('forgot-password')

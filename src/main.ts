@@ -74,8 +74,16 @@ async function bootstrap() {
   const serveRoot = (process.env.SERVE_ROOT || '').replace(/\/+$/, ''); // e.g. '/hivecards-manager'
 
   if (existsSync(distPath)) {
-    // Serve all static files under the subpath
-    app.use(serveRoot + '/', express.static(distPath));
+    // Serve all static files under the subpath.
+    // index.html is served without cache so browser always fetches the latest
+    // build (fixes stale bundle after deployments). Hashed assets are immutable.
+    app.use(serveRoot + '/', express.static(distPath, {
+      setHeaders(res, filePath) {
+        if (filePath.endsWith('index.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+      },
+    }));
 
     // SPA fallback: non-API GET requests without file extension → index.html
     app.use((req: any, res: any, next: any) => {

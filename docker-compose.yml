@@ -1,9 +1,9 @@
 services:
   # ── Application ─────────────────────────────────────────────────────────────
   app:
-    image: ghcr.io/omueske/hivecards-manager:main
+    # image: ghcr.io/omueske/hivecards-manager:main
     # Local development: build from source instead:
-    # build: .
+    build: .
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -20,16 +20,16 @@ services:
       MONGODB_URI: mongodb://mongo:27017/hivecards
       # Auth
       JWT_SECRET: changeme_in_production
-      # Mail (Mailpit for local dev; replace with real SMTP in production)
-      MAIL_HOST: mailpit
-      MAIL_PORT: 1025
-      MAIL_SECURE: "false"
-      MAIL_FROM: "Hivecards <noreply@hivecards.local>"
-      MAIL_USER: ""             # Leave empty for Mailpit / unauthenticated SMTP
-      MAIL_PASS: ""
+      # Mail – set values in .env (see .env.example)
+      MAIL_HOST: ${MAIL_HOST:-mailpit}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_SECURE: ${MAIL_SECURE:-false}
+      MAIL_FROM: ${MAIL_FROM:-"Hivecards <noreply@hivecards.local>"}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+
     depends_on:
       - mongo
-      - mailpit
 
   # ── Infrastructure ───────────────────────────────────────────────────────────
   mongo:

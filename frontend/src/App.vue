@@ -157,8 +157,13 @@ const langOptions = [
 const savedLang = localStorage.getItem('hc_lang') || 'de';
 const lang = ref(langOptions.find((o) => o.value === savedLang) ?? langOptions[0]);
 
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/email-verified'];
+
 onMounted(() => {
-  if (!store.token || store.token === null) {
+  // Use window.location.pathname because router.currentRoute may not be resolved yet
+  // on initial page load when using createWebHistory
+  const currentPath = window.location.pathname;
+  if (!store.token && !PUBLIC_ROUTES.includes(currentPath)) {
     router.replace('/login');
   }
 });
@@ -166,7 +171,7 @@ onMounted(() => {
 watch(
   () => store.token,
   (val) => {
-    if (!val) {
+    if (!val && !PUBLIC_ROUTES.includes(router.currentRoute.value.path)) {
       router.replace('/login');
     }
   },
