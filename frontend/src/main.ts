@@ -54,7 +54,7 @@ async function trySilentRefresh() {
 			clearToken()
 			localStorage.removeItem('hc_has_refresh')
 		}
-	} catch (err) {
+	} catch {
 		clearToken()
 		localStorage.removeItem('hc_has_refresh')
 	}

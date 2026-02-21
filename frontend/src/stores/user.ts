@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', () => {
     token.value = t
     try {
       setInMemoryToken(t)
-    } catch (e) {
+    } catch {
       // ignore
     }
     scheduleRefresh(t)
@@ -20,7 +20,9 @@ export const useUserStore = defineStore('user', () => {
     token.value = null
     try {
       clearToken()
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
     cancelRefresh()
     localStorage.removeItem('hc_has_refresh')
   }

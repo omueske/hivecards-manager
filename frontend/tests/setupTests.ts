@@ -23,7 +23,7 @@ if (!globalThis.localStorage) {
 
 // Minimal navigator
 if (!globalThis.navigator) {
-  // @ts-ignore
+  // @ts-expect-error -- navigator not on globalThis type in test env
   globalThis.navigator = { userAgent: 'node.js' }
 }
 
@@ -48,11 +48,11 @@ const quasarTags = [
 ]
 
 quasarTags.forEach((t) => {
-  // @ts-ignore
+  // @ts-expect-error -- dynamic component registration not typed on global config
   config.global.components[t] = {
     name: t,
-    render(_ctx: any) {
-      // @ts-ignore
+    render() {
+      // @ts-expect-error -- $slots not typed on plain object component
       return h('div', this.$slots.default ? this.$slots.default() : [])
     },
   }

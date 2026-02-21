@@ -13,13 +13,13 @@ import { useUserStore } from '../src/stores/user'
 
 // Ensure DefaultService exports exist so spies can attach safely
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const ds = require('../src/api-client/services/DefaultService')
   if (!ds || !ds.DefaultService) {
     // create a simple fallback object
     module.exports = { DefaultService: {} }
   }
-} catch (e) {
+} catch {
   // ignore
 }
 
@@ -45,13 +45,13 @@ describe('Login.vue', () => {
     const store = useUserStore(pinia)
 
     // fill fields
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.email = 'a@b.com'
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.password = 'Password123!'
 
     // call submit
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     await wrapper.vm.onSubmit()
 
     expect(loginSpy).toHaveBeenCalled()
@@ -74,17 +74,17 @@ describe('Login.vue', () => {
     const store = useUserStore(pinia)
 
     // set to register mode
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.mode = 'register'
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.email = 'reg@b.com'
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.password = 'Password123!'
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.username = 'reguser'
 
     // call submit
-    // @ts-ignore
+    // @ts-expect-error -- vue component internal vm properties
     await wrapper.vm.onSubmit()
 
     expect(regSpy).toHaveBeenCalled()
