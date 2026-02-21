@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.13] - 2026-02-21
+
+### Added
+- add INFO for resource creation with IDs, downgrade reads to DEBUG (44a8979)
+
 ## [0.1.12] - 2026-02-21
 
 ### Fixed
