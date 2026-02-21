@@ -1,9 +1,9 @@
 services:
   # ── Application ─────────────────────────────────────────────────────────────
   app:
-    # image: ghcr.io/omueske/hivecards-manager:main
+    image: ghcr.io/omueske/hivecards-manager:main
     # Local development: build from source instead:
-    build: .
+    # build: .
     restart: unless-stopped
     ports:
       - '3000:3000'
