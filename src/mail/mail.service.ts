@@ -30,7 +30,7 @@ export class MailService {
   }
 
   async sendVerificationEmail(email: string, token: string) {
-    const link = `${this.appUrl}/verify-email?token=${token}`;
+    const link = `${this.appUrl}/api/v1/auth/verify-email?token=${token}`;
     this.logger.log(`Sending verification email to ${email}`);
     try {
       await this.transporter.sendMail({
