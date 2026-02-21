@@ -8,10 +8,23 @@ services:
     ports:
       - '3000:3000'
     environment:
+      # App
+      NODE_ENV: production
+      PORT: 3000
+      APP_URL: http://localhost:3000
+      SERVE_ROOT: ""            # Subpath if behind a reverse proxy, e.g. /hivecards-manager
+      CORS_ORIGIN: ""           # Extra allowed origins (comma-separated); empty = only same-origin
+      # Database
       MONGODB_URI: mongodb://mongo:27017/hivecards
+      # Auth
       JWT_SECRET: changeme_in_production
+      # Mail (Mailpit for local dev; replace with real SMTP in production)
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
+      MAIL_SECURE: "false"
+      MAIL_FROM: "Hivecards <noreply@hivecards.local>"
+      MAIL_USER: ""             # Leave empty for Mailpit / unauthenticated SMTP
+      MAIL_PASS: ""
     depends_on:
       - mongo
       - mailpit
