@@ -24,12 +24,14 @@ export class InspectionsController {
   constructor(private readonly svc: InspectionsService) {}
 
   @Post()
-  create(
+  async create(
     @Body() dto: CreateInspectionDto,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Create inspection hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);
-    return this.svc.create(dto, user.id);
+    this.logger.debug(`Create inspection request hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);
+    const res = await this.svc.create(dto, user.id);
+    this.logger.log(`Created inspection id=${(res as any).id} hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);
+    return res;
   }
 
   @Get()
@@ -49,22 +51,25 @@ export class InspectionsController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() dto: Partial<CreateInspectionDto>,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Update inspection id=${id} user=${user.id}`);
-    return this.svc.update(id, dto, user.id);
+    this.logger.debug(`Update inspection request id=${id} fields=${Object.keys(dto).join(',')} user=${user.id}`);
+    const res = await this.svc.update(id, dto, user.id);
+    this.logger.log(`Updated inspection id=${id} user=${user.id}`);
+    return res;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param('id') id: string,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Delete inspection id=${id} user=${user.id}`);
-    return this.svc.remove(id, user.id);
+    this.logger.debug(`Delete inspection request id=${id} user=${user.id}`);
+    await this.svc.remove(id, user.id);
+    this.logger.log(`Deleted inspection id=${id} user=${user.id}`);
   }
 }

@@ -20,17 +20,18 @@ export class HiveService {
   async findAll(filter: any = {}, userId: string, page = 1, limit = 25) {
     const scope = { ...filter, userId };
     const skip = (page - 1) * limit;
+    this.logger.debug(`DB findAll hives scope=${JSON.stringify(filter)} skip=${skip} limit=${limit}`);
     const [items, total] = await Promise.all([
       this.hiveModel.find(scope).skip(skip).limit(limit).lean().exec(),
       this.hiveModel.countDocuments(scope).exec(),
     ]);
-    this.logger.log(`DB findAll returned ${total} items (page=${page} limit=${limit})`);
+    this.logger.debug(`DB findAll hives returned total=${total} items=${items.length} (page=${page})`);
     const mapped = (items as any[]).map((d) => ({ ...d, id: d._id }));
     return { pagination: { page, limit, total }, items: mapped } as any;
   }
 
   async findOne(id: string, userId: string) {
-    this.logger.log(`DB findOne id=${id}`);
+    this.logger.debug(`DB findOne hive id=${id}`);
     const doc = await this.hiveModel.findOne({ _id: id, userId }).lean().exec();
     if (!doc) {
       this.logger.warn(`Hive not found or not owned id=${id}`);
@@ -40,7 +41,7 @@ export class HiveService {
   }
 
   async update(id: string, dto: Partial<CreateHiveDto>, userId: string) {
-    this.logger.log(`DB update id=${id} changes=${JSON.stringify(dto)}`);
+    this.logger.debug(`DB update hive id=${id} fields=${Object.keys(dto).join(',')}`);
     const update: any = { ...dto };
     if ('apiaryId' in dto && (dto.apiaryId === null || dto.apiaryId === '')) {
       delete update.apiaryId;
@@ -58,7 +59,7 @@ export class HiveService {
   }
 
   async remove(id: string, userId: string) {
-    this.logger.log(`DB archive hive id=${id}`);
+    this.logger.debug(`DB archive hive id=${id}`);
     const doc = await this.hiveModel
       .findOneAndUpdate({ _id: id, userId }, { status: 'archived' }, { new: true })
       .lean()

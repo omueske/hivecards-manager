@@ -12,21 +12,23 @@ export class ApiariesController {
   @UseGuards(JwtGuard)
   @Post()
   async create(@Body() dto: CreateApiaryDto, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Create apiary name=${dto.name}`);
-    return this.apiariesService.create(dto, user.id);
+    this.logger.debug(`Create apiary request name=${dto.name} user=${user.id}`);
+    const res = await this.apiariesService.create(dto, user.id);
+    this.logger.log(`Created apiary id=${(res as any).id} name=${dto.name} user=${user.id}`);
+    return res;
   }
 
   @UseGuards(JwtGuard)
   @Get()
   async findAll(@CurrentUser() user: { id: string }) {
-    this.logger.log(`List apiaries user=${user.id}`);
+    this.logger.debug(`List apiaries user=${user.id}`);
     return this.apiariesService.findAll(user.id);
   }
 
   @UseGuards(JwtGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Get apiary id=${id}`);
+    this.logger.debug(`Get apiary id=${id} user=${user.id}`);
     return this.apiariesService.findOne(id, user.id);
   }
 
@@ -37,14 +39,18 @@ export class ApiariesController {
     @Body() dto: Partial<CreateApiaryDto>,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Update apiary id=${id}`);
-    return this.apiariesService.update(id, dto, user.id);
+    this.logger.debug(`Update apiary request id=${id} fields=${Object.keys(dto).join(',')} user=${user.id}`);
+    const res = await this.apiariesService.update(id, dto, user.id);
+    this.logger.log(`Updated apiary id=${id} user=${user.id}`);
+    return res;
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Delete apiary id=${id}`);
-    return this.apiariesService.remove(id, user.id);
+    this.logger.debug(`Delete apiary request id=${id} user=${user.id}`);
+    const res = await this.apiariesService.remove(id, user.id);
+    this.logger.log(`Deleted apiary id=${id} user=${user.id}`);
+    return res;
   }
 }

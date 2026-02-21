@@ -66,22 +66,22 @@ export class QueensService implements OnModuleInit {
   }
 
   async create(dto: CreateQueenDto, userId: string): Promise<any> {
-    this.logger.log(`Creating queen status=${dto.status ?? 'spare'} user=${userId}`);
+    this.logger.debug(`DB creating queen status=${dto.status ?? 'spare'} user=${userId}`);
     const doc = new this.queenModel({ ...dto, userId, status: dto.status ?? 'spare' });
     await doc.save();
-    this.logger.debug(`Created queen id=${doc._id.toString()}`);
+    this.logger.log(`DB created queen id=${doc._id.toString()} status=${doc.status}`);
     return this.toResponse(doc);
   }
 
   async findAll(userId: string): Promise<any[]> {
     this.logger.debug(`DB findAll queens user=${userId}`);
     const docs = await this.queenModel.find({ userId }).sort({ createdAt: -1 }).lean().exec();
-    this.logger.debug(`findAll returned ${docs.length} queen(s)`);
+    this.logger.debug(`DB findAll queens returned ${docs.length} queen(s) user=${userId}`);
     return (docs as any[]).map((d) => ({ ...d, id: d._id }));
   }
 
   async findOne(id: string, userId: string): Promise<any> {
-    this.logger.debug(`DB findOne queen id=${id}`);
+    this.logger.debug(`DB findOne queen id=${id} user=${userId}`);
     const doc = await this.queenModel.findOne({ _id: id, userId }).lean().exec();
     if (!doc) {
       this.logger.warn(`Queen not found or not owned id=${id}`);
@@ -146,6 +146,9 @@ export class QueensService implements OnModuleInit {
       })
       .exec();
 
+    if (currentQueens.length > 0) {
+      this.logger.debug(`assignToHive: displacing ${currentQueens.length} active queen(s) from hiveId=${dto.hiveId}`);
+    }
     for (const cq of currentQueens) {
       for (const entry of cq.hiveHistory) {
         if (!entry.to && entry.hiveId === dto.hiveId) {
@@ -155,13 +158,14 @@ export class QueensService implements OnModuleInit {
       cq.status = 'spare';
       cq.markModified('hiveHistory');
       await cq.save();
+      this.logger.debug(`assignToHive: queen id=${cq._id} set to spare`);
     }
 
     queen.hiveHistory.push({ hiveId: dto.hiveId, from });
     queen.status = 'active';
     queen.markModified('hiveHistory');
     await queen.save();
-    this.logger.debug(`Queen id=${id} assigned to hiveId=${dto.hiveId}`);
+    this.logger.debug(`DB queen id=${id} assigned to hiveId=${dto.hiveId} from=${from.toISOString()}`);
 
     return this.toResponse(queen);
   }

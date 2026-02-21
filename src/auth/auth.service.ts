@@ -16,7 +16,7 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, username?: string) {
-    this.logger.log(`Registering user email=${email}`);
+    this.logger.debug(`Register request email=${email} username=${username ?? '-'}`);
     const existing = await this.userModel.findOne({ email }).exec();
     if (existing) {
       this.logger.warn(`Registration failed - email already registered: ${email}`);
@@ -34,7 +34,8 @@ export class AuthService {
       emailVerificationExpires,
     });
     await user.save();
-    this.logger.log(`User created id=${user._id.toString()} email=${user.email}`);
+    this.logger.log(`New user created id=${user._id.toString()} email=${user.email}`);
+    this.logger.debug(`Verification token generated expires=${emailVerificationExpires.toISOString()}`);
     // Send verification email (non-blocking — don't fail registration if mail fails)
     this.mailService.sendVerificationEmail(email, emailVerificationToken).catch(err =>
       this.logger.warn(`Failed to send verification email to ${email}: ${err?.message}`),
@@ -43,18 +44,20 @@ export class AuthService {
   }
 
   async verifyEmail(token: string) {
+    this.logger.debug(`Looking up verification token token=${token.slice(0, 8)}...`);
     const user = await this.userModel
       .findOne({ emailVerificationToken: token })
       .exec();
     if (!user) throw new BadRequestException('Invalid or expired verification token');
     if (user.emailVerificationExpires && user.emailVerificationExpires < new Date()) {
+      this.logger.warn(`Verification token expired for token=${token.slice(0, 8)}...`);
       throw new BadRequestException('Verification token expired');
     }
     user.emailVerified = true;
     user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
     await user.save();
-    this.logger.log(`Email verified for userId=${user._id.toString()}`);
+    this.logger.log(`Email verified for userId=${user._id.toString()} email=${user.email}`);
     return { ok: true };
   }
 
@@ -91,7 +94,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    this.logger.log(`Validating user credentials for email=${email}`);
+    this.logger.debug(`Validating credentials for email=${email}`);
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       this.logger.warn(`No user found for email=${email}`);
@@ -111,7 +114,7 @@ export class AuthService {
   }
 
   signTokens(userId: string) {
-    this.logger.log(`Signing tokens for userId=${userId}`);
+    this.logger.debug(`Signing JWT tokens for userId=${userId}`);
     const payload = { sub: userId };
     const secret = process.env.JWT_SECRET || 'dev-secret';
     const accessToken = jwt.sign(payload, secret, { expiresIn: '15m' });

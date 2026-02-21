@@ -20,9 +20,9 @@ export class HiveController {
       this.logger.warn('Create hive attempt missing hiveNumber');
       throw new BadRequestException('hiveNumber required');
     }
-    this.logger.log(`Creating hive hiveNumber=${dto.hiveNumber} apiaryId=${dto.apiaryId ?? 'N/A'}`);
+    this.logger.debug(`Create hive request hiveNumber=${dto.hiveNumber} apiaryId=${dto.apiaryId ?? 'N/A'} user=${user.id}`);
     const res = await this.hiveService.create(dto, user.id);
-    this.logger.log(`Created hive id=${(res as any).id}`);
+    this.logger.log(`Created hive id=${(res as any).id} hiveNumber=${dto.hiveNumber} apiaryId=${dto.apiaryId ?? 'N/A'} user=${user.id}`);
     return res;
   }
 
@@ -38,19 +38,17 @@ export class HiveController {
     const filter: any = {};
     if (apiaryId) filter.apiaryId = apiaryId;
     if (status) filter.status = status;
-    this.logger.log(`Find all hives filter=${JSON.stringify(filter)} page=${page} limit=${limit}`);
+    this.logger.debug(`List hives filter=${JSON.stringify(filter)} page=${page} limit=${limit} user=${user.id}`);
     const res = await this.hiveService.findAll(filter, user.id, Number(page), Number(limit));
-    this.logger.log(`FindAll returned ${((res as any).pagination?.total ?? (res as any).items?.length ?? 0)} hives`);
+    this.logger.debug(`List hives returned ${((res as any).pagination?.total ?? (res as any).items?.length ?? 0)} total`);
     return res;
   }
 
   @UseGuards(JwtGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Find hive id=${id}`);
-    const res = await this.hiveService.findOne(id, user.id);
-    this.logger.log(`Found hive id=${id}`);
-    return res;
+    this.logger.debug(`Get hive id=${id} user=${user.id}`);
+    return this.hiveService.findOne(id, user.id);
   }
 
   @UseGuards(JwtGuard)
@@ -60,18 +58,18 @@ export class HiveController {
     @Body() dto: Partial<CreateHiveDto>,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Update hive id=${id} changes=${JSON.stringify(dto)}`);
+    this.logger.debug(`Update hive request id=${id} fields=${Object.keys(dto).join(',')} user=${user.id}`);
     const res = await this.hiveService.update(id, dto, user.id);
-    this.logger.log(`Updated hive id=${id}`);
+    this.logger.log(`Updated hive id=${id} user=${user.id}`);
     return res;
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Remove (archive) hive id=${id}`);
+    this.logger.debug(`Archive hive request id=${id} user=${user.id}`);
     const res = await this.hiveService.remove(id, user.id);
-    this.logger.log(`Archived hive id=${id}`);
+    this.logger.log(`Archived hive id=${id} user=${user.id}`);
     return res;
   }
 }

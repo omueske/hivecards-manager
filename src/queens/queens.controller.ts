@@ -24,9 +24,11 @@ export class QueensController {
   constructor(private readonly svc: QueensService) {}
 
   @Post()
-  create(@Body() dto: CreateQueenDto, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Create queen user=${user.id}`);
-    return this.svc.create(dto, user.id);
+  async create(@Body() dto: CreateQueenDto, @CurrentUser() user: { id: string }) {
+    this.logger.debug(`Create queen request status=${dto.status ?? 'spare'} user=${user.id}`);
+    const res = await this.svc.create(dto, user.id);
+    this.logger.log(`Created queen id=${(res as any).id} status=${(res as any).status} user=${user.id}`);
+    return res;
   }
 
   @Get()
@@ -49,39 +51,46 @@ export class QueensController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() dto: Partial<CreateQueenDto>,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Update queen id=${id} user=${user.id}`);
-    return this.svc.update(id, dto, user.id);
+    this.logger.debug(`Update queen request id=${id} fields=${Object.keys(dto).join(',')} user=${user.id}`);
+    const res = await this.svc.update(id, dto, user.id);
+    this.logger.log(`Updated queen id=${id} user=${user.id}`);
+    return res;
   }
 
   @Post(':id/assign')
-  assignToHive(
+  async assignToHive(
     @Param('id') id: string,
     @Body() dto: AssignQueenDto,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Assign queen id=${id} to hiveId=${dto.hiveId} user=${user.id}`);
-    return this.svc.assignToHive(id, dto, user.id);
+    this.logger.debug(`Assign queen request id=${id} to hiveId=${dto.hiveId} from=${dto.from ?? 'now'} user=${user.id}`);
+    const res = await this.svc.assignToHive(id, dto, user.id);
+    this.logger.log(`Assigned queen id=${id} to hiveId=${dto.hiveId} user=${user.id}`);
+    return res;
   }
 
   @Post(':id/remove-from-hive')
-  removeFromHive(
+  async removeFromHive(
     @Param('id') id: string,
     @Body() dto: RemoveQueenFromHiveDto,
     @CurrentUser() user: { id: string },
   ) {
-    this.logger.log(`Remove queen id=${id} from hive user=${user.id}`);
-    return this.svc.removeFromHive(id, dto, user.id);
+    this.logger.debug(`Remove queen from hive request id=${id} to=${dto.to ?? 'now'} user=${user.id}`);
+    const res = await this.svc.removeFromHive(id, dto, user.id);
+    this.logger.log(`Removed queen id=${id} from hive → status=spare user=${user.id}`);
+    return res;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    this.logger.log(`Delete queen id=${id} user=${user.id}`);
-    return this.svc.remove(id, user.id);
+  async remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    this.logger.debug(`Delete queen request id=${id} user=${user.id}`);
+    await this.svc.remove(id, user.id);
+    this.logger.log(`Deleted queen id=${id} user=${user.id}`);
   }
 }
