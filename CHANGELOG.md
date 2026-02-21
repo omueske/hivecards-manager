@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.12] - 2026-02-21
+
+### Fixed
+- restore image: for production, keep build: as local-dev comment (dd7f1eb)
+
 ## [0.1.11] - 2026-02-21
 
 ### Added
