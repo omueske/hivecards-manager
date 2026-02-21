@@ -1,10 +1,27 @@
-version: '3.8'
 services:
+  # ── Application ─────────────────────────────────────────────────────────────
+  app:
+    image: ghcr.io/omueske/hivecards-manager:main
+    # Local development: build from source instead:
+    # build: .
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/hivecards
+      JWT_SECRET: changeme_in_production
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+    depends_on:
+      - mongo
+      - mailpit
+
+  # ── Infrastructure ───────────────────────────────────────────────────────────
   mongo:
     image: mongo:6
     restart: unless-stopped
     ports:
-      - '27017:27017'
+      - '27018:27017'
     volumes:
       - mongo-data:/data/db
   mongo-express:
