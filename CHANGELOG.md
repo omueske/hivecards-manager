@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.10] - 2026-02-21
+
+### Chore
+- document all env variables in docker-compose (88f9901)
+
 ## [0.1.9] - 2026-02-21
 
 - minor improvements
