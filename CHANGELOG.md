@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.11] - 2026-02-21
+
+### Added
+- add email verification success page and fix public route redirect (85cc2ef)
+- add configurable log level system with categorized output (eede748)
+
+### Fixed
+- use API endpoint URL in verification email link (354b030)
+- resolve all pre-existing ESLint errors in frontend and tests (f213bea)
+
 ## [0.1.10] - 2026-02-21
 
 ### Chore
