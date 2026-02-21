@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.8] - 2026-02-21
+
+- minor improvements
+
 ## [0.1.7] - 2026-02-21
 
 - minor improvements
