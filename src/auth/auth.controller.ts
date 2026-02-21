@@ -39,7 +39,9 @@ export class AuthController {
   @Get('verify-email')
   async verifyEmail(@Query('token') token: string, @Res() res: Response) {
     if (!token) throw new BadRequestException('token required');
+    this.logger.log(`Email verification attempt token=${token.slice(0, 8)}...`);
     await this.authService.verifyEmail(token);
+    this.logger.log('Email verified successfully, redirecting');
     // Redirect to frontend with success flag
     const appUrl = process.env.APP_URL || 'http://localhost:5173';
     return res.redirect(`${appUrl}/login?verified=1`);
@@ -48,6 +50,7 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     if (!dto.email) throw new BadRequestException('email required');
+    this.logger.log(`Forgot password request for email=${dto.email}`);
     return this.authService.forgotPassword(dto.email);
   }
 
@@ -55,7 +58,10 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto) {
     if (!dto.token || !dto.password) throw new BadRequestException('token and password required');
     if (dto.password.length < 8) throw new BadRequestException('password too short');
-    return this.authService.resetPassword(dto.token, dto.password);
+    this.logger.log(`Password reset attempt token=${dto.token.slice(0, 8)}...`);
+    const res = await this.authService.resetPassword(dto.token, dto.password);
+    this.logger.log('Password reset completed');
+    return res;
   }
 
   @Post('login')
@@ -82,13 +88,16 @@ export class AuthController {
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const cookie = req.cookies?.hc_refresh;
     if (!cookie) {
+      this.logger.debug('Token refresh: no refresh cookie present');
       return res.status(204).send();
     }
     const payload = this.authService.verifyToken(cookie);
     if (!payload || !payload.sub) {
+      this.logger.warn('Token refresh: invalid or expired refresh token');
       res.clearCookie('hc_refresh');
       return res.status(204).send();
     }
+    this.logger.debug(`Token refresh for userId=${payload.sub}`);
     const tokens = this.authService.signTokens(payload.sub as string);
     const secure = process.env.NODE_ENV === 'production';
     res.cookie('hc_refresh', tokens.refreshToken, {
@@ -102,6 +111,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
+    this.logger.debug('Logout: clearing refresh cookie');
     res.clearCookie('hc_refresh');
     return { ok: true };
   }

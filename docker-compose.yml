@@ -14,6 +14,8 @@ services:
       APP_URL: http://localhost:3000
       SERVE_ROOT: ""            # Subpath if behind a reverse proxy, e.g. /hivecards-manager
       CORS_ORIGIN: ""           # Extra allowed origins (comma-separated); empty = only same-origin
+      # Logging – one of: FATAL | ERROR | WARN | INFO | DEBUG  (default: INFO)
+      LOG_LEVEL: "INFO"
       # Database
       MONGODB_URI: mongodb://mongo:27017/hivecards
       # Auth

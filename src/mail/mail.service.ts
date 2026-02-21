@@ -16,6 +16,9 @@ export class MailService {
           ? { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS }
           : undefined,
     });
+    this.logger.debug(
+      `Mail transporter configured: host=${process.env.MAIL_HOST || 'localhost'} port=${process.env.MAIL_PORT || 1025} secure=${process.env.MAIL_SECURE === 'true'}`,
+    );
   }
 
   private get from() {
@@ -29,11 +32,12 @@ export class MailService {
   async sendVerificationEmail(email: string, token: string) {
     const link = `${this.appUrl}/verify-email?token=${token}`;
     this.logger.log(`Sending verification email to ${email}`);
-    await this.transporter.sendMail({
-      from: this.from,
-      to: email,
-      subject: 'Hivecards – E-Mail-Adresse bestätigen',
-      html: `
+    try {
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: 'Hivecards – E-Mail-Adresse bestätigen',
+        html: `
         <p>Hallo,</p>
         <p>bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>
         <p><a href="${link}">${link}</a></p>
@@ -42,17 +46,23 @@ export class MailService {
         <br>
         <p>Dein Hivecards-Team</p>
       `,
-    });
+      });
+      this.logger.debug(`Verification email delivered to ${email}`);
+    } catch (err: any) {
+      this.logger.error(`Failed to send verification email to ${email}: ${err?.message}`);
+      throw err;
+    }
   }
 
   async sendPasswordResetEmail(email: string, token: string) {
     const link = `${this.appUrl}/reset-password?token=${token}`;
     this.logger.log(`Sending password reset email to ${email}`);
-    await this.transporter.sendMail({
-      from: this.from,
-      to: email,
-      subject: 'Hivecards – Passwort zurücksetzen',
-      html: `
+    try {
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: 'Hivecards – Passwort zurücksetzen',
+        html: `
         <p>Hallo,</p>
         <p>du hast das Zurücksetzen deines Passworts angefordert. Klicke auf den folgenden Link:</p>
         <p><a href="${link}">${link}</a></p>
@@ -61,6 +71,11 @@ export class MailService {
         <br>
         <p>Dein Hivecards-Team</p>
       `,
-    });
+      });
+      this.logger.debug(`Password reset email delivered to ${email}`);
+    } catch (err: any) {
+      this.logger.error(`Failed to send password reset email to ${email}: ${err?.message}`);
+      throw err;
+    }
   }
 }

@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
@@ -8,11 +7,17 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
+import { AppLogger, getLogLevels } from './common/app-logger.service';
 
 async function bootstrap() {
   dotenv.config();
-  const app = await NestFactory.create(AppModule);
-  const logger = new Logger('Bootstrap');
+
+  const logger = new AppLogger('Bootstrap');
+  const logLevel = (process.env.LOG_LEVEL || 'INFO').toUpperCase();
+  logger.log(`Log level: ${logLevel} → active NestJS levels: [${getLogLevels().join(', ')}]`);
+
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(new AppLogger());
 
   const config = new DocumentBuilder()
     .setTitle('Hivecards Manager API')
@@ -27,8 +32,8 @@ async function bootstrap() {
   // write openapi json for consumers
   try {
     writeFileSync('doc/openapi-generated.json', JSON.stringify(document, null, 2));
-    logger.log('Wrote OpenAPI document to doc/openapi-generated.json');
-  } catch (e) {
+    logger.debug('Wrote OpenAPI document to doc/openapi-generated.json');
+  } catch {
     logger.warn('Could not write OpenAPI document to disk (readonly?)');
   }
 
@@ -58,7 +63,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
-  logger.log(`CORS allowed origins: ${JSON.stringify(corsOrigins)}`);
+  logger.debug(`CORS allowed origins: ${JSON.stringify(corsOrigins)}`);
 
   // enable cookie parser so controllers can read httpOnly refresh cookie
   app.use(cookieParser());
@@ -96,4 +101,9 @@ async function bootstrap() {
   logger.log(`Server listening on http://localhost:${port}`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  const fatalLogger = new AppLogger('Bootstrap');
+  fatalLogger.fatal(`Application failed to start: ${err?.message ?? err}`);
+  if (err?.stack) fatalLogger.debug(err.stack);
+  process.exit(1);
+});

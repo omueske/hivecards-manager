@@ -10,6 +10,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { InspectionsService } from './inspections.service';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
@@ -19,6 +20,7 @@ import { CurrentUser } from '../common/current-user.decorator';
 @UseGuards(JwtGuard)
 @Controller('api/v1/inspections')
 export class InspectionsController {
+  private readonly logger = new Logger(InspectionsController.name);
   constructor(private readonly svc: InspectionsService) {}
 
   @Post()
@@ -26,6 +28,7 @@ export class InspectionsController {
     @Body() dto: CreateInspectionDto,
     @CurrentUser() user: { id: string },
   ) {
+    this.logger.log(`Create inspection hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);
     return this.svc.create(dto, user.id);
   }
 
@@ -36,6 +39,7 @@ export class InspectionsController {
     @Query('limit') limit: string,
     @CurrentUser() user: { id: string },
   ) {
+    this.logger.debug(`List inspections hiveId=${hiveId ?? 'all'} page=${page ?? 1} limit=${limit ?? 50} user=${user.id}`);
     return this.svc.findAll(
       hiveId,
       user.id,
@@ -50,6 +54,7 @@ export class InspectionsController {
     @Body() dto: Partial<CreateInspectionDto>,
     @CurrentUser() user: { id: string },
   ) {
+    this.logger.log(`Update inspection id=${id} user=${user.id}`);
     return this.svc.update(id, dto, user.id);
   }
 
@@ -59,6 +64,7 @@ export class InspectionsController {
     @Param('id') id: string,
     @CurrentUser() user: { id: string },
   ) {
+    this.logger.log(`Delete inspection id=${id} user=${user.id}`);
     return this.svc.remove(id, user.id);
   }
 }

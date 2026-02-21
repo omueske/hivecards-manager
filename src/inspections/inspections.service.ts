@@ -13,6 +13,7 @@ export class InspectionsService {
   ) {}
 
   async create(dto: CreateInspectionDto, userId: string): Promise<any> {
+    this.logger.log(`Creating inspection hiveId=${dto.hiveId} type=${dto.type ?? 'note'}`);
     const doc = new this.inspectionModel({
       ...dto,
       hiveId: new Types.ObjectId(dto.hiveId),
@@ -27,6 +28,7 @@ export class InspectionsService {
   async findAll(hiveId: string, userId: string, page = 1, limit = 50): Promise<any> {
     const filter: any = { userId };
     if (hiveId) filter.hiveId = new Types.ObjectId(hiveId);
+    this.logger.debug(`DB findAll inspections hiveId=${hiveId ?? 'all'} page=${page} limit=${limit}`);
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
@@ -47,6 +49,7 @@ export class InspectionsService {
   }
 
   async update(id: string, dto: Partial<CreateInspectionDto>, userId: string): Promise<any> {
+    this.logger.log(`Updating inspection id=${id}`);
     const doc = await this.inspectionModel
       .findOneAndUpdate(
         { _id: id, userId },
@@ -54,13 +57,22 @@ export class InspectionsService {
         { new: true, lean: true },
       )
       .exec();
-    if (!doc) throw new NotFoundException('Inspection not found');
+    if (!doc) {
+      this.logger.warn(`Inspection not found or not owned id=${id}`);
+      throw new NotFoundException('Inspection not found');
+    }
+    this.logger.debug(`Updated inspection id=${id}`);
     return { ...(doc as any), id: (doc as any)._id };
   }
 
   async remove(id: string, userId: string): Promise<void> {
+    this.logger.log(`Deleting inspection id=${id}`);
     const res = await this.inspectionModel.deleteOne({ _id: id, userId }).exec();
-    if (res.deletedCount === 0) throw new NotFoundException('Inspection not found');
+    if (res.deletedCount === 0) {
+      this.logger.warn(`Inspection not found or not owned for delete id=${id}`);
+      throw new NotFoundException('Inspection not found');
+    }
+    this.logger.debug(`Deleted inspection id=${id}`);
   }
 
   private toResponse(doc: InspectionDocument): any {

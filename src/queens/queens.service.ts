@@ -66,23 +66,32 @@ export class QueensService implements OnModuleInit {
   }
 
   async create(dto: CreateQueenDto, userId: string): Promise<any> {
+    this.logger.log(`Creating queen status=${dto.status ?? 'spare'} user=${userId}`);
     const doc = new this.queenModel({ ...dto, userId, status: dto.status ?? 'spare' });
     await doc.save();
+    this.logger.debug(`Created queen id=${doc._id.toString()}`);
     return this.toResponse(doc);
   }
 
   async findAll(userId: string): Promise<any[]> {
+    this.logger.debug(`DB findAll queens user=${userId}`);
     const docs = await this.queenModel.find({ userId }).sort({ createdAt: -1 }).lean().exec();
+    this.logger.debug(`findAll returned ${docs.length} queen(s)`);
     return (docs as any[]).map((d) => ({ ...d, id: d._id }));
   }
 
   async findOne(id: string, userId: string): Promise<any> {
+    this.logger.debug(`DB findOne queen id=${id}`);
     const doc = await this.queenModel.findOne({ _id: id, userId }).lean().exec();
-    if (!doc) throw new NotFoundException('Queen not found');
+    if (!doc) {
+      this.logger.warn(`Queen not found or not owned id=${id}`);
+      throw new NotFoundException('Queen not found');
+    }
     return { ...(doc as any), id: (doc as any)._id };
   }
 
   async findByHive(hiveId: string, userId: string): Promise<any[]> {
+    this.logger.debug(`DB findByHive queens hiveId=${hiveId}`);
     const docs = await this.queenModel
       .find({ userId, 'hiveHistory.hiveId': hiveId })
       .sort({ createdAt: -1 })
@@ -92,10 +101,15 @@ export class QueensService implements OnModuleInit {
   }
 
   async update(id: string, dto: Partial<CreateQueenDto>, userId: string): Promise<any> {
+    this.logger.log(`Updating queen id=${id}`);
     const doc = await this.queenModel
       .findOneAndUpdate({ _id: id, userId }, { $set: dto }, { new: true, lean: true })
       .exec();
-    if (!doc) throw new NotFoundException('Queen not found');
+    if (!doc) {
+      this.logger.warn(`Update failed - queen not found or not owned id=${id}`);
+      throw new NotFoundException('Queen not found');
+    }
+    this.logger.debug(`Updated queen id=${id}`);
     return { ...(doc as any), id: (doc as any)._id };
   }
 
@@ -106,8 +120,12 @@ export class QueensService implements OnModuleInit {
    * - Adds new assignment entry + sets status to active
    */
   async assignToHive(id: string, dto: AssignQueenDto, userId: string): Promise<any> {
+    this.logger.log(`Assigning queen id=${id} to hiveId=${dto.hiveId}`);
     const queen = await this.queenModel.findOne({ _id: id, userId }).exec();
-    if (!queen) throw new NotFoundException('Queen not found');
+    if (!queen) {
+      this.logger.warn(`assignToHive - queen not found id=${id}`);
+      throw new NotFoundException('Queen not found');
+    }
 
     const from = dto.from ? new Date(dto.from) : new Date();
 
@@ -143,6 +161,7 @@ export class QueensService implements OnModuleInit {
     queen.status = 'active';
     queen.markModified('hiveHistory');
     await queen.save();
+    this.logger.debug(`Queen id=${id} assigned to hiveId=${dto.hiveId}`);
 
     return this.toResponse(queen);
   }
@@ -151,8 +170,12 @@ export class QueensService implements OnModuleInit {
    * Remove a queen from its current hive → status becomes spare
    */
   async removeFromHive(id: string, dto: RemoveQueenFromHiveDto, userId: string): Promise<any> {
+    this.logger.log(`Removing queen id=${id} from its current hive`);
     const queen = await this.queenModel.findOne({ _id: id, userId }).exec();
-    if (!queen) throw new NotFoundException('Queen not found');
+    if (!queen) {
+      this.logger.warn(`removeFromHive - queen not found id=${id}`);
+      throw new NotFoundException('Queen not found');
+    }
 
     const to = dto.to ? new Date(dto.to) : new Date();
 
@@ -174,8 +197,13 @@ export class QueensService implements OnModuleInit {
   }
 
   async remove(id: string, userId: string): Promise<void> {
+    this.logger.log(`Deleting queen id=${id}`);
     const res = await this.queenModel.deleteOne({ _id: id, userId }).exec();
-    if (res.deletedCount === 0) throw new NotFoundException('Queen not found');
+    if (res.deletedCount === 0) {
+      this.logger.warn(`Delete failed - queen not found or not owned id=${id}`);
+      throw new NotFoundException('Queen not found');
+    }
+    this.logger.debug(`Deleted queen id=${id}`);
   }
 
   private toResponse(doc: QueenDocument): any {
