@@ -44,17 +44,27 @@ async function bootstrap() {
   // In production the frontend is served from the same origin, so same-origin
   // requests need no CORS – but the env var handles cases where proxy changes the origin.
   const corsOriginEnv = process.env.CORS_ORIGIN;
-  const corsOrigins: (string | RegExp)[] = corsOriginEnv
-    ? corsOriginEnv.split(',').map((o) => o.trim())
-    : [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:5175',
-        'http://localhost:5176',
-        'http://localhost:5177',
-        'http://localhost:4173',
-        'http://localhost:3000',
-      ];
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  let corsOrigins: string | string[] | boolean;
+  if (corsOriginEnv) {
+    // Explicit list from env (works in all environments)
+    corsOrigins = corsOriginEnv.split(',').map((o) => o.trim());
+  } else if (!isProduction) {
+    // Dev fallback: allow common Vite/preview ports
+    corsOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
+      'http://localhost:4173',
+      'http://localhost:3000',
+    ];
+  } else {
+    // Production with no explicit CORS_ORIGIN: same-origin only (no CORS header sent)
+    corsOrigins = false;
+  }
 
   app.enableCors({
     origin: corsOrigins,
@@ -63,7 +73,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
-  logger.debug(`CORS allowed origins: ${JSON.stringify(corsOrigins)}`);
+  logger.debug(`CORS origin: ${corsOrigins === false ? 'same-origin only' : JSON.stringify(corsOrigins)}`);
 
   // enable cookie parser so controllers can read httpOnly refresh cookie
   app.use(cookieParser());
