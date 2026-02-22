@@ -127,7 +127,7 @@
         "register_success": "Welcome to Hivecards! You are now logged in.",
         "register_failed": "Registration failed",
         "email_already_registered": "This email address is already registered.",
-        "username_placeholder": "e.g. BeekeeperOliver",
+        "username_placeholder": "e.g. BeekeeperMax",
         "registering": "Please wait\u2026",
         "logging_in": "Logging in\u2026",
         "login_failed": "Login failed. Please check your credentials.",
