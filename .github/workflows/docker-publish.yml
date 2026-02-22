@@ -54,6 +54,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             # short commit  → ghcr.io/owner/repo:sha-abc1234
             type=sha,prefix=sha-
+            # latest        → ghcr.io/owner/repo:latest  (main branch only)
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
