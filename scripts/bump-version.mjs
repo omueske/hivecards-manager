@@ -112,7 +112,7 @@ let sinceRef = '';
 try {
   sinceRef = run('git log --oneline --all --grep="chore: bump version" -1 --format=%H');
 } catch {
-  sinceRef = '';
+  // default value '' already set above
 }
 
 let rawLog = '';
@@ -126,7 +126,7 @@ try {
   try {
     rawLog = run('git log HEAD~20..HEAD --format="- %s (%h)" --no-merges');
   } catch {
-    rawLog = '';
+    // default value '' already set above
   }
 }
 
@@ -144,7 +144,7 @@ let existingChangelog = '';
 try {
   existingChangelog = readFileSync(changelogPath, 'utf8');
 } catch {
-  existingChangelog = '';
+  // default value '' already set above
 }
 
 const entry = `## [${newVersion}] - ${today()}\n\n${grouped}\n\n`;
