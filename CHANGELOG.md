@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.16] - 2026-02-22
+
+### Fixed
+- use relative URL for token refresh (was falling back to localhost:3000) (7ed4069)
+
 ## [0.1.15] - 2026-02-22
 
 ### Fixed
