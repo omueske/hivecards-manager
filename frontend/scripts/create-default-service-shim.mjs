@@ -16,14 +16,14 @@ const servicesDir = join(__dirname, '../src/api-client/services');
 
 // Discover all generated service files (exclude the shim itself)
 const serviceFiles = readdirSync(servicesDir)
-  .filter(f => f.endsWith('Service.ts') && f !== 'DefaultService.ts')
+  .filter((f) => f.endsWith('Service.ts') && f !== 'DefaultService.ts')
   .sort();
 
 // Extract method names: lines matching "public static someMethod("
-const serviceEntries = serviceFiles.map(file => {
+const serviceEntries = serviceFiles.map((file) => {
   const content = readFileSync(join(servicesDir, file), 'utf8');
   const className = file.replace('.ts', '');
-  const methods = [...content.matchAll(/public static (\w+)\(/g)].map(m => m[1]);
+  const methods = [...content.matchAll(/public static (\w+)\(/g)].map((m) => m[1]);
   return { className, methods };
 });
 
@@ -33,11 +33,13 @@ const imports = serviceEntries
   .join('\n');
 
 // Build method assignments grouped by service
-const sections = serviceEntries.map(({ className, methods }) => {
-  const tag = className.replace('Service', '');
-  const lines = methods.map(m => `  ${m}: ${className}.${m},`).join('\n');
-  return `  // ── ${tag} ${'─'.repeat(Math.max(0, 60 - tag.length))}\n${lines}`;
-}).join('\n\n');
+const sections = serviceEntries
+  .map(({ className, methods }) => {
+    const tag = className.replace('Service', '');
+    const lines = methods.map((m) => `  ${m}: ${className}.${m},`).join('\n');
+    return `  // ── ${tag} ${'─'.repeat(Math.max(0, 60 - tag.length))}\n${lines}`;
+  })
+  .join('\n\n');
 
 const shim = `/* istanbul ignore file */
 /* tslint:disable */

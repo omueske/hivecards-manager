@@ -294,7 +294,7 @@ q-layout {
   display: block;
 }
 q-toolbar {
-  background: #FF8F00;
+  background: #ff8f00;
   color: #fff;
   padding: 8px 12px;
 }

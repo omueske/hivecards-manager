@@ -3,14 +3,7 @@
     <!-- Back button + Print -->
     <div class="row items-center justify-between q-mb-md no-print">
       <q-btn flat dense icon="arrow_back" :label="t('toolbar.back')" @click="goBack" />
-      <q-btn
-        v-if="hive"
-        flat
-        dense
-        icon="print"
-        :label="t('toolbar.print')"
-        @click="printPage"
-      />
+      <q-btn v-if="hive" flat dense icon="print" :label="t('toolbar.print')" @click="printPage" />
     </div>
 
     <!-- Print-only header -->
@@ -30,12 +23,25 @@
           <div class="row items-center justify-between">
             <div class="text-h5">{{ hive.hiveNumber }}</div>
             <q-badge
-              :color="hive.status === 'active' ? 'positive' : hive.status === 'archived' ? 'grey' : 'warning'"
+              :color="
+                hive.status === 'active'
+                  ? 'positive'
+                  : hive.status === 'archived'
+                  ? 'grey'
+                  : 'warning'
+              "
               class="q-pa-xs"
-            >{{ hive.status }}</q-badge>
+              >{{ hive.status }}</q-badge
+            >
           </div>
           <div class="text-caption text-grey q-mt-xs">
-            {{ apiary ? apiary.name : hive.apiaryId ? t('messages.apiary_missing') : t('messages.no_location') }}
+            {{
+              apiary
+                ? apiary.name
+                : hive.apiaryId
+                ? t('messages.apiary_missing')
+                : t('messages.no_location')
+            }}
           </div>
         </q-card-section>
 
@@ -69,7 +75,15 @@
           <div class="row items-center justify-between q-mb-sm">
             <div class="text-subtitle2">🐝 {{ t('hive.queen_section') }}</div>
             <div class="row no-print">
-              <q-btn flat dense round icon="edit" size="sm" :disable="!currentQueen" @click="openQueenEdit" />
+              <q-btn
+                flat
+                dense
+                round
+                icon="edit"
+                size="sm"
+                :disable="!currentQueen"
+                @click="openQueenEdit"
+              />
               <q-btn flat dense round icon="add" size="sm" @click="openQueenCreate" />
             </div>
           </div>
@@ -113,7 +127,9 @@
             <div v-for="q in pastQueens" :key="(q as any).id" class="text-caption text-grey-7">
               {{ q.name || `K-${q.queenYear ?? '?'}` }}
               ({{ formatDate((q as any).hiveHistory?.find((e: any) => e.hiveId === hiveId)?.from) }}
-              – {{ formatDate((q as any).hiveHistory?.find((e: any) => e.hiveId === hiveId && e.to)?.to) }})
+              –
+              {{ formatDate((q as any).hiveHistory?.find((e: any) => e.hiveId === hiveId && e.to)?.to)
+              }})
             </div>
           </div>
         </q-card-section>
@@ -123,7 +139,14 @@
       <div class="row items-center justify-between q-mb-sm no-print">
         <div class="row items-center q-gutter-x-sm">
           <div class="text-h6">{{ t('inspection.title') }}</div>
-          <q-btn icon="add" :label="t('inspection.add')" color="primary" rounded size="sm" @click="openCreate" />
+          <q-btn
+            icon="add"
+            :label="t('inspection.add')"
+            color="primary"
+            rounded
+            size="sm"
+            @click="openCreate"
+          />
         </div>
         <q-btn-toggle
           v-model="listView"
@@ -131,7 +154,7 @@
           flat
           :options="[
             { icon: 'timeline', value: false },
-            { icon: 'list', value: true }
+            { icon: 'list', value: true },
           ]"
         />
       </div>
@@ -155,39 +178,70 @@
           :color="typeColor(entry.type)"
         >
           <div>
-            <div v-if="entry.time" class="text-caption text-grey q-mb-xs">🕐 {{ entry.time }} Uhr</div>
+            <div v-if="entry.time" class="text-caption text-grey q-mb-xs">
+              🕐 {{ entry.time }} Uhr
+            </div>
             <div v-if="entry.notes" class="q-mb-xs">{{ entry.notes }}</div>
             <!-- Durchsicht -->
             <div v-if="entry.type === 'inspection'" class="text-caption q-mt-xs row q-gutter-x-md">
               <span v-if="entry.queenSeen !== undefined && entry.queenSeen !== null">
                 {{ t('inspection.queenSeen') }}: {{ entry.queenSeen ? '✅' : '❌' }}
               </span>
-              <span v-if="entry.broodStatus">{{ t('inspection.broodStatus') }}: {{ entry.broodStatus }}</span>
-              <span v-if="entry.frameCount != null">{{ t('hive.frames') }}: {{ entry.frameCount }}</span>
+              <span v-if="entry.broodStatus"
+                >{{ t('inspection.broodStatus') }}: {{ entry.broodStatus }}</span
+              >
+              <span v-if="entry.frameCount != null"
+                >{{ t('hive.frames') }}: {{ entry.frameCount }}</span
+              >
             </div>
             <!-- Behandlung -->
             <div v-if="entry.type === 'treatment'" class="text-caption q-mt-xs row q-gutter-x-md">
-              <span v-if="entry.treatmentAgent">{{ t('inspection.treatmentAgent') }}: <strong>{{ entry.treatmentAgent }}</strong></span>
-              <span v-if="entry.treatmentAmount">{{ t('inspection.treatmentAmount') }}: {{ entry.treatmentAmount }}</span>
+              <span v-if="entry.treatmentAgent"
+                >{{ t('inspection.treatmentAgent') }}:
+                <strong>{{ entry.treatmentAgent }}</strong></span
+              >
+              <span v-if="entry.treatmentAmount"
+                >{{ t('inspection.treatmentAmount') }}: {{ entry.treatmentAmount }}</span
+              >
             </div>
             <!-- Fütterung -->
             <div v-if="entry.type === 'feeding'" class="text-caption q-mt-xs row q-gutter-x-md">
-              <span v-if="entry.feedingAgent">{{ t('inspection.feedingAgent') }}: <strong>{{ entry.feedingAgent }}</strong></span>
-              <span v-if="entry.feedingAmount">{{ t('inspection.feedingAmount') }}: {{ entry.feedingAmount }}</span>
+              <span v-if="entry.feedingAgent"
+                >{{ t('inspection.feedingAgent') }}: <strong>{{ entry.feedingAgent }}</strong></span
+              >
+              <span v-if="entry.feedingAmount"
+                >{{ t('inspection.feedingAmount') }}: {{ entry.feedingAmount }}</span
+              >
             </div>
             <!-- Ernte -->
             <div v-if="entry.type === 'harvest'" class="text-caption q-mt-xs">
-              <span v-if="entry.harvestAmount">{{ t('inspection.harvestAmount') }}: <strong>{{ entry.harvestAmount }}</strong></span>
+              <span v-if="entry.harvestAmount"
+                >{{ t('inspection.harvestAmount') }}:
+                <strong>{{ entry.harvestAmount }}</strong></span
+              >
             </div>
             <!-- Varroa -->
-            <div v-if="entry.varroaCount != null && (entry.type === 'inspection' || entry.type === 'treatment')" class="text-caption">
+            <div
+              v-if="
+                entry.varroaCount != null &&
+                (entry.type === 'inspection' || entry.type === 'treatment')
+              "
+              class="text-caption"
+            >
               {{ t('inspection.varroaCount') }}: {{ entry.varroaCount }}
             </div>
             <div v-if="entry.weather" class="text-caption text-grey">☁️ {{ entry.weather }}</div>
           </div>
           <div class="row q-gutter-x-xs q-mt-xs">
             <q-btn flat dense size="xs" icon="edit" @click="openEdit(entry)" />
-            <q-btn flat dense size="xs" icon="delete" color="negative" @click="confirmDelete(entry)" />
+            <q-btn
+              flat
+              dense
+              size="xs"
+              icon="delete"
+              color="negative"
+              @click="confirmDelete(entry)"
+            />
           </div>
         </q-timeline-entry>
       </q-timeline>
@@ -212,7 +266,12 @@
         <!-- Typ -->
         <template #body-cell-type="props">
           <q-td :props="props">
-            <q-icon :name="typeIcon(props.row.type)" :color="typeColor(props.row.type)" size="xs" class="q-mr-xs" />
+            <q-icon
+              :name="typeIcon(props.row.type)"
+              :color="typeColor(props.row.type)"
+              size="xs"
+              class="q-mr-xs"
+            />
             {{ typeLabel(props.row.type) }}
           </q-td>
         </template>
@@ -230,13 +289,21 @@
           <q-td :props="props">
             <template v-if="props.row.type === 'inspection'">
               <span v-if="props.row.broodStatus" class="q-mr-sm">{{ props.row.broodStatus }}</span>
-              <span v-if="props.row.frameCount != null">{{ props.row.frameCount }} {{ t('hive.frames') }}</span>
+              <span v-if="props.row.frameCount != null"
+                >{{ props.row.frameCount }} {{ t('hive.frames') }}</span
+              >
             </template>
             <template v-else-if="props.row.type === 'treatment'">
-              <span v-if="props.row.treatmentAgent">{{ props.row.treatmentAgent }}</span><span v-if="props.row.treatmentAmount" class="q-ml-xs text-grey-7">{{ props.row.treatmentAmount }}</span>
+              <span v-if="props.row.treatmentAgent">{{ props.row.treatmentAgent }}</span
+              ><span v-if="props.row.treatmentAmount" class="q-ml-xs text-grey-7">{{
+                props.row.treatmentAmount
+              }}</span>
             </template>
             <template v-else-if="props.row.type === 'feeding'">
-              <span v-if="props.row.feedingAgent">{{ props.row.feedingAgent }}</span><span v-if="props.row.feedingAmount" class="q-ml-xs text-grey-7">{{ props.row.feedingAmount }}</span>
+              <span v-if="props.row.feedingAgent">{{ props.row.feedingAgent }}</span
+              ><span v-if="props.row.feedingAmount" class="q-ml-xs text-grey-7">{{
+                props.row.feedingAmount
+              }}</span>
             </template>
             <template v-else-if="props.row.type === 'harvest'">
               <span v-if="props.row.harvestAmount">{{ props.row.harvestAmount }}</span>
@@ -254,7 +321,14 @@
         <template #body-cell-actions="props">
           <q-td :props="props" class="no-print">
             <q-btn flat dense size="xs" icon="edit" @click="openEdit(props.row)" />
-            <q-btn flat dense size="xs" icon="delete" color="negative" @click="confirmDelete(props.row)" />
+            <q-btn
+              flat
+              dense
+              size="xs"
+              icon="delete"
+              color="negative"
+              @click="confirmDelete(props.row)"
+            />
           </q-td>
         </template>
       </q-table>
@@ -274,7 +348,9 @@
         </thead>
         <tbody>
           <tr v-for="entry in inspections" :key="(entry as any).id || entry.date">
-            <td>{{ formatDate(entry.date) }}<span v-if="entry.time"> {{ entry.time }}</span></td>
+            <td>
+              {{ formatDate(entry.date) }}<span v-if="entry.time"> {{ entry.time }}</span>
+            </td>
             <td>{{ typeLabel(entry.type) }}</td>
             <td>{{ entry.notes || '–' }}</td>
             <td>
@@ -283,10 +359,12 @@
                 <span v-if="entry.frameCount != null">{{ entry.frameCount }} Waben</span>
               </template>
               <template v-else-if="entry.type === 'treatment'">
-                {{ entry.treatmentAgent }}<span v-if="entry.treatmentAmount"> {{ entry.treatmentAmount }}</span>
+                {{ entry.treatmentAgent
+                }}<span v-if="entry.treatmentAmount"> {{ entry.treatmentAmount }}</span>
               </template>
               <template v-else-if="entry.type === 'feeding'">
-                {{ entry.feedingAgent }}<span v-if="entry.feedingAmount"> {{ entry.feedingAmount }}</span>
+                {{ entry.feedingAgent
+                }}<span v-if="entry.feedingAmount"> {{ entry.feedingAmount }}</span>
               </template>
               <template v-else-if="entry.type === 'harvest'">
                 {{ entry.harvestAmount }}
@@ -307,7 +385,9 @@
       </table>
     </template>
 
-    <div v-else><p>{{ t('messages.hive_not_found') }}</p></div>
+    <div v-else>
+      <p>{{ t('messages.hive_not_found') }}</p>
+    </div>
 
     <!-- New/Edit Inspection Dialog -->
     <InspectionDialog
@@ -385,11 +465,18 @@ export default {
           else if (rawAid && typeof rawAid === 'object')
             aid = rawAid.$oid || rawAid._id || String(rawAid);
           if (aid && /^[a-fA-F0-9]{24}$/.test(aid)) {
-            try { apiary.value = await DefaultService.getApiV1Apiaries1(aid); } catch { /* ignore */ }
+            try {
+              apiary.value = await DefaultService.getApiV1Apiaries1(aid);
+            } catch {
+              /* ignore */
+            }
           }
         }
-      } catch { hive.value = null; }
-      finally { loading.value = false; }
+      } catch {
+        hive.value = null;
+      } finally {
+        loading.value = false;
+      }
       await Promise.all([loadInspections(), loadQueens()]);
     });
 
@@ -398,64 +485,97 @@ export default {
       try {
         const res = await DefaultService.getApiV1Inspections(hiveId, undefined, undefined, 1, 100);
         inspections.value = ((res as any).items || []) as Inspection[];
-      } catch { inspections.value = []; }
-      finally { inspectionsLoading.value = false; }
+      } catch {
+        inspections.value = [];
+      } finally {
+        inspectionsLoading.value = false;
+      }
     }
 
     async function loadQueens() {
       try {
         const res = await DefaultService.getApiV1Queens(hiveId);
-        queens.value = (res as any) as Queen[];
-      } catch { queens.value = []; }
+        queens.value = res as any as Queen[];
+      } catch {
+        queens.value = [];
+      }
     }
 
-    const currentQueen = computed(() =>
-      queens.value.find((q) =>
-        (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)
-      ) ?? null
+    const currentQueen = computed(
+      () =>
+        queens.value.find((q) =>
+          (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to),
+        ) ?? null,
     );
 
     const pastQueens = computed(() =>
-      queens.value.filter((q) =>
-        (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !!e.to) &&
-        !(q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)
-      )
+      queens.value.filter(
+        (q) =>
+          (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !!e.to) &&
+          !(q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to),
+      ),
     );
 
     const listView = ref(false);
 
     const tableColumns: any[] = [
-      { name: 'date',       label: 'Datum',    field: 'date',       align: 'left', sortable: true },
-      { name: 'type',       label: 'Typ',      field: 'type',       align: 'left' },
-      { name: 'notes',      label: 'Notiz',    field: 'notes',      align: 'left' },
-      { name: 'details',    label: 'Details',  field: 'details',    align: 'left' },
-      { name: 'queenSeen',  label: '👑',       field: 'queenSeen',  align: 'center' },
+      { name: 'date', label: 'Datum', field: 'date', align: 'left', sortable: true },
+      { name: 'type', label: 'Typ', field: 'type', align: 'left' },
+      { name: 'notes', label: 'Notiz', field: 'notes', align: 'left' },
+      { name: 'details', label: 'Details', field: 'details', align: 'left' },
+      { name: 'queenSeen', label: '👑', field: 'queenSeen', align: 'center' },
       { name: 'varroaCount', label: 'Varroa', field: 'varroaCount', align: 'center' },
-      { name: 'weather',    label: '☁️',      field: 'weather',     align: 'left' },
-      { name: 'actions',    label: '',         field: 'actions',    align: 'right' },
+      { name: 'weather', label: '☁️', field: 'weather', align: 'left' },
+      { name: 'actions', label: '', field: 'actions', align: 'right' },
     ];
 
-    function openCreate() { editingInspection.value = null; inspectionDialogVisible.value = true; }
-    function openEdit(e: Inspection) { editingInspection.value = e; inspectionDialogVisible.value = true; }
-    function openQueenCreate() { editingQueen.value = null; queenDialogVisible.value = true; }
-    function openQueenEdit() { editingQueen.value = currentQueen.value; queenDialogVisible.value = true; }
-    function confirmDelete(e: Inspection) { pendingDelete.value = e; deleteDialogVisible.value = true; }
+    function openCreate() {
+      editingInspection.value = null;
+      inspectionDialogVisible.value = true;
+    }
+    function openEdit(e: Inspection) {
+      editingInspection.value = e;
+      inspectionDialogVisible.value = true;
+    }
+    function openQueenCreate() {
+      editingQueen.value = null;
+      queenDialogVisible.value = true;
+    }
+    function openQueenEdit() {
+      editingQueen.value = currentQueen.value;
+      queenDialogVisible.value = true;
+    }
+    function confirmDelete(e: Inspection) {
+      pendingDelete.value = e;
+      deleteDialogVisible.value = true;
+    }
 
     async function doDelete() {
       if (!pendingDelete.value) return;
       try {
         await DefaultService.deleteApiV1Inspections((pendingDelete.value as any).id);
-        inspections.value = inspections.value.filter((i: any) => i.id !== (pendingDelete.value as any).id);
+        inspections.value = inspections.value.filter(
+          (i: any) => i.id !== (pendingDelete.value as any).id,
+        );
         // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'positive', message: t('inspection.deleted') }));
+        import('quasar').then(({ Notify }) =>
+          Notify.create({ type: 'positive', message: t('inspection.deleted') }),
+        );
       } catch (e: any) {
         // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }));
-      } finally { deleteDialogVisible.value = false; pendingDelete.value = null; }
+        import('quasar').then(({ Notify }) =>
+          Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }),
+        );
+      } finally {
+        deleteDialogVisible.value = false;
+        pendingDelete.value = null;
+      }
     }
 
     function onCreated(e: Inspection) {
-      inspections.value = [e, ...inspections.value].sort((a: any, b: any) => (b.date > a.date ? 1 : -1));
+      inspections.value = [e, ...inspections.value].sort((a: any, b: any) =>
+        b.date > a.date ? 1 : -1,
+      );
     }
     function onUpdated(u: Inspection) {
       const idx = inspections.value.findIndex((i: any) => i.id === (u as any).id);
@@ -471,10 +591,10 @@ export default {
     async function onQueenCreated(newQueen: Queen) {
       // Auto-assign the new queen to this hive
       try {
-        const assigned = await DefaultService.postApiV1QueensAssign(
-          (newQueen as any).id,
-          { hiveId, from: new Date().toISOString() },
-        );
+        const assigned = await DefaultService.postApiV1QueensAssign((newQueen as any).id, {
+          hiveId,
+          from: new Date().toISOString(),
+        });
         queens.value.unshift(assigned as Queen);
       } catch {
         queens.value.unshift(newQueen);
@@ -495,32 +615,63 @@ export default {
 
     function formatDate(d?: string) {
       if (!d) return '-';
-      try { return new Date(d).toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' }); }
-      catch { return d; }
+      try {
+        return new Date(d).toLocaleDateString('de-DE', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+      } catch {
+        return d;
+      }
     }
 
     const TYPE_META: Record<string, { icon: string; color: string }> = {
       inspection: { icon: 'search', color: 'primary' },
-      treatment:  { icon: 'healing', color: 'negative' },
-      feeding:    { icon: 'lunch_dining', color: 'orange' },
-      harvest:    { icon: 'local_florist', color: 'amber' },
-      note:       { icon: 'notes', color: 'grey' },
+      treatment: { icon: 'healing', color: 'negative' },
+      feeding: { icon: 'lunch_dining', color: 'orange' },
+      harvest: { icon: 'local_florist', color: 'amber' },
+      note: { icon: 'notes', color: 'grey' },
     };
 
     const typeLabel = (type?: string) => t(`inspection.type_${type || 'note'}` as any);
-    const typeIcon  = (type?: string) => TYPE_META[type ?? 'note']?.icon  ?? 'notes';
+    const typeIcon = (type?: string) => TYPE_META[type ?? 'note']?.icon ?? 'notes';
     const typeColor = (type?: string) => TYPE_META[type ?? 'note']?.color ?? 'grey';
 
     return {
-      hiveId, hive, loading, apiary,
-      inspections, inspectionsLoading,
-      inspectionDialogVisible, editingInspection,
-      deleteDialogVisible, queenDialogVisible, editingQueen,
-      queens, currentQueen, pastQueens,
-      listView, tableColumns,
-      openCreate, openEdit, confirmDelete, doDelete, onCreated, onUpdated,
-      openQueenCreate, openQueenEdit, onQueenCreated, onQueenUpdated,
-      goBack, printPage, formatDate, typeLabel, typeIcon, typeColor, t,
+      hiveId,
+      hive,
+      loading,
+      apiary,
+      inspections,
+      inspectionsLoading,
+      inspectionDialogVisible,
+      editingInspection,
+      deleteDialogVisible,
+      queenDialogVisible,
+      editingQueen,
+      queens,
+      currentQueen,
+      pastQueens,
+      listView,
+      tableColumns,
+      openCreate,
+      openEdit,
+      confirmDelete,
+      doDelete,
+      onCreated,
+      onUpdated,
+      openQueenCreate,
+      openQueenEdit,
+      onQueenCreated,
+      onQueenUpdated,
+      goBack,
+      printPage,
+      formatDate,
+      typeLabel,
+      typeIcon,
+      typeColor,
+      t,
     };
   },
 };
@@ -528,21 +679,35 @@ export default {
 
 <style scoped>
 /* ===== PRINT STYLES ===== */
-.print-only { display: none; }
+.print-only {
+  display: none;
+}
 
 @media print {
   /* Hide all interactive chrome */
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 
   /* Show print-only elements */
-  .print-only { display: block !important; }
+  .print-only {
+    display: block !important;
+  }
 
   /* Remove padding/shadow from the page wrapper */
-  .q-pa-md { padding: 0 !important; }
+  .q-pa-md {
+    padding: 0 !important;
+  }
 
   /* Remove card box shadows */
-  .q-card { box-shadow: none !important; border: 1px solid #ccc; page-break-inside: avoid; }
-  .q-card.q-mb-md { margin-bottom: 12pt !important; }
+  .q-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+  .q-card.q-mb-md {
+    margin-bottom: 12pt !important;
+  }
 
   /* Print header */
   .print-header {
@@ -553,11 +718,19 @@ export default {
     margin-bottom: 12pt;
     padding-bottom: 4pt;
   }
-  .print-title { font-size: 18pt; font-weight: bold; }
-  .print-meta { font-size: 9pt; color: #555; }
+  .print-title {
+    font-size: 18pt;
+    font-weight: bold;
+  }
+  .print-meta {
+    font-size: 9pt;
+    color: #555;
+  }
 
   /* Timeline hidden on print, table always visible */
-  .no-print.q-timeline { display: none !important; }
+  .no-print.q-timeline {
+    display: none !important;
+  }
 
   /* Print table */
   .print-table {
@@ -580,7 +753,9 @@ export default {
   .print-table tr:nth-child(even) td {
     background: #fafafa;
   }
-  .text-center { text-align: center; }
+  .text-center {
+    text-align: center;
+  }
 
   /* Page settings */
   @page {
