@@ -74,7 +74,7 @@ export class AuthController {
     }
     const tokens = this.authService.signTokens(user._id.toString());
     this.logger.log(`Login successful for userId=${user._id.toString()}`);
-    const secure = process.env.NODE_ENV === 'production';
+    const secure = process.env.COOKIE_SECURE === 'true';
     res.cookie('hc_refresh', tokens.refreshToken, {
       httpOnly: true,
       secure,
@@ -99,7 +99,7 @@ export class AuthController {
     }
     this.logger.debug(`Token refresh for userId=${payload.sub}`);
     const tokens = this.authService.signTokens(payload.sub as string);
-    const secure = process.env.NODE_ENV === 'production';
+    const secure = process.env.COOKIE_SECURE === 'true';
     res.cookie('hc_refresh', tokens.refreshToken, {
       httpOnly: true,
       secure,

@@ -22,6 +22,8 @@ services:
       MONGODB_URI: mongodb://mongo:27017/hivecards
       # Auth
       JWT_SECRET: changeme_in_production
+      # Set to true only when serving over HTTPS (prevents cookie being sent over plain HTTP)
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       # Mail – set values in .env (see .env.example)
       MAIL_HOST: ${MAIL_HOST:-mailpit}
       MAIL_PORT: ${MAIL_PORT:-1025}
