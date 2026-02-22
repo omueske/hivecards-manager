@@ -2,24 +2,18 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { HiveHistoryEntry } from './HiveHistoryEntry';
-
-export type Queen = {
-    id?: string;
+export type CreateQueenRequest = {
     name?: string;
     queenYear?: number;
     queenColor?: string;
     queenOrigin?: string;
     matingType?: string;
     queenMarked?: boolean;
-    status?: Queen.status;
+    status?: CreateQueenRequest.status;
     notes?: string;
-    hiveHistory?: Array<HiveHistoryEntry>;
-    createdAt?: string;
-    updatedAt?: string;
 };
 
-export namespace Queen {
+export namespace CreateQueenRequest {
 
     export enum status {
         ACTIVE = 'active',

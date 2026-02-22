@@ -2,11 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Hive = {
-    id?: string;
+export type CreateHiveRequest = {
     apiaryId?: string;
-    hiveNumber?: string;
-    status?: Hive.status;
+    hiveNumber: string;
+    status?: CreateHiveRequest.status;
     frameCount?: number;
     installationDate?: string;
     notes?: string;
@@ -17,11 +16,9 @@ export type Hive = {
     queenOrigin?: string;
     matingType?: string;
     queenMarked?: boolean;
-    createdAt?: string;
-    updatedAt?: string;
 };
 
-export namespace Hive {
+export namespace CreateHiveRequest {
 
     export enum status {
         ACTIVE = 'active',

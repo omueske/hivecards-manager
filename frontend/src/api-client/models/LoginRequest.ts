@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Error = {
-    code?: number;
-    message?: string;
+export type LoginRequest = {
+    email: string;
+    password: string;
 };

@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type AuthTokens = {
+export type AuthResponse = {
     accessToken?: string;
-    refreshToken?: string;
 };

@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type User = {
-    id?: string;
-    email?: string;
+export type RegisterRequest = {
+    email: string;
+    password: string;
     username?: string;
 };

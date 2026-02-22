@@ -15,6 +15,7 @@
     "start:prod": "node dist/main.js"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.1.14",
     "@nestjs/core": "^11.1.14",
     "@nestjs/mongoose": "^11.0.4",
@@ -26,6 +27,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.0.0",
+    "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.0",
     "nodemailer": "^8.0.1",

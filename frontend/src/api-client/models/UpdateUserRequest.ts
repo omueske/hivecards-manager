@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type User = {
-    id?: string;
-    email?: string;
+export type UpdateUserRequest = {
     username?: string;
+    email?: string;
+    password?: string;
 };

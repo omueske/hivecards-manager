@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type AuthLogin = {
-    email: string;
+export type ResetPasswordRequest = {
+    token: string;
     password: string;
 };

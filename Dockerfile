@@ -55,6 +55,9 @@ COPY package.json ./
 # Copy compiled backend
 COPY --from=builder /app/dist ./dist
 
+# Copy Handlebars mail templates (not compiled by tsc, referenced via process.cwd())
+COPY --from=builder /app/src/mail/templates ./src/mail/templates
+
 # Copy built frontend (served as static files by the NestJS app)
 COPY --from=builder /app/frontend/dist ./frontend/dist
 

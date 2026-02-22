@@ -2,22 +2,15 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Inspection = {
-    id?: string;
-    hiveId?: string;
-    date?: string;
-    time?: string | null;
-    type?: Inspection.type;
+export type CreateInspectionRequest = {
+    hiveId: string;
+    date: string;
+    time?: string;
+    type?: CreateInspectionRequest.type;
     notes?: string;
     weather?: string;
     queenSeen?: boolean;
-    /**
-     * Derived from brood checkboxes, e.g. 'Ei, Larve, Verdeckelt'
-     */
     broodStatus?: string;
-    /**
-     * Natural mite drop per day
-     */
     varroaCount?: number;
     frameCount?: number;
     treatmentAgent?: string;
@@ -25,11 +18,9 @@ export type Inspection = {
     feedingAgent?: string;
     feedingAmount?: string;
     harvestAmount?: string;
-    createdAt?: string;
-    updatedAt?: string;
 };
 
-export namespace Inspection {
+export namespace CreateInspectionRequest {
 
     export enum type {
         INSPECTION = 'inspection',
