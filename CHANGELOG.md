@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.15] - 2026-02-22
+
+### Fixed
+- set CORS_ORIGIN to production domain (6a0cc67)
+- disable CORS in production when CORS_ORIGIN is not set (same-origin only) (bc5c21d)
+- decouple refresh cookie secure flag from NODE_ENV via COOKIE_SECURE env var (8dc0577)
+- make APP_URL configurable via env for correct email links in production (beb0da4)
+
 ## [0.1.14] - 2026-02-22
 
 ### Added
