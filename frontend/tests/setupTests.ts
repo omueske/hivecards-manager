@@ -58,6 +58,33 @@ quasarTags.forEach((t) => {
   }
 })
 
+// Provide a global stub for router-link so it doesn't cause resolution errors
+// @ts-expect-error -- dynamic component registration not typed on global config
+config.global.stubs['router-link'] = { template: '<a><slot /></a>' }
+// @ts-expect-error -- dynamic component registration not typed on global config
+config.global.stubs['RouterLink'] = { template: '<a><slot /></a>' }
+
+// Mock vue-i18n so components using useI18n() work without app.use(i18n)
+vi.mock('vue-i18n', async () => {
+  const en = (await import('../src/locales/en.json')) as Record<string, any>
+  function t(key: string): string {
+    const parts = key.split('.')
+    let cur: any = en
+    for (const part of parts) {
+      if (cur && typeof cur === 'object' && part in cur) {
+        cur = cur[part]
+      } else {
+        return key
+      }
+    }
+    return typeof cur === 'string' ? cur : key
+  }
+  return {
+    useI18n: () => ({ t }),
+    createI18n: vi.fn(() => ({ install: vi.fn() })),
+  }
+})
+
 // Provide a basic vue-router mock so components using useRouter/useRoute work
 vi.mock('vue-router', () => {
   return {

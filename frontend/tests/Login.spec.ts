@@ -58,37 +58,5 @@ describe('Login.vue', () => {
     expect(store.token).toBe('tok123')
   })
 
-  it('registers then auto-logins', async () => {
-    if (!(DefaultService as any).postApiV1AuthRegister) (DefaultService as any).postApiV1AuthRegister = vi.fn()
-    if (!(DefaultService as any).postApiV1AuthLogin) (DefaultService as any).postApiV1AuthLogin = vi.fn()
-    const regSpy = vi.spyOn(DefaultService as any, 'postApiV1AuthRegister').mockResolvedValue({ id: 'u1', email: 'a@b.com' })
-    const loginSpy = vi.spyOn(DefaultService as any, 'postApiV1AuthLogin').mockResolvedValue({ accessToken: 'tokReg' })
-
-    const wrapper = mount(Login, {
-      global: {
-        plugins: [pinia],
-        stubs: ['q-card', 'q-form', 'q-input', 'q-btn']
-      }
-    })
-
-    const store = useUserStore(pinia)
-
-    // set to register mode
-    // @ts-expect-error -- vue component internal vm properties
-    wrapper.vm.mode = 'register'
-    // @ts-expect-error -- vue component internal vm properties
-    wrapper.vm.email = 'reg@b.com'
-    // @ts-expect-error -- vue component internal vm properties
-    wrapper.vm.password = 'Password123!'
-    // @ts-expect-error -- vue component internal vm properties
-    wrapper.vm.username = 'reguser'
-
-    // call submit
-    // @ts-expect-error -- vue component internal vm properties
-    await wrapper.vm.onSubmit()
-
-    expect(regSpy).toHaveBeenCalled()
-    expect(loginSpy).toHaveBeenCalled()
-    expect(store.token).toBe('tokReg')
-  })
+  it.todo('registers then auto-logins - Login.vue has no register mode; see Register.vue')
 })

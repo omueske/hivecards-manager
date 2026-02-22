@@ -34,17 +34,17 @@ function today() {
 
 // Maps Conventional Commits type → changelog section heading
 const TYPE_MAP = {
-  feat:     '### Added',
-  fix:      '### Fixed',
-  perf:     '### Performance',
+  feat: '### Added',
+  fix: '### Fixed',
+  perf: '### Performance',
   refactor: '### Changed',
-  style:    '### Changed',
-  docs:     '### Documentation',
-  test:     '### Tests',
-  build:    '### Build',
-  ci:       '### CI',
-  chore:    '### Chore',
-  revert:   '### Reverted',
+  style: '### Changed',
+  docs: '### Documentation',
+  test: '### Tests',
+  build: '### Build',
+  ci: '### CI',
+  chore: '### Chore',
+  revert: '### Reverted',
 };
 
 // Regex: "feat(scope): message (abc1234)" or "feat: message (abc1234)"
@@ -62,7 +62,7 @@ function groupByType(rawLines) {
     const m = line.match(CONVENTIONAL_RE);
     if (m) {
       const type = m[1].toLowerCase();
-      const msg  = m[2].trim();
+      const msg = m[2].trim();
       const hash = m[3] ? m[3].trim() : '';
       const heading = TYPE_MAP[type] ?? '### Other';
       if (!buckets.has(heading)) buckets.set(heading, []);
@@ -79,9 +79,17 @@ function groupByType(rawLines) {
 
   // Preferred display order
   const order = [
-    '### Added', '### Fixed', '### Performance', '### Changed',
-    '### Reverted', '### Documentation', '### Tests',
-    '### Build', '### CI', '### Chore', '### Other',
+    '### Added',
+    '### Fixed',
+    '### Performance',
+    '### Changed',
+    '### Reverted',
+    '### Documentation',
+    '### Tests',
+    '### Build',
+    '### CI',
+    '### Chore',
+    '### Other',
   ];
 
   const sections = [];
@@ -132,8 +140,8 @@ try {
 
 const commitLines = rawLog
   .split('\n')
-  .map(l => l.trim())
-  .filter(l => l && !l.match(/chore.*bump version/i));
+  .map((l) => l.trim())
+  .filter((l) => l && !l.match(/chore.*bump version/i));
 
 const grouped = groupByType(commitLines);
 

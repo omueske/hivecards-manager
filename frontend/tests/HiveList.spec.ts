@@ -27,7 +27,8 @@ vi.mock('../src/api-client/services/DefaultService', () => {
     DefaultService: {
       getApiV1Hives: vi.fn(() => Promise.resolve({ items: [
         { id: '1', hiveNumber: 'H-001', status: 'active', apiaryId: 'A-1', frameCount: 10, notes: 'Test hive' }
-      ] }))
+      ] })),
+      getApiV1Apiaries: vi.fn(() => Promise.resolve({ items: [] }))
     }
   }
 })
@@ -50,6 +51,6 @@ describe('HiveList', () => {
     await new Promise((r) => setTimeout(r, 0))
 
     expect(wrapper.html()).toContain('H-001')
-    expect(wrapper.text()).toContain('Apiary: A-1')
+    expect(wrapper.text()).toContain('Location: A-1')
   })
 })

@@ -8,8 +8,5 @@ export default defineConfig({
     setupFiles: './tests/setupTests.ts',
     globals: true,
     include: ['tests/**/*.spec.ts'],
-    deps: {
-      inline: ['vue', '@vue']
-    }
   },
 })
