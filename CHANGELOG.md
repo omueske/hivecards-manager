@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.17] - 2026-02-22
+
+### Changed
+- apply prettier formatting (895b9d2)
+
 ## [0.1.16] - 2026-02-22
 
 ### Fixed
