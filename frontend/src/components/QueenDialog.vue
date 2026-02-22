@@ -146,7 +146,7 @@ export default {
 
     const defaultForm = () => ({
       name: '',
-      queenYear: null as number | null,
+      queenYear: new Date().getFullYear() as number | null,
       queenColor: '',
       queenOrigin: '',
       matingType: '',

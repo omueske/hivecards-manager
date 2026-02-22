@@ -30,18 +30,27 @@
             />
             <q-btn size="sm" flat icon="add" :label="t('form.new')" @click.prevent="createApiary" />
           </div>
-          <q-input v-model="form.hiveNumber" :label="t('hive.create') + ' #'" required dense />
+          <div style="display: flex; gap: 4px; align-items: center">
+            <q-btn flat dense round icon="remove" @click.prevent="() => { const n = parseInt(form.hiveNumber); if (!isNaN(n) && n > 1) form.hiveNumber = String(n - 1); }" />
+            <q-input v-model="form.hiveNumber" :label="t('hive.create') + ' #'" required dense style="flex: 1" />
+            <q-btn flat dense round icon="add" @click.prevent="() => { const n = parseInt(form.hiveNumber); form.hiveNumber = String(isNaN(n) ? 1 : n + 1); }" />
+          </div>
           <q-select
             v-model="form.status"
             :options="['active', 'inactive', 'archived']"
             :label="t('form.status')"
             dense
           />
-          <q-input v-model.number="form.frameCount" :label="t('hive.frames')" type="number" dense />
+          <div style="display: flex; gap: 4px; align-items: center">
+            <q-btn flat dense round icon="remove" @click.prevent="() => { if (form.frameCount > 0) form.frameCount-- }" />
+            <q-input v-model.number="form.frameCount" :label="t('hive.frames')" type="number" dense style="flex: 1" />
+            <q-btn flat dense round icon="add" @click.prevent="() => form.frameCount++" />
+          </div>
           <q-input
             v-model="form.installationDate"
             :label="t('form.installationDate')"
-            type="date"
+            :placeholder="'TT.MM.JJJJ'"
+            mask="##.##.####"
             dense
           />
           <q-input v-model="form.notes" :label="t('form.notes')" type="textarea" dense />
@@ -106,11 +115,23 @@ export default {
     );
     watch(visible, (v) => emit('update:visible', v));
 
+    function isoToDisplay(iso: string): string {
+      if (!iso) return '';
+      const [y, m, d] = iso.slice(0, 10).split('-');
+      return `${d}.${m}.${y}`;
+    }
+
+    function displayToIso(display: string): string {
+      const parts = display.split('.');
+      if (parts.length !== 3 || parts[2].length !== 4) return '';
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+
     const form = ref<any>({
       apiaryId: '',
       hiveNumber: '',
       status: 'active',
-      frameCount: 0,
+      frameCount: 20,
       installationDate: '',
       notes: '',
       hiveBoxType: '',
@@ -131,7 +152,7 @@ export default {
             status: h.status || 'active',
             frameCount: h.frameCount ?? 0,
             installationDate: h.installationDate
-              ? new Date(h.installationDate).toISOString().slice(0, 10)
+              ? isoToDisplay(new Date(h.installationDate).toISOString())
               : '',
             notes: h.notes || '',
             hiveBoxType: h.hiveBoxType || '',
@@ -202,7 +223,8 @@ export default {
         // ensure date is ISO formatted if provided
         const payload = { ...form.value } as any;
         if (payload.installationDate) {
-          payload.installationDate = new Date(payload.installationDate).toISOString();
+          const iso = displayToIso(payload.installationDate);
+          payload.installationDate = iso ? new Date(iso).toISOString() : undefined;
         }
         let res: any;
         if (props.hive && (props.hive.id || props.hive._id)) {
