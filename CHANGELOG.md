@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.14] - 2026-02-22
+
+### Added
+- set navbar color to amber-8 (honey color) (4b71f1e)
+- Handlebars mail templates via @nestjs-modules/mailer (f5ffb53)
+- extended inspection form, treatment agents module, updated openapi spec (dc9cf4c)
+- improve hive and queen form defaults and UX (0211551)
+
+### Fixed
+- show feeding/harvest fields in Stockkarte; register QCheckbox/QItem in Quasar (b017c45)
+
+### Changed
+- apply prettier formatting (7db3253)
+
+### CI
+- add :latest tag on main branch Docker builds (671b26c)
+
+### Chore
+- update en.json translations (a9ea9c2)
+- use local hivecards-local image in docker-compose for dev (4eee543)
+- fix frontend npm audit vulnerabilities (173c3b7)
+- fix npm audit vulnerabilities (3e50f11)
+
 ## [0.1.13] - 2026-02-21
 
 ### Added
