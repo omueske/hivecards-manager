@@ -155,10 +155,9 @@
           :color="typeColor(entry.type)"
         >
           <div>
+            <div v-if="entry.time" class="text-caption text-grey q-mb-xs">🕐 {{ entry.time }} Uhr</div>
             <div v-if="entry.notes" class="q-mb-xs">{{ entry.notes }}</div>
-            <div v-if="entry.actionsTaken" class="text-caption">
-              <strong>{{ t('inspection.actionsTaken') }}:</strong> {{ entry.actionsTaken }}
-            </div>
+            <!-- Durchsicht -->
             <div v-if="entry.type === 'inspection'" class="text-caption q-mt-xs row q-gutter-x-md">
               <span v-if="entry.queenSeen !== undefined && entry.queenSeen !== null">
                 {{ t('inspection.queenSeen') }}: {{ entry.queenSeen ? '✅' : '❌' }}
@@ -166,6 +165,21 @@
               <span v-if="entry.broodStatus">{{ t('inspection.broodStatus') }}: {{ entry.broodStatus }}</span>
               <span v-if="entry.frameCount != null">{{ t('hive.frames') }}: {{ entry.frameCount }}</span>
             </div>
+            <!-- Behandlung -->
+            <div v-if="entry.type === 'treatment'" class="text-caption q-mt-xs row q-gutter-x-md">
+              <span v-if="entry.treatmentAgent">{{ t('inspection.treatmentAgent') }}: <strong>{{ entry.treatmentAgent }}</strong></span>
+              <span v-if="entry.treatmentAmount">{{ t('inspection.treatmentAmount') }}: {{ entry.treatmentAmount }}</span>
+            </div>
+            <!-- Fütterung -->
+            <div v-if="entry.type === 'feeding'" class="text-caption q-mt-xs row q-gutter-x-md">
+              <span v-if="entry.feedingAgent">{{ t('inspection.feedingAgent') }}: <strong>{{ entry.feedingAgent }}</strong></span>
+              <span v-if="entry.feedingAmount">{{ t('inspection.feedingAmount') }}: {{ entry.feedingAmount }}</span>
+            </div>
+            <!-- Ernte -->
+            <div v-if="entry.type === 'harvest'" class="text-caption q-mt-xs">
+              <span v-if="entry.harvestAmount">{{ t('inspection.harvestAmount') }}: <strong>{{ entry.harvestAmount }}</strong></span>
+            </div>
+            <!-- Varroa -->
             <div v-if="entry.varroaCount != null && (entry.type === 'inspection' || entry.type === 'treatment')" class="text-caption">
               {{ t('inspection.varroaCount') }}: {{ entry.varroaCount }}
             </div>
@@ -211,6 +225,25 @@
             <span v-else class="text-grey">–</span>
           </q-td>
         </template>
+        <!-- Details (typ-spezifisch) -->
+        <template #body-cell-details="props">
+          <q-td :props="props">
+            <template v-if="props.row.type === 'inspection'">
+              <span v-if="props.row.broodStatus" class="q-mr-sm">{{ props.row.broodStatus }}</span>
+              <span v-if="props.row.frameCount != null">{{ props.row.frameCount }} {{ t('hive.frames') }}</span>
+            </template>
+            <template v-else-if="props.row.type === 'treatment'">
+              <span v-if="props.row.treatmentAgent">{{ props.row.treatmentAgent }}</span><span v-if="props.row.treatmentAmount" class="q-ml-xs text-grey-7">{{ props.row.treatmentAmount }}</span>
+            </template>
+            <template v-else-if="props.row.type === 'feeding'">
+              <span v-if="props.row.feedingAgent">{{ props.row.feedingAgent }}</span><span v-if="props.row.feedingAmount" class="q-ml-xs text-grey-7">{{ props.row.feedingAmount }}</span>
+            </template>
+            <template v-else-if="props.row.type === 'harvest'">
+              <span v-if="props.row.harvestAmount">{{ props.row.harvestAmount }}</span>
+            </template>
+            <span v-else>–</span>
+          </q-td>
+        </template>
         <!-- Varroa -->
         <template #body-cell-varroaCount="props">
           <q-td :props="props" class="text-center">
@@ -232,20 +265,33 @@
           <tr>
             <th>Datum</th>
             <th>Typ</th>
-            <th>Notiz / Maßnahmen</th>
-            <th>👑 Königin</th>
+            <th>Notiz</th>
+            <th>Details</th>
+            <th>👑 Königin / Brut</th>
             <th>Varroa</th>
             <th>Wetter</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="entry in inspections" :key="(entry as any).id || entry.date">
-            <td>{{ formatDate(entry.date) }}</td>
+            <td>{{ formatDate(entry.date) }}<span v-if="entry.time"> {{ entry.time }}</span></td>
             <td>{{ typeLabel(entry.type) }}</td>
+            <td>{{ entry.notes || '–' }}</td>
             <td>
-              <span v-if="entry.notes">{{ entry.notes }}</span>
-              <span v-if="entry.notes && entry.actionsTaken"> &mdash; </span>
-              <span v-if="entry.actionsTaken" class="text-grey-8">{{ entry.actionsTaken }}</span>
+              <template v-if="entry.type === 'inspection'">
+                <span v-if="entry.broodStatus">{{ entry.broodStatus }} </span>
+                <span v-if="entry.frameCount != null">{{ entry.frameCount }} Waben</span>
+              </template>
+              <template v-else-if="entry.type === 'treatment'">
+                {{ entry.treatmentAgent }}<span v-if="entry.treatmentAmount"> {{ entry.treatmentAmount }}</span>
+              </template>
+              <template v-else-if="entry.type === 'feeding'">
+                {{ entry.feedingAgent }}<span v-if="entry.feedingAmount"> {{ entry.feedingAmount }}</span>
+              </template>
+              <template v-else-if="entry.type === 'harvest'">
+                {{ entry.harvestAmount }}
+              </template>
+              <span v-else>–</span>
             </td>
             <td class="text-center">
               <template v-if="entry.type === 'inspection' && entry.queenSeen !== undefined">
@@ -382,7 +428,7 @@ export default {
       { name: 'date',       label: 'Datum',    field: 'date',       align: 'left', sortable: true },
       { name: 'type',       label: 'Typ',      field: 'type',       align: 'left' },
       { name: 'notes',      label: 'Notiz',    field: 'notes',      align: 'left' },
-      { name: 'actionsTaken', label: 'Maßnahmen', field: 'actionsTaken', align: 'left' },
+      { name: 'details',    label: 'Details',  field: 'details',    align: 'left' },
       { name: 'queenSeen',  label: '👑',       field: 'queenSeen',  align: 'center' },
       { name: 'varroaCount', label: 'Varroa', field: 'varroaCount', align: 'center' },
       { name: 'weather',    label: '☁️',      field: 'weather',     align: 'left' },

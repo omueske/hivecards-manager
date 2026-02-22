@@ -11,7 +11,8 @@ import { Quasar, Notify, ClosePopup,
 	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
 	QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
-	QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip
+	QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
+	QCheckbox, QItem, QItemSection
 } from 'quasar'
 import 'quasar/dist/quasar.css'
 
@@ -25,7 +26,8 @@ app.use(Quasar, {
 		QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 		QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
 		QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
-		QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip
+		QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
+		QCheckbox, QItem, QItemSection
 	}
 })
 app.use(i18n)

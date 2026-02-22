@@ -127,7 +127,7 @@
         "register_success": "Willkommen bei Hivecards! Du bist jetzt angemeldet.",
         "register_failed": "Registrierung fehlgeschlagen",
         "email_already_registered": "Diese E-Mail-Adresse ist bereits registriert.",
-        "username_placeholder": "z.B. ImkerOliver",
+        "username_placeholder": "z.B. ImkerMaxMustermann",
         "registering": "Bitte warten\u2026",
         "logging_in": "Anmeldung l\u00e4uft\u2026",
         "login_failed": "Anmeldung fehlgeschlagen. Bitte Zugangsdaten pr\u00fcfen.",

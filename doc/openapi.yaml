@@ -63,7 +63,7 @@ components:
       example:
         id: "607f1f77bcf86cd799439011"
         email: "imker@example.com"
-        username: "ImkerOliver"
+        username: "Imker"
 
     UpdateUserRequest:
       type: object
