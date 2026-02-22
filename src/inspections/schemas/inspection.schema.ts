@@ -22,6 +22,10 @@ export class Inspection {
   @Prop({ required: true })
   date!: string;
 
+  /** Optionale Uhrzeit (HH:MM) */
+  @Prop()
+  time?: string;
+
   @Prop({ default: 'note' })
   type!: string;
 
@@ -52,6 +56,26 @@ export class Inspection {
   /** Wetterbedingungen */
   @Prop()
   weather?: string;
+
+  /** Behandlungsmittel (nur bei type='treatment') */
+  @Prop()
+  treatmentAgent?: string;
+
+  /** Menge des Behandlungsmittels */
+  @Prop()
+  treatmentAmount?: string;
+
+  /** Futtermittel (nur bei type='feeding') */
+  @Prop()
+  feedingAgent?: string;
+
+  /** Menge des Futtermittels */
+  @Prop()
+  feedingAmount?: string;
+
+  /** Erntemenge (nur bei type='harvest') */
+  @Prop()
+  harvestAmount?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

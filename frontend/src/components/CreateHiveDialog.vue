@@ -30,29 +30,46 @@
             />
             <q-btn size="sm" flat icon="add" :label="t('form.new')" @click.prevent="createApiary" />
           </div>
-          <div style="display: flex; gap: 4px; align-items: center">
-            <q-btn flat dense round icon="remove" @click.prevent="() => { const n = parseInt(form.hiveNumber); if (!isNaN(n) && n > 1) form.hiveNumber = String(n - 1); }" />
-            <q-input v-model="form.hiveNumber" :label="t('hive.create') + ' #'" required dense style="flex: 1" />
-            <q-btn flat dense round icon="add" @click.prevent="() => { const n = parseInt(form.hiveNumber); form.hiveNumber = String(isNaN(n) ? 1 : n + 1); }" />
-          </div>
+          <q-input
+            v-model="form.hiveNumber"
+            :label="t('hive.create') + ' #'"
+            type="number"
+            min="1"
+            required
+            dense
+          />
           <q-select
             v-model="form.status"
             :options="['active', 'inactive', 'archived']"
             :label="t('form.status')"
             dense
           />
-          <div style="display: flex; gap: 4px; align-items: center">
-            <q-btn flat dense round icon="remove" @click.prevent="() => { if (form.frameCount > 0) form.frameCount-- }" />
-            <q-input v-model.number="form.frameCount" :label="t('hive.frames')" type="number" dense style="flex: 1" />
-            <q-btn flat dense round icon="add" @click.prevent="() => form.frameCount++" />
-          </div>
+          <q-input
+            v-model.number="form.frameCount"
+            :label="t('hive.frames')"
+            type="number"
+            min="0"
+            dense
+          />
           <q-input
             v-model="form.installationDate"
             :label="t('form.installationDate')"
-            :placeholder="'TT.MM.JJJJ'"
             mask="##.##.####"
+            placeholder="TT.MM.JJJJ"
             dense
-          />
+          >
+            <template #append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date v-model="form.installationDate" mask="DD.MM.YYYY">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="OK" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
           <q-input v-model="form.notes" :label="t('form.notes')" type="textarea" dense />
 
           <!-- Beute -->
@@ -61,17 +78,21 @@
             v-model="form.hiveBoxType"
             :options="['Zander', 'Dadant', 'Langstroth', 'DNM', 'Sonstiges']"
             :label="t('hive.hiveBoxType')"
-            dense clearable
+            dense
+            clearable
           />
           <q-select
             v-model="form.hiveType"
             :options="['Wirtschaftsvolk', 'Jungvolk', 'Ableger']"
             :label="t('hive.hiveType')"
-            dense clearable
+            dense
+            clearable
           />
 
           <!-- Königin -->
-          <div class="text-subtitle2 q-mt-md q-mb-xs text-grey-7">🐝 {{ t('hive.queen_section') }}</div>
+          <div class="text-subtitle2 q-mt-md q-mb-xs text-grey-7">
+            🐝 {{ t('hive.queen_section') }}
+          </div>
           <q-select
             v-model="selectedQueenId"
             :options="queenOptions"
@@ -90,7 +111,13 @@
 
       <q-card-actions align="right">
         <q-btn :label="t('form.cancel')" flat @click="close" class="hive-btn hive-btn--ghost" />
-        <q-btn :label="editing ? t('form.save') : t('form.submit')" class="hive-btn" @click="submit" icon="check" rounded />
+        <q-btn
+          :label="editing ? t('form.save') : t('form.submit')"
+          class="hive-btn"
+          @click="submit"
+          icon="check"
+          rounded
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -185,14 +212,15 @@ export default {
     async function loadQueens(hiveId?: string) {
       loadingQueens.value = true;
       try {
-        const all = await DefaultService.getApiV1Queens() as unknown as Queen[];
+        const all = (await DefaultService.getApiV1Queens()) as unknown as Queen[];
         queens.value = all;
         // Build options: spare queens + current queen of this hive
         queenOptions.value = all
           .filter((q: Queen) => {
             if (q.status === 'spare') return true;
             // include queen currently assigned to this hive
-            if (hiveId && (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)) return true;
+            if (hiveId && (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to))
+              return true;
             return false;
           })
           .map((q: Queen) => ({
@@ -202,14 +230,18 @@ export default {
         // Pre-select current queen if editing
         if (hiveId) {
           const current = all.find((q: Queen) =>
-            (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)
+            (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to),
           );
           selectedQueenId.value = current ? (current as any).id : null;
         } else {
           selectedQueenId.value = null;
         }
-      } catch { queens.value = []; queenOptions.value = []; }
-      finally { loadingQueens.value = false; }
+      } catch {
+        queens.value = [];
+        queenOptions.value = [];
+      } finally {
+        loadingQueens.value = false;
+      }
     }
 
     function close() {
@@ -265,9 +297,7 @@ export default {
       // Check if selected queen is already assigned to this hive
       const q = queens.value.find((x: any) => x.id === selectedQueenId.value);
       if (!q) return;
-      const alreadyAssigned = (q.hiveHistory ?? []).some(
-        (e: any) => e.hiveId === hiveId && !e.to
-      );
+      const alreadyAssigned = (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to);
       if (!alreadyAssigned) {
         await DefaultService.postApiV1QueensAssign(selectedQueenId.value, { hiveId });
       }

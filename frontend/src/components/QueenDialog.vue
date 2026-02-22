@@ -39,7 +39,14 @@
             />
             <div
               v-if="colorDot"
-              :style="{ background: colorDot.hex, width: '28px', height: '28px', borderRadius: '50%', border: '2px solid #ccc', flexShrink: 0 }"
+              :style="{
+                background: colorDot.hex,
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                border: '2px solid #ccc',
+                flexShrink: 0,
+              }"
               :title="colorDot.name"
             />
           </div>
@@ -110,13 +117,7 @@ export default {
     const { t } = useI18n();
     const saving = ref(false);
 
-    const colorOptions = [
-      'Weiß',
-      'Gelb',
-      'Rot',
-      'Grün',
-      'Blau',
-    ];
+    const colorOptions = ['Weiß', 'Gelb', 'Rot', 'Grün', 'Blau'];
 
     const COLOR_MAP: Record<number, { name: string; hex: string }> = {
       1: { name: 'Weiß', hex: '#FFFFFF' },

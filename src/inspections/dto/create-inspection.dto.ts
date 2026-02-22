@@ -19,6 +19,10 @@ export class CreateInspectionDto {
   date!: string;
 
   @IsOptional()
+  @IsString()
+  time?: string;
+
+  @IsOptional()
   @IsIn(TYPES)
   type?: string;
 
@@ -49,4 +53,24 @@ export class CreateInspectionDto {
   @IsOptional()
   @IsString()
   weather?: string;
+
+  @IsOptional()
+  @IsString()
+  treatmentAgent?: string;
+
+  @IsOptional()
+  @IsString()
+  treatmentAmount?: string;
+
+  @IsOptional()
+  @IsString()
+  feedingAgent?: string;
+
+  @IsOptional()
+  @IsString()
+  feedingAmount?: string;
+
+  @IsOptional()
+  @IsString()
+  harvestAmount?: string;
 }
