@@ -13,7 +13,7 @@ services:
       # App
       NODE_ENV: production
       PORT: 3000
-      APP_URL: http://localhost:3000
+      APP_URL: ${APP_URL:-http://localhost:3000}  # Public URL — set in .env for production!
       SERVE_ROOT: ""            # Subpath if behind a reverse proxy, e.g. /hivecards-manager
       CORS_ORIGIN: ""           # Extra allowed origins (comma-separated); empty = only same-origin
       # Logging – one of: FATAL | ERROR | WARN | INFO | DEBUG  (default: INFO)
