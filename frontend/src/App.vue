@@ -21,9 +21,14 @@
           <div v-if="burgerMenu" class="burger-nav" role="navigation">
             <button
               class="burger-nav-item"
-              @click="burgerMenu = false; router.push('/')"
+              @click="
+                burgerMenu = false;
+                router.push('/');
+              "
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+              </svg>
               {{ $t ? $t('nav.home') : 'Start' }}
             </button>
             <button
@@ -59,7 +64,11 @@
                 router.push('/queens');
               "
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 5c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 5c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"
+                />
+              </svg>
               {{ $t ? $t('nav.queens') : 'Königinnen' }}
             </button>
           </div>
@@ -129,7 +138,11 @@
       >
         <q-route-tab to="/" exact icon="home" :label="$t ? $t('nav.home') : 'Start'" />
         <q-route-tab to="/hives" icon="hive" :label="$t ? $t('nav.hives') : 'Hives'" />
-        <q-route-tab to="/queens" icon="emoji_nature" :label="$t ? $t('nav.queens') : 'Königinnen'" />
+        <q-route-tab
+          to="/queens"
+          icon="emoji_nature"
+          :label="$t ? $t('nav.queens') : 'Königinnen'"
+        />
         <q-route-tab
           to="/apiaries"
           icon="location_on"
@@ -157,7 +170,13 @@ const langOptions = [
 const savedLang = localStorage.getItem('hc_lang') || 'de';
 const lang = ref(langOptions.find((o) => o.value === savedLang) ?? langOptions[0]);
 
-const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/email-verified'];
+const PUBLIC_ROUTES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/email-verified',
+];
 
 onMounted(() => {
   // Use window.location.pathname because router.currentRoute may not be resolved yet
