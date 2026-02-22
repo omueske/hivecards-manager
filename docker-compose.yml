@@ -1,8 +1,10 @@
 services:
   # ── Application ─────────────────────────────────────────────────────────────
   app:
-    image: ghcr.io/omueske/hivecards-manager:main
-    # Local development: build from source instead:
+    image: hivecards-local
+    # Remote image (CI/CD):
+    # image: ghcr.io/omueske/hivecards-manager:main
+    # Build from source:
     # build: .
     restart: unless-stopped
     ports:
