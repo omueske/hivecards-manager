@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated>
+    <q-header elevated class="bg-amber-8 text-white">
       <q-toolbar>
         <template v-if="isLoggedIn">
           <button class="burger-btn" @click="burgerMenu = !burgerMenu" aria-label="Menu">
@@ -294,8 +294,8 @@ q-layout {
   display: block;
 }
 q-toolbar {
-  background: linear-gradient(90deg, #f6b93b 0%, #ffb86b 100%);
-  color: #3e2723;
+  background: #FF8F00;
+  color: #fff;
   padding: 8px 12px;
 }
 q-toolbar-title {
