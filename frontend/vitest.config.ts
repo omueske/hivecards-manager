@@ -16,7 +16,14 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       all: true,
       include: ['src/**/*.vue', 'src/**/*.ts'],
-      exclude: ['**/node_modules/**', 'src/main.ts'],
+      // Exclude generated API client and type-only files which cannot be meaningfully covered
+      exclude: [
+        '**/node_modules/**',
+        'src/main.ts',
+        'src/api-client/**',
+        'src/**/*.d.ts',
+        'src/vite-env.d.ts'
+      ],
       reportsDirectory: '../coverage/frontend',
     },
   },

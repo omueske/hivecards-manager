@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { AuthService } from '../../auth/auth.service';
 import { MailService } from '../../mail/mail.service';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 describe('AuthService (unit)', () => {
   let service: AuthService;
@@ -172,19 +174,19 @@ describe('AuthService (unit)', () => {
     });
 
     it('rejects wrong password', async () => {
-      const user: any = { passwordHash: await require('bcrypt').hash('pwd', 1) };
+      const user: any = { passwordHash: await bcrypt.hash('pwd', 1) };
       setFindOneResult(user);
       expect(await service.validateUser('u', 'wrong')).toBeNull();
     });
 
     it('throws when email not verified', async () => {
-      const user: any = { _id: { toString: () => 'id' }, passwordHash: await require('bcrypt').hash('pwd', 1), emailVerified: false };
+      const user: any = { _id: { toString: () => 'id' }, passwordHash: await bcrypt.hash('pwd', 1), emailVerified: false };
       setFindOneResult(user);
       await expect(service.validateUser('u', 'pwd')).rejects.toThrow();
     });
 
     it('returns user on valid credentials', async () => {
-      const user: any = { passwordHash: await require('bcrypt').hash('pwd', 1), emailVerified: true, _id: 'id' };
+      const user: any = { passwordHash: await bcrypt.hash('pwd', 1), emailVerified: true, _id: 'id' };
       setFindOneResult(user);
       const u = await service.validateUser('u', 'pwd');
       expect(u).toBe(user);
@@ -211,12 +213,12 @@ describe('AuthService (unit)', () => {
 
     it('verifyToken catches weird error object', () => {
       // simulate jwt throwing an object without name/message
-      const orig = (require('jsonwebtoken') as any).verify;
-      (require('jsonwebtoken') as any).verify = jest.fn().mockImplementation(() => {
+      const orig = (jwt as any).verify;
+      (jwt as any).verify = jest.fn().mockImplementation(() => {
         throw {};
       });
       expect(service.verifyToken('foo')).toBeNull();
-      (require('jsonwebtoken') as any).verify = orig;
+      (jwt as any).verify = orig;
     });
   });
 });

@@ -34,10 +34,10 @@ const methodLines = serviceEntries
     const tag = className.replace('Service', '');
     const lines = methods
       .map((m) => `  ${m}: makeLazyMethod('./${className}', '${className}', '${m}'),`)
-      .join('\n')
-    return `  // ── ${tag} ${'-'.repeat(Math.max(0, 60 - tag.length))}\n${lines}`
+      .join('\n');
+    return `  // ── ${tag} ${'-'.repeat(Math.max(0, 60 - tag.length))}\n${lines}`;
   })
-  .join('\n\n')
+  .join('\n\n');
 
 const shim = `/* istanbul ignore file */
 /* tslint:disable */
@@ -75,8 +75,8 @@ ${methodLines}
 
 export { DefaultService }
 export default DefaultService
-`
+`;
 
-const outFile = join(servicesDir, 'DefaultService.ts')
-writeFileSync(outFile, shim, 'utf8')
-console.log(`✓ DefaultService lazy-shim written to ${outFile}`)
+const outFile = join(servicesDir, 'DefaultService.ts');
+writeFileSync(outFile, shim, 'utf8');
+console.log(`✓ DefaultService lazy-shim written to ${outFile}`);

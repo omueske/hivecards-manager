@@ -189,7 +189,8 @@ async function fetch() {
     try {
       const ares = await DefaultService.getApiV1Apiaries();
       const map: Record<string, any> = {};
-      (ares || []).forEach((a: any) => {
+      const list = Array.isArray(ares) ? ares : ares?.items || [];
+      (list || []).forEach((a: any) => {
         const rawId = a.id || a._id;
         const id =
           typeof rawId === 'string'

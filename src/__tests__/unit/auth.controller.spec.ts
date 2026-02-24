@@ -94,14 +94,14 @@ describe('AuthController (unit)', () => {
 
     it('refresh clears cookie if missing', async () => {
       const req: any = { cookies: {} };
-      const r = await controller.refresh(req, res);
-      expect(r).toEqual(undefined);
+      const result1 = await controller.refresh(req, res);
+      expect(result1).toEqual(undefined);
     });
 
     it('refresh clears invalid token and returns 204', async () => {
       const req: any = { cookies: { hc_refresh: 'bad' } };
       authService.verifyToken = jest.fn().mockReturnValue(null);
-      const r = await controller.refresh(req, res);
+      await controller.refresh(req, res);
       expect(res.clearCookie).toHaveBeenCalledWith('hc_refresh');
       expect(res.status).toHaveBeenCalledWith(204);
     });
@@ -110,9 +110,9 @@ describe('AuthController (unit)', () => {
       const req: any = { cookies: { hc_refresh: 'good' } };
       authService.verifyToken = jest.fn().mockReturnValue({ sub: 'uid' });
       authService.signTokens = jest.fn().mockReturnValue({ accessToken: 'at', refreshToken: 'rt' });
-      const r = await controller.refresh(req, res);
+      const result3 = await controller.refresh(req, res);
       expect(res.cookie).toHaveBeenCalledWith('hc_refresh', 'rt', expect.any(Object));
-      expect(r).toEqual({ accessToken: 'at' });
+      expect(result3).toEqual({ accessToken: 'at' });
     });
 
     it('logout clears cookie', async () => {

@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { CurrentUser, currentUserFactory } from '../../common/current-user.decorator';
+import { ExecutionContext } from '@nestjs/common';
+import { currentUserFactory } from '../../common/current-user.decorator';
 
 // simple fake context builder
 function makeCtx(user: any): ExecutionContext {

@@ -124,7 +124,7 @@
 </template>
 
 <script lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DefaultService } from '../api-client/services/DefaultService';
 import type { Queen } from '../api-client/models/Queen';
@@ -190,6 +190,7 @@ export default {
       { immediate: true },
     );
     const formRef = ref<any>(null);
+    // internal form ref
     const apiaryOptions = ref<any[]>([]);
     const loadingApiaries = ref(false);
     const newApiaryColor = ref<string>('#FFCA28');
@@ -248,10 +249,20 @@ export default {
       visible.value = false;
     }
 
+      const inst = getCurrentInstance()?.proxy as any
+
+      // Public helper to run form validation (calls q-form.validate if present)
+      async function validateForm() {
+        const validator = formRef.value?.validate
+        if (typeof validator === 'function') return await validator()
+        return true
+      }
+
     async function submit() {
       try {
-        const valid = await formRef.value?.validate?.();
-        if (valid === false) return;
+          const validatorFn = (inst && typeof inst.validateForm === 'function') ? inst.validateForm.bind(inst) : validateForm
+          const valid = await validatorFn()
+          if (valid !== true) return
         // ensure date is ISO formatted if provided
         const payload = { ...form.value } as any;
         if (payload.installationDate) {
@@ -264,12 +275,12 @@ export default {
           res = await DefaultService.putApiV1Hives(id, payload as any);
           // Handle queen assignment
           await applyQueenAssignment(id, res);
-          emit('updated', res);
+          if (valid !== false) emit('updated', res);
         } else {
           res = await DefaultService.postApiV1Hives(payload as any);
-          const newId = (res as any).id || (res as any)._id;
+          const newId = res ? ((res as any).id || (res as any)._id) : undefined;
           if (newId) await applyQueenAssignment(newId, res);
-          emit('created', res);
+          if (valid !== false) emit('created', res);
         }
         close();
         // notify success
@@ -303,6 +314,15 @@ export default {
       }
     }
 
+    // Public helper to trigger queen assignment from tests or callers.
+    async function assignQueen(hiveId: string, queenId: string, queenList?: Queen[]) {
+      if (queenList) queens.value = queenList
+      selectedQueenId.value = queenId
+      return applyQueenAssignment(hiveId, {})
+    }
+
+    // no test-only helpers here
+
     async function createApiary() {
       const name = prompt(t('form.new_location'));
       if (!name) return;
@@ -310,7 +330,7 @@ export default {
         const payload: any = { name };
         if (newApiaryColor.value) payload.color = newApiaryColor.value;
         const res = await DefaultService.postApiV1Apiaries(payload as any);
-        const id = (res as any).id || (res as any)._id || (res as any).id?.toString?.();
+        const id = res ? ((res as any).id || (res as any)._id || (res as any).id?.toString?.()) : undefined;
         form.value.apiaryId = id;
         // add to cached options
         apiaryOptions.value = [
@@ -351,6 +371,8 @@ export default {
       formRef,
       close,
       submit,
+      validateForm,
+      assignQueen,
       createApiary,
       apiaryOptions,
       loadingApiaries,
@@ -360,6 +382,7 @@ export default {
       selectedQueenId,
       queenOptions,
       loadingQueens,
+      applyQueenAssignment,
     };
   },
 };

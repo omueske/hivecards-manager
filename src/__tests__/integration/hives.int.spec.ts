@@ -7,6 +7,7 @@ import { AuthModule } from '../../auth/auth.module';
 import { HiveModule } from '../../hives/hives.module';
 import { MailService } from '../../mail/mail.service';
 import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 import { UserDocument } from '../../auth/schemas/user.schema';
 
 jest.setTimeout(20000);
@@ -59,7 +60,7 @@ describe('Hives integration (auth + hives)', () => {
     const token = login.body.accessToken;
 
     // create hive
-    const apiaryId = new (require('mongoose').Types.ObjectId)().toHexString();
+    const apiaryId = new mongoose.Types.ObjectId().toHexString();
     const create: any = await request(app.getHttpServer())
       .post('/api/v1/hives')
       .set('Authorization', `Bearer ${token}`)

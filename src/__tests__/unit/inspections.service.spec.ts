@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { InspectionsService } from '../../inspections/inspections.service';
 import { NotFoundException } from '@nestjs/common';
+import mongoose from 'mongoose';
 
 describe('InspectionsService (unit)', () => {
   let service: InspectionsService;
@@ -21,8 +22,7 @@ describe('InspectionsService (unit)', () => {
 
   beforeEach(async () => {
     // make ObjectId just echo so we don't need valid IDs
-    const { Types } = require('mongoose');
-    jest.spyOn(Types, 'ObjectId').mockImplementation((x: any) => x);
+    jest.spyOn(mongoose.Types, 'ObjectId').mockImplementation((x: any) => x as any);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

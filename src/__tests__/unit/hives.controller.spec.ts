@@ -56,7 +56,7 @@ describe('HiveController (unit)', () => {
   it('uses default parameters and logs missing pagination', async () => {
     hiveService.findAll.mockResolvedValue({});
     const spyDebug = jest.spyOn((controller as any).logger, 'debug');
-    const result = await controller.findAll(user);
+    await controller.findAll(user);
     expect(hiveService.findAll).toHaveBeenCalledWith({}, 'uid', 1, 25);
     expect(spyDebug).toHaveBeenCalledWith(expect.stringContaining('returned 0 total'));
   });

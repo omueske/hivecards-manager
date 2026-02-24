@@ -259,8 +259,9 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
-          const data: { id: string; name: string }[] = await res.json();
-          const names = data.map((d) => d.name);
+          const raw = await res.json();
+          const data: { id: string; name: string }[] = Array.isArray(raw) ? raw : raw?.items || [];
+          const names = (Array.isArray(data) ? data : []).map((d) => d.name);
           if (category === 'treatment') customAgents.value = names;
           else customFeed.value = names;
         }

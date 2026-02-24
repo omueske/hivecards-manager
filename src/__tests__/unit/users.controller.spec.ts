@@ -45,7 +45,7 @@ describe('UsersController (unit)', () => {
       const updated = { _id: userId, email: 'e@e', username: 'u' };
       userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(updated) }) });
       const spyHash = jest.spyOn(bcrypt, 'hash' as any).mockResolvedValue('hashed' as any);
-      const r = await controller.updateMe(req, { password: 'plain' });
+      await controller.updateMe(req, { password: 'plain' });
       expect(spyHash).toHaveBeenCalled();
       expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, { passwordHash: 'hashed' });
     });
