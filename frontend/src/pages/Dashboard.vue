@@ -56,7 +56,8 @@
 
     <!-- Changelog teaser -->
     <q-card
-      flat bordered
+      flat
+      bordered
       class="changelog-teaser q-mb-xl cursor-pointer"
       @click="router.push('/changelog')"
     >
@@ -73,11 +74,7 @@
     <!-- Workflow Steps -->
     <div class="text-h6 q-mb-md">{{ t('dashboard.how_it_works') }}</div>
     <div class="row q-col-gutter-md">
-      <div
-        v-for="step in steps"
-        :key="step.step"
-        class="col-12 col-sm-6 col-md-4"
-      >
+      <div v-for="step in steps" :key="step.step" class="col-12 col-sm-6 col-md-4">
         <q-card flat bordered class="step-card full-height">
           <q-card-section>
             <div class="row items-center q-mb-sm">
@@ -86,7 +83,8 @@
                 text-color="white"
                 size="36px"
                 class="q-mr-sm step-num"
-              >{{ step.step }}</q-avatar>
+                >{{ step.step }}</q-avatar
+              >
               <q-icon :name="step.icon" :color="step.color" size="1.5rem" />
             </div>
             <div class="text-subtitle1 text-weight-bold q-mb-xs">{{ step.title }}</div>
@@ -112,7 +110,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { DefaultService } from '../api-client/services/DefaultService';
 
 export default {
   setup() {
@@ -123,15 +120,22 @@ export default {
 
     onMounted(async () => {
       try {
+        const mod = await import('../api-client/services/DefaultService');
+        // support both shapes: module may export `DefaultService` namespace or top-level functions
+        const svc: any = mod?.DefaultService ?? mod;
         const [hivesRes, apiariesRes, queensRes, insRes] = await Promise.allSettled([
-          DefaultService.getApiV1Hives(),
-          DefaultService.getApiV1Apiaries(),
-          DefaultService.getApiV1Queens(),
-          DefaultService.getApiV1Inspections(undefined, undefined, undefined, 1, 100),
+          svc.getApiV1Hives?.() ?? Promise.resolve(undefined),
+          svc.getApiV1Apiaries?.() ?? Promise.resolve(undefined),
+          svc.getApiV1Queens?.() ?? Promise.resolve(undefined),
+          svc.getApiV1Inspections?.(undefined, undefined, undefined, 1, 100) ??
+            Promise.resolve(undefined),
         ]);
 
         if (hivesRes.status === 'fulfilled') {
-          stats.value.hives = (hivesRes.value as any)?.pagination?.total ?? ((hivesRes.value as any)?.items?.length ?? 0);
+          stats.value.hives =
+            (hivesRes.value as any)?.pagination?.total ??
+            (hivesRes.value as any)?.items?.length ??
+            0;
         }
         if (apiariesRes.status === 'fulfilled') {
           stats.value.apiaries = Array.isArray(apiariesRes.value) ? apiariesRes.value.length : 0;
@@ -142,9 +146,11 @@ export default {
         if (insRes.status === 'fulfilled') {
           const items: any[] = (insRes.value as any)?.items ?? [];
           stats.value.inspections = items.filter((i) => i.type === 'inspection').length;
-          stats.value.treatments  = items.filter((i) => i.type === 'treatment').length;
+          stats.value.treatments = items.filter((i) => i.type === 'treatment').length;
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     });
 
     const steps = computed(() => [
@@ -153,7 +159,7 @@ export default {
         icon: 'location_on',
         color: 'teal',
         title: t('dashboard.step1_title'),
-        desc:  t('dashboard.step1_desc'),
+        desc: t('dashboard.step1_desc'),
         action: t('dashboard.step1_action'),
         actionIcon: 'arrow_forward',
         route: '/apiaries',
@@ -163,7 +169,7 @@ export default {
         icon: 'hive',
         color: 'amber-8',
         title: t('dashboard.step2_title'),
-        desc:  t('dashboard.step2_desc'),
+        desc: t('dashboard.step2_desc'),
         action: t('dashboard.step2_action'),
         actionIcon: 'arrow_forward',
         route: '/hives',
@@ -173,7 +179,7 @@ export default {
         icon: 'emoji_nature',
         color: 'pink-6',
         title: t('dashboard.step3_title'),
-        desc:  t('dashboard.step3_desc'),
+        desc: t('dashboard.step3_desc'),
         action: t('dashboard.step3_action'),
         actionIcon: 'arrow_forward',
         route: '/queens',
@@ -183,7 +189,7 @@ export default {
         icon: 'search',
         color: 'blue',
         title: t('dashboard.step4_title'),
-        desc:  t('dashboard.step4_desc'),
+        desc: t('dashboard.step4_desc'),
         action: t('dashboard.step4_action'),
         actionIcon: 'arrow_forward',
         route: '/hives',
@@ -193,7 +199,7 @@ export default {
         icon: 'picture_as_pdf',
         color: 'deep-orange',
         title: t('dashboard.step5_title'),
-        desc:  t('dashboard.step5_desc'),
+        desc: t('dashboard.step5_desc'),
         action: t('dashboard.step5_action'),
         actionIcon: 'arrow_forward',
         route: '/hives',

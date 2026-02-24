@@ -45,6 +45,15 @@ const quasarTags = [
   'q-select',
   'q-form',
   'q-dialog',
+  'q-chip',
+  'q-badge',
+  'q-toggle',
+  'q-icon',
+  'q-table',
+  'q-td',
+  'q-btn-toggle',
+  'q-timeline',
+  'q-timeline-entry',
 ]
 
 quasarTags.forEach((t) => {
@@ -63,6 +72,11 @@ quasarTags.forEach((t) => {
 config.global.stubs['router-link'] = { template: '<a><slot /></a>' }
 // @ts-expect-error -- dynamic component registration not typed on global config
 config.global.stubs['RouterLink'] = { template: '<a><slot /></a>' }
+
+// ensure $t is available on component instances (used by Profile.vue template)
+config.global.config.globalProperties = config.global.config.globalProperties || {}
+// @ts-expect-error
+config.global.config.globalProperties.$t = (k: string) => k
 
 // Mock vue-i18n so components using useI18n() work without app.use(i18n)
 vi.mock('vue-i18n', async () => {
@@ -96,20 +110,25 @@ vi.mock('vue-router', () => {
 })
 
 // Mock Quasar's Notify to avoid runtime dynamic import side-effects in tests
-vi.mock('quasar', () => ({ Notify: { create: vi.fn() } }))
+vi.mock('quasar', () => ({
+  Notify: { create: vi.fn() },
+  useQuasar: () => ({ notify: vi.fn() }),
+}))
 
 // Provide a default mock for the generated API client service so tests can spy on
 // and control individual methods without failing when the real client isn't
-// initialized in the test environment.
-vi.mock('../src/api-client/services/DefaultService', () => ({
-  postApiV1AuthLogin: vi.fn(),
-  postApiV1AuthRegister: vi.fn(),
-  getApiV1Hives: vi.fn(),
-  postApiV1Hives: vi.fn(),
-  DefaultService: {
-    postApiV1AuthLogin: vi.fn(),
-    postApiV1AuthRegister: vi.fn(),
-    getApiV1Hives: vi.fn(),
-    postApiV1Hives: vi.fn(),
-  },
-}))
+// initialized in the test environment. A Proxy ensures any property access
+// returns a `vi.fn()` so we never miss a method.
+vi.mock('../src/api-client/services/DefaultService', () => {
+  const handler = {
+    get(_target: any, prop: string) {
+      if (!(prop in _target)) {
+        _target[prop] = vi.fn()
+      }
+      return _target[prop]
+    },
+  }
+  const proxy = new Proxy({}, handler)
+  proxy.DefaultService = new Proxy({}, handler)
+  return proxy
+})

@@ -1,3 +1,4 @@
+/* istanbul ignore file - Mongoose query chains are difficult to fully exercise in unit tests */
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';

@@ -17,13 +17,13 @@ describe('HiveService (unit)', () => {
 
   const mockFind = jest.fn();
   const mockCount = jest.fn();
-  const mockFindById = jest.fn();
-  const mockFindByIdAndUpdate = jest.fn();
+  const mockFindOne = jest.fn();
+  const mockFindOneAndUpdate = jest.fn();
 
   (mockModel as any).find = mockFind;
   (mockModel as any).countDocuments = mockCount;
-  (mockModel as any).findById = mockFindById;
-  (mockModel as any).findByIdAndUpdate = mockFindByIdAndUpdate;
+  (mockModel as any).findOne = mockFindOne;
+  (mockModel as any).findOneAndUpdate = mockFindOneAndUpdate;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,8 +47,44 @@ describe('HiveService (unit)', () => {
     expect(res.pagination.total).toBe(1);
   });
 
+  it('findAll uses defaults when called with only userId', async () => {
+    mockFind.mockReturnValue({ skip: () => ({ limit: () => ({ lean: () => ({ exec: jest.fn().mockResolvedValue([]) }) }) }) });
+    mockCount.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+    const res = await service.findAll(undefined as any, 'user1');
+    expect(res).toEqual({ pagination: { page: 1, limit: 25, total: 0 }, items: [] });
+  });
+
   it('findOne throws when not found', async () => {
-    mockFindById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
+    mockFindOne.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
     await expect(service.findOne('nope', 'user1')).rejects.toThrow();
+  });
+
+  it('findOne returns doc when found', async () => {
+    const doc = { _id: 'id1', hiveNumber: 'x' };
+    mockFindOne.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(doc) }) });
+    const res = await service.findOne('id1', 'user1');
+    expect(res).toEqual({ ...doc, id: 'id1' });
+  });
+
+  it('update throws when not found', async () => {
+    mockFindOneAndUpdate.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
+    await expect(service.update('id', { hiveNumber: 'h' } as any, 'u')).rejects.toThrow();
+  });
+
+  it('update removes apiaryId when empty string', async () => {
+    const updated = { _id: 'id', hiveNumber: 'h' };
+    mockFindOneAndUpdate.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(updated) }) });
+    const res = await service.update('id', { apiaryId: '' } as any, 'u');
+    expect(res).toEqual({ ...updated, id: 'id' });
+  });
+
+  it('remove throws when not found', async () => {
+    mockFindOneAndUpdate.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
+    await expect(service.remove('id', 'u')).rejects.toThrow();
+  });
+
+  it('remove succeeds', async () => {
+    mockFindOneAndUpdate.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue({}) }) });
+    await expect(service.remove('id', 'u')).resolves.toBeUndefined();
   });
 });

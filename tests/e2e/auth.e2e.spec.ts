@@ -1,4 +1,4 @@
-import request from 'supertest'
+import * as request from 'supertest'
 
 describe('Auth E2E (requires backend at http://localhost:3000)', () => {
   const base = 'http://localhost:3000'

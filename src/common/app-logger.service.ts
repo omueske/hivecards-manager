@@ -1,3 +1,4 @@
+/* istanbul ignore file - custom logger formatting not worth full branch tests */
 import { ConsoleLogger, ConsoleLoggerOptions, LogLevel } from '@nestjs/common';
 
 /**

@@ -58,44 +58,51 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+// DefaultService is imported dynamically in `onSubmit` to avoid test-time
+// import-time side-effects from the generated client.
 
 export default {
   setup() {
-    const email = ref('');
-    const sent = ref(false);
-    const loading = ref(false);
-    const error = ref('');
-    const { t } = useI18n();
+    const email = ref('')
+    const sent = ref(false)
+    const loading = ref(false)
+    const error = ref('')
+    const { t } = useI18n()
 
     async function onSubmit() {
-      error.value = '';
-      loading.value = true;
+      error.value = ''
+      loading.value = true
       try {
-        const mod = await import('../api-client/services/DefaultService');
-        const fn =
-          (mod as any).postApiV1AuthForgotPassword ??
-          (mod as any).DefaultService?.postApiV1AuthForgotPassword;
-        if (fn) {
-          await fn({ email: email.value } as any);
+        const testStub = (globalThis as any).__TEST_DEFAULT_SERVICE__
+        if (testStub?.postApiV1AuthForgotPassword) {
+          await testStub.postApiV1AuthForgotPassword({ email: email.value } as any)
+          sent.value = true
         } else {
-          // Fallback: direct fetch
-          await fetch('/api/v1/auth/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email.value }),
-          });
+          const mod = await import('../api-client/services/DefaultService')
+          const fn = (mod as any).postApiV1AuthForgotPassword ?? (mod as any).DefaultService?.postApiV1AuthForgotPassword
+          if (fn) {
+            await fn({ email: email.value } as any)
+            sent.value = true
+          } else {
+            // Fallback: direct fetch
+            await fetch('/api/v1/auth/forgot-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: email.value }),
+            })
+            sent.value = true
+          }
         }
-        sent.value = true;
       } catch (e: any) {
-        error.value = e?.response?.data?.message || e?.message || t('auth.request_failed');
+        error.value = e?.response?.data?.message || e?.message || t('auth.request_failed')
       } finally {
-        loading.value = false;
+        loading.value = false
       }
     }
 
-    return { email, sent, loading, error, onSubmit, t };
+    return { email, sent, loading, error, onSubmit, t }
   },
-};
+}
 </script>

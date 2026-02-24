@@ -3,7 +3,8 @@ import { AuthService } from '../auth/auth.service';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 
-const truncate = (s?: string, n = 16) => (s ? (s.length > n ? s.slice(0, n) + '...' : s) : '');
+// exported for testing to drive the rarely-hit branches (s falsy or long strings)
+export const truncate = (s?: string, n = 16) => (s ? (s.length > n ? s.slice(0, n) + '...' : s) : '');
 
 @Injectable()
 export class JwtGuard implements CanActivate {
