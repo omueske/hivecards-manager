@@ -8,6 +8,9 @@ import { existsSync } from 'fs';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 import { AppLogger, getLogLevels } from './common/app-logger.service';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { ensureIndexes } from './common/ensure-indexes';
 
 async function bootstrap() {
   dotenv.config();
@@ -18,6 +21,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(new AppLogger());
+
+  // Ensure database indexes are created for optimal query performance
+  const connection = app.get<Connection>(getConnectionToken());
+  await ensureIndexes(connection);
 
   const config = new DocumentBuilder()
     .setTitle('Hivecards Manager API')
