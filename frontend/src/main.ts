@@ -37,7 +37,7 @@ async function trySilentRefresh() {
 	const hasRefresh = localStorage.getItem('hc_has_refresh') === '1'
 	if (!hasRefresh) return
 	try {
-		const base = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:3000'
+		const base = (import.meta as any).env?.VITE_API_BASE ?? ''
 		const resp = await fetch(base + '/api/v1/auth/refresh', {
 			method: 'POST',
 			credentials: 'include',

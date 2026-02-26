@@ -231,7 +231,7 @@ async function submit() {
 async function refreshNow() {
   refreshing.value = true;
   try {
-    const base = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:3000';
+    const base = OpenAPI.BASE || ((import.meta as any).env?.VITE_API_BASE ?? '');
     const resp = await fetch(base + '/api/v1/auth/refresh', {
       method: 'POST',
       credentials: 'include',

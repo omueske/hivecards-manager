@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Frontend base path used by Vite at build time.
+        # Fixed subpath deployment.
+        VITE_BASE: ${VITE_BASE:-/hivecards-manager/}
+    image: hivecards-manager:prod-local
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_URL: ${APP_URL:-https://olli-home.duckdns.org/hivecards-manager}
+
+      # Must match reverse-proxy location and VITE_BASE (without trailing slash).
+      SERVE_ROOT: ${SERVE_ROOT:-/hivecards-manager}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://olli-home.duckdns.org}
+
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+      MONGODB_URI: ${MONGODB_URI:-mongodb://192.168.178.117:27017/hivecards}
+
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_SECURE: ${MAIL_SECURE:-false}
+      MAIL_FROM: ${MAIL_FROM:-Hivecards <hivecards@example.com>}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
