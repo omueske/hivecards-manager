@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.24] - 2026-02-26
+
+### Added
+- add admin panel, user management and stats (09da7b3)
+
 ## [0.1.23] - 2026-02-26
 
 ### Fixed
