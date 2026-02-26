@@ -16,10 +16,11 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, username?: string) {
-    this.logger.debug(`Register request email=${email} username=${username ?? '-'}`);
-    const existing = await this.userModel.findOne({ email }).exec();
+    const normalizedEmail = email.toLowerCase().trim();
+    this.logger.debug(`Register request email=${normalizedEmail} username=${username ?? '-'}`);
+    const existing = await this.userModel.findOne({ email: normalizedEmail }).exec();
     if (existing) {
-      this.logger.warn(`Registration failed - email already registered: ${email}`);
+      this.logger.warn(`Registration failed - email already registered: ${normalizedEmail}`);
       throw new BadRequestException('Email already registered');
     }
     const saltRounds = 10;
@@ -27,7 +28,7 @@ export class AuthService {
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const user = new this.userModel({
-      email,
+      email: normalizedEmail,
       passwordHash,
       username,
       emailVerificationToken,
@@ -37,8 +38,8 @@ export class AuthService {
     this.logger.log(`New user created id=${user._id.toString()} email=${user.email}`);
     this.logger.debug(`Verification token generated expires=${emailVerificationExpires.toISOString()}`);
     // Send verification email (non-blocking — don't fail registration if mail fails)
-    this.mailService.sendVerificationEmail(email, emailVerificationToken, user.username).catch(err =>
-      this.logger.warn(`Failed to send verification email to ${email}: ${err?.message}`),
+    this.mailService.sendVerificationEmail(normalizedEmail, emailVerificationToken, user.username).catch(err =>
+      this.logger.warn(`Failed to send verification email to ${normalizedEmail}: ${err?.message}`),
     );
     return { id: user._id.toString(), email: user.email, username: user.username, createdAt: user.createdAt };
   }
@@ -62,20 +63,21 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    const user = await this.userModel.findOne({ email }).exec();
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await this.userModel.findOne({ email: normalizedEmail }).exec();
     // Always return success to avoid user enumeration
     if (!user) {
-      this.logger.warn(`forgotPassword: no user for email=${email}`);
+      this.logger.warn(`forgotPassword: no user for email=${normalizedEmail}`);
       return { ok: true };
     }
     const token = crypto.randomBytes(32).toString('hex');
     user.passwordResetToken = token;
     user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
-    this.mailService.sendPasswordResetEmail(email, token, user.username).catch(err =>
-      this.logger.warn(`Failed to send reset email to ${email}: ${err?.message}`),
+    this.mailService.sendPasswordResetEmail(normalizedEmail, token, user.username).catch(err =>
+      this.logger.warn(`Failed to send reset email to ${normalizedEmail}: ${err?.message}`),
     );
-    this.logger.log(`Password reset email sent to ${email}`);
+    this.logger.log(`Password reset email sent to ${normalizedEmail}`);
     return { ok: true };
   }
 
@@ -94,22 +96,23 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    this.logger.debug(`Validating credentials for email=${email}`);
-    const user = await this.userModel.findOne({ email }).exec();
+    const normalizedEmail = email.toLowerCase().trim();
+    this.logger.debug(`Validating credentials for email=${normalizedEmail}`);
+    const user = await this.userModel.findOne({ email: normalizedEmail }).exec();
     if (!user) {
-      this.logger.warn(`No user found for email=${email}`);
+      this.logger.warn(`No user found for email=${normalizedEmail}`);
       return null;
     }
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
-      this.logger.warn(`Password mismatch for email=${email}`);
+      this.logger.warn(`Password mismatch for email=${normalizedEmail}`);
       return null;
     }
     if (!user.emailVerified) {
       this.logger.warn(`Login blocked - email not verified for userId=${user._id.toString()}`);
       throw new BadRequestException('Email not verified');
     }
-    this.logger.log(`User validated email=${email} id=${user._id.toString()}`);
+    this.logger.log(`User validated email=${normalizedEmail} id=${user._id.toString()}`);
     return user;
   }
 
