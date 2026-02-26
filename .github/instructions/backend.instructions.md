@@ -8,11 +8,13 @@ applyTo: 'backend/**,server/**,**/api/**,**/*.js,**/*.ts'
 
 ## Allgemeine Regeln
 
+- Umfangreiches Logging über alle LogLevel ist mandatorisch
 - Async/Await statt Promises; immer try-catch für Fehler.
 - TypeScript wo möglich, mit Interfaces für Requests/Responses.
 - nestjs als Framework
 - openapi für API-Dokumentation und Client-Generierung.
 - Umgebungsvariablen über `.env` und `dotenv` laden; keine Secrets im Code.
+- Mandatorische Felder sind mit Checks zu versehen
 
 ## API-Endpoints
 

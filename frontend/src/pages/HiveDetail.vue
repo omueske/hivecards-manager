@@ -129,6 +129,7 @@
               ({{ formatDate((q as any).hiveHistory?.find((e: any) => e.hiveId === hiveId)?.from) }}
               –
               {{ formatDate((q as any).hiveHistory?.find((e: any) => e.hiveId === hiveId && e.to)?.to)
+
               }})
             </div>
           </div>

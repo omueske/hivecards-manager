@@ -1,7 +1,5 @@
 <template>
-  <div
-    style="display: flex; align-items: flex-start; justify-content: center; padding: 24px"
-  >
+  <div style="display: flex; align-items: flex-start; justify-content: center; padding: 24px">
     <div style="max-width: 480px; width: 100%">
       <header
         style="
@@ -49,10 +47,9 @@
           <div style="margin-bottom: 8px">
             <div style="display: flex; justify-content: space-between; align-items: baseline">
               <label for="password">{{ t('auth.password') }}</label>
-              <router-link
-                to="/forgot-password"
-                style="font-size: 0.85em"
-              >{{ t('auth.forgot_password_link') }}</router-link>
+              <router-link to="/forgot-password" style="font-size: 0.85em">{{
+                t('auth.forgot_password_link')
+              }}</router-link>
             </div>
             <div style="position: relative; margin-top: 4px">
               <input
@@ -157,8 +154,7 @@ export default {
         const dest = (route.query.redirect as string) || '/';
         router.push(dest);
       } catch (e: any) {
-        const msg: string =
-          e?.body?.message || e?.response?.data?.message || e?.message || '';
+        const msg: string = e?.body?.message || e?.response?.data?.message || e?.message || '';
         if (msg.toLowerCase().includes('not verified')) {
           emailNotVerified.value = true;
           error.value = t('auth.email_not_verified');

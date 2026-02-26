@@ -4,13 +4,7 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5">{{ t('queen.title') }}</div>
       <q-space />
-      <q-btn
-        icon="add"
-        :label="t('queen.create')"
-        color="primary"
-        rounded
-        @click="openCreate"
-      />
+      <q-btn icon="add" :label="t('queen.create')" color="primary" rounded @click="openCreate" />
     </div>
 
     <!-- Filter chips -->
@@ -23,7 +17,8 @@
         text-color="white"
         clickable
         @click="activeFilter = activeFilter === s.value ? null : s.value"
-      >{{ s.label }}</q-chip>
+        >{{ s.label }}</q-chip
+      >
     </div>
 
     <div v-if="loading" class="text-center q-pa-lg"><q-spinner size="2em" /></div>
@@ -33,11 +28,7 @@
     </div>
 
     <div v-else class="row q-col-gutter-md">
-      <div
-        v-for="queen in filtered"
-        :key="(queen as any).id"
-        class="col-12 col-sm-6 col-md-4"
-      >
+      <div v-for="queen in filtered" :key="(queen as any).id" class="col-12 col-sm-6 col-md-4">
         <q-card>
           <q-card-section>
             <div class="row items-center justify-between">
@@ -89,9 +80,23 @@
           <q-separator />
 
           <q-card-actions align="right">
-            <q-btn flat dense size="sm" icon="swap_horiz" :label="t('queen.assign')" @click="openAssign(queen)" />
+            <q-btn
+              flat
+              dense
+              size="sm"
+              icon="swap_horiz"
+              :label="t('queen.assign')"
+              @click="openAssign(queen)"
+            />
             <q-btn flat dense size="sm" icon="edit" @click="openEdit(queen)" />
-            <q-btn flat dense size="sm" icon="delete" color="negative" @click="confirmDelete(queen)" />
+            <q-btn
+              flat
+              dense
+              size="sm"
+              icon="delete"
+              color="negative"
+              @click="confirmDelete(queen)"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -131,7 +136,13 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat :label="t('form.cancel')" v-close-popup />
-          <q-btn color="primary" :label="t('form.save')" :loading="assignSaving" rounded @click="doAssign" />
+          <q-btn
+            color="primary"
+            :label="t('form.save')"
+            :loading="assignSaving"
+            rounded
+            @click="doAssign"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -180,9 +191,9 @@ export default {
 
     const statusFilters = [
       { value: 'active', label: 'Aktiv', color: 'positive' },
-      { value: 'spare',  label: 'Reserve', color: 'info' },
-      { value: 'dead',   label: 'Tot', color: 'grey' },
-      { value: 'sold',   label: 'Verkauft', color: 'orange' },
+      { value: 'spare', label: 'Reserve', color: 'info' },
+      { value: 'dead', label: 'Tot', color: 'grey' },
+      { value: 'sold', label: 'Verkauft', color: 'orange' },
     ];
 
     const filtered = computed(() =>
@@ -227,16 +238,32 @@ export default {
 
     function formatDate(d?: string) {
       if (!d) return '?';
-      try { return new Date(d).toLocaleDateString('de-DE', { year: '2-digit', month: '2-digit', day: '2-digit' }); }
-      catch { return d; }
+      try {
+        return new Date(d).toLocaleDateString('de-DE', {
+          year: '2-digit',
+          month: '2-digit',
+          day: '2-digit',
+        });
+      } catch {
+        return d;
+      }
     }
 
     function statusColor(s?: string) {
-      return { active: 'positive', spare: 'info', dead: 'grey', sold: 'orange-7' }[s ?? 'spare'] ?? 'grey';
+      return (
+        { active: 'positive', spare: 'info', dead: 'grey', sold: 'orange-7' }[s ?? 'spare'] ??
+        'grey'
+      );
     }
 
-    function openCreate() { editingQueen.value = null; dialogVisible.value = true; }
-    function openEdit(q: Queen) { editingQueen.value = q; dialogVisible.value = true; }
+    function openCreate() {
+      editingQueen.value = null;
+      dialogVisible.value = true;
+    }
+    function openEdit(q: Queen) {
+      editingQueen.value = q;
+      dialogVisible.value = true;
+    }
 
     function openAssign(q: Queen) {
       assigningQueen.value = q;
@@ -253,42 +280,77 @@ export default {
           (assigningQueen.value as any).id,
           { hiveId: assignHiveId.value, from: assignDate.value },
         );
-        const idx = queens.value.findIndex((q) => (q as any).id === (assigningQueen.value as any).id);
+        const idx = queens.value.findIndex(
+          (q) => (q as any).id === (assigningQueen.value as any).id,
+        );
         if (idx >= 0) queens.value.splice(idx, 1, updated as Queen);
         assignDialogVisible.value = false;
         $q.notify({ type: 'positive', message: t('queen.assigned') });
       } catch (e: any) {
         $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
-      } finally { assignSaving.value = false; }
+      } finally {
+        assignSaving.value = false;
+      }
     }
 
-    function confirmDelete(q: Queen) { deletingQueen.value = q; deleteDialogVisible.value = true; }
+    function confirmDelete(q: Queen) {
+      deletingQueen.value = q;
+      deleteDialogVisible.value = true;
+    }
 
     async function doDelete() {
       if (!deletingQueen.value) return;
       try {
         await DefaultService.deleteApiV1Queens((deletingQueen.value as any).id);
-        queens.value = queens.value.filter((q) => (q as any).id !== (deletingQueen.value as any).id);
+        queens.value = queens.value.filter(
+          (q) => (q as any).id !== (deletingQueen.value as any).id,
+        );
         $q.notify({ type: 'positive', message: t('queen.deleted') });
       } catch (e: any) {
         $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
-      } finally { deleteDialogVisible.value = false; deletingQueen.value = null; }
+      } finally {
+        deleteDialogVisible.value = false;
+        deletingQueen.value = null;
+      }
     }
 
-    function onCreated(q: Queen) { queens.value.unshift(q); }
+    function onCreated(q: Queen) {
+      queens.value.unshift(q);
+    }
     function onUpdated(q: Queen) {
       const idx = queens.value.findIndex((x) => (x as any).id === (q as any).id);
       if (idx >= 0) queens.value.splice(idx, 1, q);
     }
 
     return {
-      t, queens, hives, loading, activeFilter, filtered, statusFilters, hiveOptions,
-      dialogVisible, editingQueen,
-      assignDialogVisible, assignHiveId, assignDate, assignSaving,
+      t,
+      queens,
+      hives,
+      loading,
+      activeFilter,
+      filtered,
+      statusFilters,
+      hiveOptions,
+      dialogVisible,
+      editingQueen,
+      assignDialogVisible,
+      assignHiveId,
+      assignDate,
+      assignSaving,
       deleteDialogVisible,
-      hiveName, currentHiveOf, pastHives, formatDate, statusColor,
-      openCreate, openEdit, openAssign, doAssign,
-      confirmDelete, doDelete, onCreated, onUpdated,
+      hiveName,
+      currentHiveOf,
+      pastHives,
+      formatDate,
+      statusColor,
+      openCreate,
+      openEdit,
+      openAssign,
+      doAssign,
+      confirmDelete,
+      doDelete,
+      onCreated,
+      onUpdated,
     };
   },
 };
