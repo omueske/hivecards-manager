@@ -37,7 +37,7 @@ export class AuthService {
     this.logger.log(`New user created id=${user._id.toString()} email=${user.email}`);
     this.logger.debug(`Verification token generated expires=${emailVerificationExpires.toISOString()}`);
     // Send verification email (non-blocking — don't fail registration if mail fails)
-    this.mailService.sendVerificationEmail(email, emailVerificationToken).catch(err =>
+    this.mailService.sendVerificationEmail(email, emailVerificationToken, user.username).catch(err =>
       this.logger.warn(`Failed to send verification email to ${email}: ${err?.message}`),
     );
     return { id: user._id.toString(), email: user.email, username: user.username, createdAt: user.createdAt };
@@ -72,7 +72,7 @@ export class AuthService {
     user.passwordResetToken = token;
     user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
-    this.mailService.sendPasswordResetEmail(email, token).catch(err =>
+    this.mailService.sendPasswordResetEmail(email, token, user.username).catch(err =>
       this.logger.warn(`Failed to send reset email to ${email}: ${err?.message}`),
     );
     this.logger.log(`Password reset email sent to ${email}`);

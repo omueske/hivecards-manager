@@ -11,7 +11,7 @@ export class MailService {
     return process.env.APP_URL || 'http://localhost:5173';
   }
 
-  async sendVerificationEmail(email: string, token: string) {
+  async sendVerificationEmail(email: string, token: string, username?: string) {
     const link = `${this.appUrl}/api/v1/auth/verify-email?token=${token}`;
     this.logger.log(`Sending verification email to ${email}`);
     try {
@@ -19,7 +19,7 @@ export class MailService {
         to: email,
         subject: 'Hivecards – E-Mail-Adresse bestätigen',
         template: 'verify-email',
-        context: { link },
+        context: { link, username },
       });
       this.logger.debug(`Verification email delivered to ${email}`);
     } catch (err: any) {
@@ -28,7 +28,7 @@ export class MailService {
     }
   }
 
-  async sendPasswordResetEmail(email: string, token: string) {
+  async sendPasswordResetEmail(email: string, token: string, username?: string) {
     const link = `${this.appUrl}/reset-password?token=${token}`;
     this.logger.log(`Sending password reset email to ${email}`);
     try {
@@ -36,7 +36,7 @@ export class MailService {
         to: email,
         subject: 'Hivecards – Passwort zurücksetzen',
         template: 'reset-password',
-        context: { link },
+        context: { link, username },
       });
       this.logger.debug(`Password reset email delivered to ${email}`);
     } catch (err: any) {

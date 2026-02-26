@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken';
 
 describe('AuthService (unit)', () => {
   let service: AuthService;
+  let mockMail: any;
 
   // simple in-memory "model" with findOne hook that can be changed in tests
   const mockUserModel: any = function (this: any, data: any) {
@@ -23,7 +24,7 @@ describe('AuthService (unit)', () => {
   };
 
   beforeEach(async () => {
-    const mockMail = {
+    mockMail = {
       sendVerificationEmail: jest.fn().mockResolvedValue(null),
       sendPasswordResetEmail: jest.fn().mockResolvedValue(null),
     };
@@ -76,6 +77,19 @@ describe('AuthService (unit)', () => {
     // give microtask time for catch
     await new Promise(process.nextTick);
     expect(spyWarn).toHaveBeenCalledWith(expect.stringContaining('Failed to send verification email'));
+  });
+
+  it('passes username to sendVerificationEmail', async () => {
+    setFindOneResult(null);
+    const sendVerificationEmailSpy = jest.spyOn(mockMail, 'sendVerificationEmail');
+    await service.register('testuser@example.com', 'secret', 'TestUser');
+    // wait for async mail send
+    await new Promise(process.nextTick);
+    expect(sendVerificationEmailSpy).toHaveBeenCalledWith(
+      'testuser@example.com',
+      expect.any(String), // token
+      'TestUser'
+    );
   });
 
   describe('forgotPassword failures', () => {
@@ -141,6 +155,23 @@ describe('AuthService (unit)', () => {
       const r = await service.forgotPassword('exists');
       expect(r).toEqual({ ok: true });
       expect(user.passwordResetToken).toBeDefined();
+    });
+
+    it('passes username to sendPasswordResetEmail', async () => {
+      const user: any = { 
+        save: jest.fn(),
+        username: 'ResetUser'
+      };
+      setFindOneResult(user);
+      const sendPasswordResetEmailSpy = jest.spyOn(mockMail, 'sendPasswordResetEmail');
+      await service.forgotPassword('reset@example.com');
+      // wait for async mail send
+      await new Promise(process.nextTick);
+      expect(sendPasswordResetEmailSpy).toHaveBeenCalledWith(
+        'reset@example.com',
+        expect.any(String), // token
+        'ResetUser'
+      );
     });
 
     it('resetPassword throws if token invalid', async () => {

@@ -14,13 +14,16 @@ describe('MailService (unit)', () => {
 
   it('sends verification email successfully', async () => {
     mailer.sendMail.mockResolvedValue({});
-    await expect(service.sendVerificationEmail('user@example.com', 'token123')).resolves.toBeUndefined();
+    await expect(service.sendVerificationEmail('user@example.com', 'token123', 'John')).resolves.toBeUndefined();
     expect(mailer.sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'user@example.com',
         subject: expect.stringContaining('bestätigen'),
         template: 'verify-email',
-        context: expect.objectContaining({ link: expect.stringContaining('token123') }),
+        context: expect.objectContaining({ 
+          link: expect.stringContaining('token123'),
+          username: 'John'
+        }),
       }),
     );
   });
@@ -33,13 +36,16 @@ describe('MailService (unit)', () => {
 
   it('sends password reset email successfully', async () => {
     mailer.sendMail.mockResolvedValue({});
-    await expect(service.sendPasswordResetEmail('foo@bar.com', 'xyz')).resolves.toBeUndefined();
+    await expect(service.sendPasswordResetEmail('foo@bar.com', 'xyz', 'Jane')).resolves.toBeUndefined();
     expect(mailer.sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'foo@bar.com',
         subject: expect.stringContaining('Passwort'),
         template: 'reset-password',
-        context: expect.objectContaining({ link: expect.stringContaining('xyz') }),
+        context: expect.objectContaining({ 
+          link: expect.stringContaining('xyz'),
+          username: 'Jane'
+        }),
       }),
     );
   });
@@ -48,5 +54,35 @@ describe('MailService (unit)', () => {
     const err = new Error('boom');
     mailer.sendMail.mockRejectedValue(err);
     await expect(service.sendPasswordResetEmail('a@b', 'tok')).rejects.toThrow(err);
+  });
+
+  it('sends verification email without username (backward compatibility)', async () => {
+    mailer.sendMail.mockResolvedValue({});
+    await expect(service.sendVerificationEmail('user@example.com', 'token123')).resolves.toBeUndefined();
+    expect(mailer.sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'user@example.com',
+        template: 'verify-email',
+        context: expect.objectContaining({ 
+          link: expect.stringContaining('token123'),
+          username: undefined
+        }),
+      }),
+    );
+  });
+
+  it('sends password reset email without username (backward compatibility)', async () => {
+    mailer.sendMail.mockResolvedValue({});
+    await expect(service.sendPasswordResetEmail('foo@bar.com', 'xyz')).resolves.toBeUndefined();
+    expect(mailer.sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'foo@bar.com',
+        template: 'reset-password',
+        context: expect.objectContaining({ 
+          link: expect.stringContaining('xyz'),
+          username: undefined
+        }),
+      }),
+    );
   });
 });
