@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.21] - 2026-02-26
+
+### Added
+- add RBAC roles and stabilize test suites (2c2d93a)
+
 ## [0.1.20] - 2026-02-26
 
 - minor improvements
