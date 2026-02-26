@@ -9,7 +9,7 @@ import { setToken, clearToken } from './auth/token'
 import { scheduleRefresh } from './auth/tokenRefresh'
 import { Quasar, Notify, ClosePopup,
 	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
-	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
+	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner, QDate, QPopupProxy,
 	QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
 	QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
 	QCheckbox, QItem, QItemSection
@@ -24,7 +24,7 @@ app.use(Quasar, {
 	directives: { ClosePopup },
 	components: {
 		QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
-		QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner,
+		QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner, QDate, QPopupProxy,
 		QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
 		QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
 		QCheckbox, QItem, QItemSection
