@@ -1,6 +1,6 @@
 {
   "name": "hivecards-backend",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
