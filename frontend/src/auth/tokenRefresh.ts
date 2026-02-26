@@ -69,7 +69,7 @@ export function scheduleRefresh(token: string) {
   }, refreshInMs)
 }
 
-async function doRefresh() {
+export async function doRefresh() {
   try {
     const base = (import.meta as any).env?.VITE_API_BASE || ''
     const resp = await fetch(base + '/api/v1/auth/refresh', {

@@ -8,7 +8,6 @@ export default defineConfig({
     setupFiles: './tests/setupTests.ts',
     globals: true,
     include: ['tests/**/*.spec.ts'],
-    // Use forks for CI-friendly parallelism. Was temporarily set to 'none' for debugging.
     pool: 'forks',
     forks: { singleFork: true },
     coverage: {

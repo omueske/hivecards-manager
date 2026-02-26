@@ -10,7 +10,6 @@ import { mount } from '@vue/test-utils'
 import HiveList from '../src/pages/HiveList.vue'
 import { setToken } from '../src/auth/token'
 import { createPinia } from 'pinia'
-import { createRouter, createMemoryHistory } from 'vue-router'
 
 // provide a simple global localStorage for jsdom-less test runs
 if (typeof globalThis.localStorage === 'undefined') {
@@ -39,10 +38,21 @@ describe('HiveList', () => {
   })
 
   it('renders hive cards when API returns items', async () => {
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: HiveList }] })
     const wrapper = mount(HiveList, {
       global: {
-        plugins: [createPinia(), router]
+        plugins: [createPinia()],
+        mocks: {
+          $router: {
+            push: vi.fn(),
+            replace: vi.fn(),
+            currentRoute: { value: { path: '/' } }
+          },
+          $route: {
+            path: '/',
+            params: {},
+            query: {}
+          }
+        }
       }
     })
 
