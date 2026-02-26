@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.19] - 2026-02-26
+
+### Fixed
+- register quasar date components for hive datepicker (ae1f93c)
+- stabilize frontend imports and optimize build chunking (619457e)
+
+### Other
+- Apply formatting updates and add router coverage test (c9ce3e3)
+- Enforce mandatory resource fields end-to-end (6a82d21)
+
 ## [0.1.18] - 2026-02-26
 
 ### Added
