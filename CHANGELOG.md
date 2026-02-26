@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.18] - 2026-02-26
+
+### Added
+- make email authentication case-insensitive (ffd8f9c)
+- add automatic database index management (5eeeab8)
+- personalize emails with username (f94732a)
+
+### Tests
+- add comprehensive unit tests for token, user store, and Apiaries (5465a58)
+- add comprehensive interaction tests for HiveList and Queens components (476c3ad)
+- improve test coverage with unit tests (dbe83e6)
+- remove debug logs; expose validateForm/assignQueen for tests (32a2681)
+
+### Other
+- stabilize ForgotPassword spec; restore vitest pool config (39f1b00)
+
 ## [0.1.17] - 2026-02-22
 
 ### Changed
