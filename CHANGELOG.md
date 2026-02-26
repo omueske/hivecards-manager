@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.23] - 2026-02-26
+
+### Fixed
+- align API base and add production compose templates (9e54cbb)
+
 ## [0.1.22] - 2026-02-26
 
 - minor improvements
