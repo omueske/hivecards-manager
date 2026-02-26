@@ -129,7 +129,11 @@
             <button class="avatar-menu-item" @click="(menu = false), router.push('/profile')">
               {{ $t ? $t('auth.profile') : 'Profile' }}
             </button>
-            <button v-if="isAdmin" class="avatar-menu-item" @click="(menu = false), router.push('/admin')">
+            <button
+              v-if="isAdmin"
+              class="avatar-menu-item"
+              @click="(menu = false), router.push('/admin')"
+            >
               Admin
             </button>
             <button class="avatar-menu-item" @click="onLogoutClicked">
@@ -302,7 +306,6 @@ const initials = computed(() => {
     return '';
   }
 });
-
 </script>
 
 <style>

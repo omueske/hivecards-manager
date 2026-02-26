@@ -1,51 +1,82 @@
 <template>
-  <div>
-    <h2>Adminbereich</h2>
+  <div class="q-gutter-md">
+    <div class="text-h5">Adminbereich</div>
 
-    <q-card style="margin-bottom: 16px">
+    <q-card>
       <q-card-section>
-        <div class="text-subtitle1" style="margin-bottom: 8px">Dashboard</div>
+        <div class="text-subtitle1 q-mb-sm">Dashboard</div>
         <div v-if="loadingStats">Lade Statistiken…</div>
-        <div v-else>
-          <div>Benutzer gesamt: {{ stats.users.total }}</div>
-          <div>Admins: {{ stats.users.admin }}</div>
-          <div>Verifiziert: {{ stats.users.verified }}</div>
-          <div>Ressourcen gesamt: {{ stats.resources.total }}</div>
-          <div style="font-size: 0.9em; color: #666; margin-top: 4px">
-            Apiaries {{ stats.resources.apiaries }}, Hives {{ stats.resources.hives }}, Queens
-            {{ stats.resources.queens }}, Inspections {{ stats.resources.inspections }}, Agents
-            {{ stats.resources.treatmentAgents }}
+        <div v-else class="row q-col-gutter-md">
+          <div class="col-12 col-sm-6 col-md-3" v-for="tile in statTiles" :key="tile.label">
+            <q-card bordered flat>
+              <q-card-section>
+                <div class="text-caption text-grey-7">{{ tile.label }}</div>
+                <div class="text-h6">{{ tile.value }}</div>
+              </q-card-section>
+            </q-card>
           </div>
         </div>
       </q-card-section>
     </q-card>
 
-    <q-card style="margin-bottom: 16px">
+    <q-card>
       <q-card-section>
-        <div class="text-subtitle1" style="margin-bottom: 8px">Benutzer anlegen</div>
-        <q-form @submit.prevent="createUser" class="q-gutter-sm">
-          <q-input v-model="createForm.email" label="E-Mail" dense />
-          <q-input v-model="createForm.username" label="Username" dense />
-          <q-input v-model="createForm.password" type="password" label="Passwort" dense />
-          <q-select
-            v-model="createForm.role"
-            :options="roleOptions"
-            label="Rolle"
-            dense
-            emit-value
-            map-options
-          />
-          <q-toggle v-model="createForm.emailVerified" label="E-Mail verifiziert" />
-          <q-btn type="submit" color="primary" label="Anlegen" :loading="savingCreate" />
+        <div class="text-subtitle1 q-mb-sm">Benutzer anlegen</div>
+        <q-form @submit.prevent="createUser" class="row q-col-gutter-sm items-end">
+          <div class="col-12 col-md-4">
+            <q-input v-model="createForm.email" label="E-Mail" dense />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-input v-model="createForm.username" label="Username" dense />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-input v-model="createForm.password" type="password" label="Passwort" dense />
+          </div>
+          <div class="col-6 col-md-1">
+            <q-select
+              v-model="createForm.role"
+              :options="roleOptions"
+              label="Rolle"
+              dense
+              emit-value
+              map-options
+            />
+          </div>
+          <div class="col-6 col-md-1">
+            <q-toggle v-model="createForm.emailVerified" label="Verifiziert" />
+          </div>
+          <div class="col-12">
+            <q-btn type="submit" color="primary" label="Anlegen" :loading="savingCreate" />
+          </div>
         </q-form>
       </q-card-section>
     </q-card>
 
-    <q-card style="margin-bottom: 16px">
+    <q-card>
       <q-card-section>
-        <div class="text-subtitle1" style="margin-bottom: 8px">Benutzer verwalten</div>
+        <div class="row q-col-gutter-sm items-end q-mb-sm">
+          <div class="col-12 col-md-5">
+            <q-input
+              v-model="userSearch"
+              dense
+              clearable
+              label="Benutzer suchen (E-Mail/Username)"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="roleFilter"
+              dense
+              emit-value
+              map-options
+              :options="roleFilterOptions"
+              label="Rollenfilter"
+            />
+          </div>
+        </div>
+
         <div v-if="loadingUsers">Lade Benutzer…</div>
-        <table v-else class="admin-table">
+        <q-markup-table v-else dense flat bordered>
           <thead>
             <tr>
               <th>E-Mail</th>
@@ -56,63 +87,110 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in users" :key="user.id" :class="{ selected: selectedUserId === user.id }">
+            <tr
+              v-for="user in filteredUsers"
+              :key="user.id"
+              :class="{ 'bg-yellow-1': selectedUserId === user.id }"
+            >
               <td>{{ user.email }}</td>
-              <td>
-                <input v-model="user.username" style="width: 160px" />
+              <td style="min-width: 180px">
+                <q-input v-model="user.username" dense outlined />
+              </td>
+              <td style="min-width: 130px">
+                <q-select
+                  v-model="user.role"
+                  :options="roleOptions"
+                  emit-value
+                  map-options
+                  dense
+                  outlined
+                />
               </td>
               <td>
-                <select v-model="user.role">
-                  <option value="user">user</option>
-                  <option value="admin">admin</option>
-                </select>
+                <q-badge
+                  :color="user.emailVerified ? 'positive' : 'warning'"
+                  :label="user.emailVerified ? 'ja' : 'nein'"
+                />
+                <q-toggle v-model="user.emailVerified" class="q-ml-sm" />
               </td>
               <td>
-                <input type="checkbox" v-model="user.emailVerified" />
-              </td>
-              <td>
-                <button @click="saveUser(user)">Speichern</button>
-                <button @click="selectUser(user.id)">Ressourcen</button>
-                <button @click="removeUser(user)" :disabled="user.id === myUserId">Löschen</button>
+                <q-btn size="sm" color="primary" flat label="Speichern" @click="saveUser(user)" />
+                <q-btn
+                  size="sm"
+                  color="secondary"
+                  flat
+                  label="Ressourcen"
+                  @click="selectUser(user.id)"
+                />
+                <q-btn
+                  size="sm"
+                  color="negative"
+                  flat
+                  label="Löschen"
+                  :disable="user.id === myUserId"
+                  @click="removeUser(user)"
+                />
               </td>
             </tr>
           </tbody>
-        </table>
+        </q-markup-table>
       </q-card-section>
     </q-card>
 
     <q-card v-if="selectedUserId">
       <q-card-section>
-        <div class="text-subtitle1" style="margin-bottom: 8px">
-          Ressourcen von Benutzer {{ selectedUserId }}
-        </div>
+        <div class="text-subtitle1 q-mb-sm">Ressourcen von Benutzer {{ selectedUserId }}</div>
+
+        <q-tabs v-model="activeResourceType" dense inline-label class="text-primary">
+          <q-tab
+            v-for="type in resourceTypeDefs"
+            :key="type.key"
+            :name="type.key"
+            :label="`${type.label} (${resourceCount(type.key)})`"
+          />
+        </q-tabs>
+
+        <q-separator class="q-my-sm" />
+
         <div v-if="loadingResources">Lade Ressourcen…</div>
-        <div v-else>
-          <div style="font-size: 0.9em; color: #666; margin-bottom: 8px">
-            Apiaries {{ resources.counts.apiaries }}, Hives {{ resources.counts.hives }}, Queens
-            {{ resources.counts.queens }}, Inspections {{ resources.counts.inspections }}, Agents
-            {{ resources.counts.treatmentAgents }}
-          </div>
+        <q-tab-panels v-else v-model="activeResourceType" animated>
+          <q-tab-panel
+            v-for="type in resourceTypeDefs"
+            :key="type.key"
+            :name="type.key"
+            class="q-pa-none q-pt-sm"
+          >
+            <q-list bordered separator>
+              <q-item v-for="item in resources[type.key]" :key="item._id || item.id">
+                <q-item-section>
+                  <q-item-label>{{ resourceLabel(item) }}</q-item-label>
+                  <q-item-label caption>{{ item._id || item.id }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn
+                    size="sm"
+                    flat
+                    color="primary"
+                    label="Bearbeiten"
+                    @click="startEditResource(type.key, item)"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item v-if="!(resources[type.key] || []).length">
+                <q-item-section>
+                  <q-item-label caption>Keine Einträge</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-tab-panel>
+        </q-tab-panels>
 
-          <div class="resource-grid">
-            <div v-for="type in resourceTypes" :key="type" class="resource-col">
-              <h4>{{ type }}</h4>
-              <ul>
-                <li v-for="item in resources[type]" :key="item._id || item.id">
-                  <span>{{ item.name || item.hiveNumber || item.date || item._id }}</span>
-                  <button @click="startEditResource(type, item)">Bearbeiten</button>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div v-if="editingResource">
-            <h4 style="margin-top: 12px">Ressource bearbeiten (JSON Patch)</h4>
-            <textarea v-model="resourceEditor" rows="10" style="width: 100%"></textarea>
-            <div style="margin-top: 8px">
-              <button @click="saveResource">Speichern</button>
-              <button @click="cancelResourceEdit">Abbrechen</button>
-            </div>
+        <div v-if="editingResource" class="q-mt-md">
+          <div class="text-subtitle2 q-mb-sm">Ressource bearbeiten (JSON Patch)</div>
+          <q-input v-model="resourceEditor" type="textarea" autogrow outlined />
+          <div class="q-mt-sm q-gutter-sm">
+            <q-btn color="primary" label="Speichern" @click="saveResource" />
+            <q-btn flat label="Abbrechen" @click="cancelResourceEdit" />
           </div>
         </div>
       </q-card-section>
@@ -122,6 +200,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { OpenAPI } from '../api-client/core/OpenAPI';
 import { getToken } from '../auth/token';
 
@@ -137,11 +216,25 @@ const roleOptions = [
   { label: 'user', value: 'user' },
   { label: 'admin', value: 'admin' },
 ];
+const roleFilterOptions = [{ label: 'alle', value: 'all' }, ...roleOptions];
+
+const resourceTypeDefs = [
+  { key: 'apiaries', label: 'Apiaries' },
+  { key: 'hives', label: 'Hives' },
+  { key: 'queens', label: 'Queens' },
+  { key: 'inspections', label: 'Inspections' },
+  { key: 'treatmentAgents', label: 'Agents' },
+];
+
+const $q = useQuasar();
 
 const loadingStats = ref(false);
 const loadingUsers = ref(false);
 const loadingResources = ref(false);
 const savingCreate = ref(false);
+const userSearch = ref('');
+const roleFilter = ref<'all' | 'user' | 'admin'>('all');
+const activeResourceType = ref('apiaries');
 
 const stats = ref({
   users: { total: 0, admin: 0, regular: 0, verified: 0 },
@@ -167,9 +260,29 @@ const createForm = ref({
   emailVerified: false,
 });
 
-const resourceTypes = ['apiaries', 'hives', 'queens', 'inspections', 'treatmentAgents'];
 const editingResource = ref<{ type: string; id: string } | null>(null);
 const resourceEditor = ref('');
+
+const statTiles = computed(() => [
+  { label: 'Benutzer gesamt', value: stats.value.users.total },
+  { label: 'Admins', value: stats.value.users.admin },
+  { label: 'Verifizierte Benutzer', value: stats.value.users.verified },
+  { label: 'Ressourcen gesamt', value: stats.value.resources.total },
+]);
+
+const filteredUsers = computed(() => {
+  const q = userSearch.value.trim().toLowerCase();
+  return users.value.filter((user) => {
+    if (roleFilter.value !== 'all' && user.role !== roleFilter.value) return false;
+    if (!q) return true;
+    return (
+      user.email.toLowerCase().includes(q) ||
+      String(user.username || '')
+        .toLowerCase()
+        .includes(q)
+    );
+  });
+});
 
 const base = computed(() => OpenAPI.BASE || ((import.meta as any).env?.VITE_API_BASE ?? ''));
 
@@ -205,10 +318,28 @@ async function adminFetch(path: string, init: RequestInit = {}) {
   return resp.json();
 }
 
+function notifyError(message: string) {
+  $q.notify({ type: 'negative', message });
+}
+
+function notifySuccess(message: string) {
+  $q.notify({ type: 'positive', message });
+}
+
+function resourceCount(type: string) {
+  return (resources.value?.[type] || []).length;
+}
+
+function resourceLabel(item: any) {
+  return item?.name || item?.hiveNumber || item?.date || item?.notes || 'Eintrag';
+}
+
 async function loadStats() {
   loadingStats.value = true;
   try {
     stats.value = await adminFetch('/api/v1/admin/stats');
+  } catch (e: any) {
+    notifyError(e?.message || 'Statistiken konnten nicht geladen werden');
   } finally {
     loadingStats.value = false;
   }
@@ -218,6 +349,8 @@ async function loadUsers() {
   loadingUsers.value = true;
   try {
     users.value = await adminFetch('/api/v1/admin/users');
+  } catch (e: any) {
+    notifyError(e?.message || 'Benutzer konnten nicht geladen werden');
   } finally {
     loadingUsers.value = false;
   }
@@ -238,38 +371,54 @@ async function createUser() {
       emailVerified: false,
     };
     await Promise.all([loadUsers(), loadStats()]);
+    notifySuccess('Benutzer angelegt');
+  } catch (e: any) {
+    notifyError(e?.message || 'Benutzer konnte nicht angelegt werden');
   } finally {
     savingCreate.value = false;
   }
 }
 
 async function saveUser(user: UserItem) {
-  await adminFetch(`/api/v1/admin/users/${user.id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      email: user.email,
-      username: user.username,
-      role: user.role,
-      emailVerified: user.emailVerified,
-    }),
-  });
-  await Promise.all([loadUsers(), loadStats()]);
+  try {
+    await adminFetch(`/api/v1/admin/users/${user.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        emailVerified: user.emailVerified,
+      }),
+    });
+    await Promise.all([loadUsers(), loadStats()]);
+    notifySuccess('Benutzer gespeichert');
+  } catch (e: any) {
+    notifyError(e?.message || 'Benutzer konnte nicht gespeichert werden');
+  }
 }
 
 async function removeUser(user: UserItem) {
   if (!confirm(`Benutzer ${user.email} wirklich löschen?`)) return;
-  await adminFetch(`/api/v1/admin/users/${user.id}`, { method: 'DELETE' });
-  if (selectedUserId.value === user.id) {
-    selectedUserId.value = '';
+  try {
+    await adminFetch(`/api/v1/admin/users/${user.id}`, { method: 'DELETE' });
+    if (selectedUserId.value === user.id) {
+      selectedUserId.value = '';
+    }
+    await Promise.all([loadUsers(), loadStats()]);
+    notifySuccess('Benutzer gelöscht');
+  } catch (e: any) {
+    notifyError(e?.message || 'Benutzer konnte nicht gelöscht werden');
   }
-  await Promise.all([loadUsers(), loadStats()]);
 }
 
 async function selectUser(userId: string) {
   selectedUserId.value = userId;
+  activeResourceType.value = 'apiaries';
   loadingResources.value = true;
   try {
     resources.value = await adminFetch(`/api/v1/admin/users/${userId}/resources`);
+  } catch (e: any) {
+    notifyError(e?.message || 'Ressourcen konnten nicht geladen werden');
   } finally {
     loadingResources.value = false;
   }
@@ -294,66 +443,27 @@ function cancelResourceEdit() {
 
 async function saveResource() {
   if (!editingResource.value || !selectedUserId.value) return;
-  const patch = JSON.parse(resourceEditor.value);
+  try {
+    const patch = JSON.parse(resourceEditor.value);
 
-  await adminFetch(
-    `/api/v1/admin/users/${selectedUserId.value}/resources/${editingResource.value.type}/${editingResource.value.id}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(patch),
-    },
-  );
+    await adminFetch(
+      `/api/v1/admin/users/${selectedUserId.value}/resources/${editingResource.value.type}/${editingResource.value.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(patch),
+      },
+    );
 
-  await selectUser(selectedUserId.value);
-  cancelResourceEdit();
-  await loadStats();
+    await selectUser(selectedUserId.value);
+    cancelResourceEdit();
+    await loadStats();
+    notifySuccess('Ressource gespeichert');
+  } catch (e: any) {
+    notifyError(e?.message || 'Ressource konnte nicht gespeichert werden');
+  }
 }
 
 onMounted(async () => {
   await Promise.all([loadStats(), loadUsers()]);
 });
 </script>
-
-<style scoped>
-.admin-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.admin-table th,
-.admin-table td {
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
-}
-
-.admin-table tr.selected {
-  background: #fff8e1;
-}
-
-.resource-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.resource-col {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 8px;
-}
-
-.resource-col ul {
-  margin: 0;
-  padding-left: 16px;
-  max-height: 220px;
-  overflow: auto;
-}
-
-.resource-col li {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-</style>

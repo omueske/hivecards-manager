@@ -10,9 +10,9 @@ import { scheduleRefresh } from './auth/tokenRefresh'
 import { Quasar, Notify, ClosePopup,
 	QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 	QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner, QDate, QPopupProxy,
-	QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
+	QSeparator, QTooltip, QTabs, QTab, QTabPanels, QTabPanel, QRouteTab, QIcon,
 	QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
-	QCheckbox, QItem, QItemSection
+	QCheckbox, QItem, QItemSection, QItemLabel, QList, QMarkupTable
 } from 'quasar'
 import 'quasar/dist/quasar.css'
 
@@ -25,9 +25,9 @@ app.use(Quasar, {
 	components: {
 		QLayout, QHeader, QFooter, QToolbar, QToolbarTitle, QPageContainer, QPage, QBtn, QBtnToggle, QSpace,
 		QCard, QCardSection, QCardActions, QForm, QInput, QSelect, QDialog, QSpinner, QDate, QPopupProxy,
-		QSeparator, QTooltip, QTabs, QTab, QRouteTab, QIcon,
+		QSeparator, QTooltip, QTabs, QTab, QTabPanels, QTabPanel, QRouteTab, QIcon,
 		QTimeline, QTimelineEntry, QToggle, QBadge, QTable, QTd, QAvatar, QChip,
-		QCheckbox, QItem, QItemSection
+		QCheckbox, QItem, QItemSection, QItemLabel, QList, QMarkupTable
 	}
 })
 app.use(i18n)
