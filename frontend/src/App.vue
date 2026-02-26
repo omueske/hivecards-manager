@@ -71,6 +71,19 @@
               </svg>
               {{ $t ? $t('nav.queens') : 'Königinnen' }}
             </button>
+            <button
+              v-if="isAdmin"
+              class="burger-nav-item"
+              @click="
+                burgerMenu = false;
+                router.push('/admin');
+              "
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm-7 18a7 7 0 1 1 14 0H5z" />
+              </svg>
+              Admin
+            </button>
           </div>
         </template>
         <q-toolbar-title>Hivecards</q-toolbar-title>
@@ -115,6 +128,9 @@
           <div v-if="menu" class="avatar-menu" role="menu">
             <button class="avatar-menu-item" @click="(menu = false), router.push('/profile')">
               {{ $t ? $t('auth.profile') : 'Profile' }}
+            </button>
+            <button v-if="isAdmin" class="avatar-menu-item" @click="(menu = false), router.push('/admin')">
+              Admin
             </button>
             <button class="avatar-menu-item" @click="onLogoutClicked">
               {{ $t ? $t('auth.logout') : 'Logout' }}
@@ -239,15 +255,26 @@ function base64UrlDecode(input: string) {
   }
 }
 
-const initials = computed(() => {
+const tokenPayload = computed<Record<string, any> | null>(() => {
   const t = store.token;
-  if (!t) return '';
+  if (!t) return null;
   const parts = t.split('.');
-  if (parts.length < 2) return '';
+  if (parts.length < 2) return null;
   const payloadRaw = base64UrlDecode(parts[1]);
-  if (!payloadRaw) return '';
+  if (!payloadRaw) return null;
   try {
-    const payload = JSON.parse(payloadRaw) as Record<string, any>;
+    return JSON.parse(payloadRaw) as Record<string, any>;
+  } catch (e) {
+    return null;
+  }
+});
+
+const isAdmin = computed(() => tokenPayload.value?.role === 'admin');
+
+const initials = computed(() => {
+  if (!tokenPayload.value) return '';
+  try {
+    const payload = tokenPayload.value as Record<string, any>;
     const name = String(
       payload.username || payload.name || payload.email || payload.sub || '',
     ).trim();
@@ -275,6 +302,7 @@ const initials = computed(() => {
     return '';
   }
 });
+
 </script>
 
 <style>

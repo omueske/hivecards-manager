@@ -132,5 +132,52 @@ describe('Roles integration (auth + users)', () => {
       .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
       .send({ role: 'user' })
       .expect(400);
+
+    await request(app.getHttpServer())
+      .get('/api/v1/admin/stats')
+      .set('Authorization', `Bearer ${userLogin.body.accessToken}`)
+      .expect(403);
+
+    const statsRes: any = await request(app.getHttpServer())
+      .get('/api/v1/admin/stats')
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .expect(200);
+    expect(statsRes.body?.users?.total).toBeGreaterThanOrEqual(2);
+
+    const listRes: any = await request(app.getHttpServer())
+      .get('/api/v1/admin/users')
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .expect(200);
+    expect(Array.isArray(listRes.body)).toBe(true);
+
+    const createdByAdmin: any = await request(app.getHttpServer())
+      .post('/api/v1/admin/users')
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .send({ email: `managed+${Date.now()}@example.com`, password: 'pass1234', role: 'user' })
+      .expect(201);
+    expect(createdByAdmin.body.role).toBe('user');
+
+    const updatedByAdmin: any = await request(app.getHttpServer())
+      .put(`/api/v1/admin/users/${createdByAdmin.body.id}`)
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .send({ role: 'admin', username: 'managed-user' })
+      .expect(200);
+    expect(updatedByAdmin.body).toEqual(
+      expect.objectContaining({
+        id: createdByAdmin.body.id,
+        role: 'admin',
+        username: 'managed-user',
+      }),
+    );
+
+    await request(app.getHttpServer())
+      .get(`/api/v1/admin/users/${createdByAdmin.body.id}/resources`)
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/admin/users/${createdByAdmin.body.id}`)
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .expect(200);
   });
 });
