@@ -10,24 +10,12 @@ import { createPinia } from 'pinia'
 import Login from '../src/pages/Login.vue'
 // Mock the generated DefaultService to avoid loading the real client (can hang on import)
 vi.mock('../src/api-client/services/DefaultService', () => ({
-  // provide both top-level and `DefaultService` shapes used in tests/components
-  postApiV1AuthLogin: vi.fn(),
-  DefaultService: {},
+  DefaultService: {
+    postApiV1AuthLogin: vi.fn(),
+  },
 }))
-import * as DefaultService from '../src/api-client/services/DefaultService'
+import { DefaultService } from '../src/api-client/services/DefaultService'
 import { useUserStore } from '../src/stores/user'
-
-// Ensure DefaultService exports exist so spies can attach safely
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ds = require('../src/api-client/services/DefaultService')
-  if (!ds || !ds.DefaultService) {
-    // create a simple fallback object
-    module.exports = { DefaultService: {} }
-  }
-} catch {
-  // ignore
-}
 
 describe('Login.vue', () => {
   let pinia: any
@@ -37,10 +25,7 @@ describe('Login.vue', () => {
   })
 
   it('logs in and sets token', async () => {
-    // create the function if missing, then spy
-    if (!(DefaultService as any).postApiV1AuthLogin) (DefaultService as any).postApiV1AuthLogin = vi.fn()
-    const loginSpy = vi.spyOn(DefaultService as any, 'postApiV1AuthLogin').mockResolvedValue({ accessToken: 'tok123' })
-    // debug logs to diagnose hangs
+    const loginSpy = vi.spyOn(DefaultService, 'postApiV1AuthLogin').mockResolvedValue({ accessToken: 'tok123' } as any)
   
     const wrapper = mount(Login, {
       global: {
@@ -58,11 +43,7 @@ describe('Login.vue', () => {
     // @ts-expect-error -- vue component internal vm properties
     wrapper.vm.password = 'Password123!'
 
-    // call submit
-    // @ts-expect-error -- vue component internal vm properties
-  
     await wrapper.vm.onSubmit()
-  
 
     expect(loginSpy).toHaveBeenCalled()
     expect(store.token).toBe('tok123')

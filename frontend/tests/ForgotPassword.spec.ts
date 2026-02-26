@@ -1,6 +1,13 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { nextTick } from 'vue'
+
+vi.mock('../src/api-client/services/DefaultService', () => ({
+  DefaultService: {
+    postApiV1AuthForgotPassword: vi.fn(),
+  },
+}))
+
 import ForgotPassword from '../src/pages/ForgotPassword.vue'
 
 describe('ForgotPassword.vue', () => {

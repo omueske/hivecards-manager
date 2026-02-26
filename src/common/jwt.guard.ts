@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/commo
 import { AuthService } from '../auth/auth.service';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from './roles.decorator';
 
 // exported for testing to drive the rarely-hit branches (s falsy or long strings)
 export const truncate = (s?: string, n = 16) => (s ? (s.length > n ? s.slice(0, n) + '...' : s) : '');
@@ -29,8 +30,17 @@ export class JwtGuard implements CanActivate {
       this.logger.warn(`Token verification failed for token=${truncate(token)}`);
       return false;
     }
-    // attach user id
-    (req as any).user = { id: payload.sub };
+    const role = payload.role === 'admin' ? 'admin' : 'user';
+    (req as any).user = { id: payload.sub, role };
+
+    const requiredRoles = this.reflector.getAllAndOverride<Array<'user' | 'admin'>>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (requiredRoles?.length && !requiredRoles.includes(role)) {
+      this.logger.warn(`Forbidden by role. required=${requiredRoles.join(',')} current=${role} user=${payload.sub}`);
+      return false;
+    }
     this.logger.log(`Authenticated request for user=${payload.sub}`);
     return true;
   }

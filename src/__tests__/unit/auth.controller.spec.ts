@@ -26,10 +26,10 @@ describe('AuthController (unit)', () => {
 
   describe('register', () => {
     it('calls authService.register and returns the result', async () => {
-      authService.register.mockResolvedValue({ id: 'u1', email: 'a@b' });
+      authService.register.mockResolvedValue({ id: 'u1', email: 'a@b', role: 'user' });
       const dto = { email: 'a@b', password: 'pw' } as any;
       const res = await controller.register(dto);
-      expect(res).toEqual({ id: 'u1', email: 'a@b' });
+      expect(res).toEqual(expect.objectContaining({ id: 'u1', email: 'a@b' }));
       expect(authService.register).toHaveBeenCalledWith('a@b', 'pw', undefined);
     });
 

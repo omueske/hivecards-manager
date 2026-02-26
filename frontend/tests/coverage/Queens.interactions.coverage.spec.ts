@@ -23,6 +23,9 @@ vi.mock('../../src/api-client/services/DefaultService', () => ({
 }))
 
 vi.mock('quasar', () => ({
+  useQuasar: () => ({
+    notify: vi.fn(),
+  }),
   Notify: {
     create: vi.fn()
   }

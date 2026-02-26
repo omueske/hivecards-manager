@@ -1,5 +1,11 @@
+import { vi, test, expect } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
+
+vi.mock('../../src/api-client/services/DefaultService', () => ({
+  DefaultService: new Proxy({}, { get: () => vi.fn() }),
+}))
+
 import App from '../../src/App.vue'
 
 test('App mounts (smoke)', () => {

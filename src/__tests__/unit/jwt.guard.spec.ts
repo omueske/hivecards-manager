@@ -6,10 +6,14 @@ describe('JwtGuard (unit)', () => {
   let verifyMock: jest.Mock;
 
   const makeCtx = (header?: string) => {
+    const handler = () => undefined;
+    class CtxClass {}
     return {
       switchToHttp: () => ({
         getRequest: () => ({ headers: { authorization: header } }),
       }),
+      getHandler: () => handler,
+      getClass: () => CtxClass,
     } as any;
   };
 
@@ -39,11 +43,46 @@ describe('JwtGuard (unit)', () => {
   });
 
   it('allows and attaches user when token valid', async () => {
-    verifyMock.mockReturnValue({ sub: 'user123' });
+    verifyMock.mockReturnValue({ sub: 'user123', role: 'user' });
     const req: any = { headers: { authorization: 'Bearer xyz' } };
-    const ctx = { switchToHttp: () => ({ getRequest: () => req }) } as any;
+    const handler = () => undefined;
+    class CtxClass {}
+    const ctx = {
+      switchToHttp: () => ({ getRequest: () => req }),
+      getHandler: () => handler,
+      getClass: () => CtxClass,
+    } as any;
     expect(await guard.canActivate(ctx)).toBe(true);
-    expect(req.user).toEqual({ id: 'user123' });
+    expect(req.user).toEqual({ id: 'user123', role: 'user' });
+  });
+
+  it('denies when role requirement is not met', async () => {
+    verifyMock.mockReturnValue({ sub: 'user123', role: 'user' });
+    jest.spyOn((guard as any).reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    const req: any = { headers: { authorization: 'Bearer xyz' } };
+    const handler = () => undefined;
+    class CtxClass {}
+    const ctx = {
+      switchToHttp: () => ({ getRequest: () => req }),
+      getHandler: () => handler,
+      getClass: () => CtxClass,
+    } as any;
+    expect(await guard.canActivate(ctx)).toBe(false);
+  });
+
+  it('allows when role requirement is met', async () => {
+    verifyMock.mockReturnValue({ sub: 'admin1', role: 'admin' });
+    jest.spyOn((guard as any).reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    const req: any = { headers: { authorization: 'Bearer xyz' } };
+    const handler = () => undefined;
+    class CtxClass {}
+    const ctx = {
+      switchToHttp: () => ({ getRequest: () => req }),
+      getHandler: () => handler,
+      getClass: () => CtxClass,
+    } as any;
+    expect(await guard.canActivate(ctx)).toBe(true);
+    expect(req.user).toEqual({ id: 'admin1', role: 'admin' });
   });
 
   it('truncate utility handles empty and long strings', () => {

@@ -7,6 +7,8 @@ import * as crypto from 'crypto';
 import { User, UserDocument } from './schemas/user.schema';
 import { MailService } from '../mail/mail.service';
 
+type JwtPayload = { sub: string; role: 'user' | 'admin' };
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -41,7 +43,13 @@ export class AuthService {
     this.mailService.sendVerificationEmail(normalizedEmail, emailVerificationToken, user.username).catch(err =>
       this.logger.warn(`Failed to send verification email to ${normalizedEmail}: ${err?.message}`),
     );
-    return { id: user._id.toString(), email: user.email, username: user.username, createdAt: user.createdAt };
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      username: user.username,
+      role: user.role ?? 'user',
+      createdAt: user.createdAt,
+    };
   }
 
   async verifyEmail(token: string) {
@@ -112,13 +120,19 @@ export class AuthService {
       this.logger.warn(`Login blocked - email not verified for userId=${user._id.toString()}`);
       throw new BadRequestException('Email not verified');
     }
+    if (!user.role) {
+      user.role = 'user';
+      if (typeof (user as any).save === 'function') {
+        await user.save();
+      }
+    }
     this.logger.log(`User validated email=${normalizedEmail} id=${user._id.toString()}`);
     return user;
   }
 
-  signTokens(userId: string) {
-    this.logger.debug(`Signing JWT tokens for userId=${userId}`);
-    const payload = { sub: userId };
+  signTokens(userId: string, role: 'user' | 'admin' = 'user') {
+    this.logger.debug(`Signing JWT tokens for userId=${userId} role=${role}`);
+    const payload: JwtPayload = { sub: userId, role };
     const secret = process.env.JWT_SECRET || 'dev-secret';
     const accessToken = jwt.sign(payload, secret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, secret, { expiresIn: '7d' });
@@ -128,7 +142,11 @@ export class AuthService {
   verifyToken(token: string) {
     try {
       const secret = process.env.JWT_SECRET || 'dev-secret';
-      return jwt.verify(token, secret) as { sub: string };
+      const payload = jwt.verify(token, secret) as { sub: string; role?: 'user' | 'admin' };
+      return {
+        sub: payload.sub,
+        role: payload.role === 'admin' ? 'admin' : 'user',
+      };
     } catch (e: any) {
       this.logger.warn(`verifyToken failed: ${e?.name || 'Error'} - ${e?.message || ''}`);
       return null;

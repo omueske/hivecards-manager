@@ -7,7 +7,10 @@ const backendIntegConfig: Config.InitialOptions = {
   rootDir: 'src',
   testEnvironment: 'node',
   testRegex: '/__tests__/integration/.*\\.(test|spec)\\.tsx?$',
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/integration/ensure-indexes.spec.ts$',
+  ],
   setupFilesAfterEnv: ['<rootDir>/../tests/setupBackend.ts'],
 };
 

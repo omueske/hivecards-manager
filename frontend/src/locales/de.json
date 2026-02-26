@@ -204,6 +204,9 @@
     },
     "profile": {
         "session_title": "Sitzung",
+        "role": "Rolle",
+        "role_user": "Benutzer",
+        "role_admin": "Administrator",
         "email_verified": "E-Mail",
         "verified": "Best\u00e4tigt",
         "not_verified": "Nicht best\u00e4tigt",

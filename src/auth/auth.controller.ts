@@ -72,7 +72,7 @@ export class AuthController {
       this.logger.warn(`Login failed for email=${dto.email}`);
       throw new BadRequestException('invalid credentials');
     }
-    const tokens = this.authService.signTokens(user._id.toString());
+    const tokens = this.authService.signTokens(user._id.toString(), user.role === 'admin' ? 'admin' : 'user');
     this.logger.log(`Login successful for userId=${user._id.toString()}`);
     const secure = process.env.COOKIE_SECURE === 'true';
     res.cookie('hc_refresh', tokens.refreshToken, {
@@ -89,16 +89,21 @@ export class AuthController {
     const cookie = req.cookies?.hc_refresh;
     if (!cookie) {
       this.logger.debug('Token refresh: no refresh cookie present');
-      return res.status(204).send();
+      res.status(204);
+      return;
     }
     const payload = this.authService.verifyToken(cookie);
     if (!payload || !payload.sub) {
       this.logger.warn('Token refresh: invalid or expired refresh token');
       res.clearCookie('hc_refresh');
-      return res.status(204).send();
+      res.status(204);
+      return;
     }
     this.logger.debug(`Token refresh for userId=${payload.sub}`);
-    const tokens = this.authService.signTokens(payload.sub as string);
+    const tokens = this.authService.signTokens(
+      payload.sub as string,
+      payload.role === 'admin' ? 'admin' : 'user',
+    );
     const secure = process.env.COOKIE_SECURE === 'true';
     res.cookie('hc_refresh', tokens.refreshToken, {
       httpOnly: true,

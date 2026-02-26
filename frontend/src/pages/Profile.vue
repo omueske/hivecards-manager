@@ -28,13 +28,36 @@
       <!-- Session Info -->
       <q-card style="margin-top: 16px">
         <q-card-section>
-          <div class="text-subtitle2" style="margin-bottom: 12px">{{ t('profile.session_title') }}</div>
-          <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 0.9em; align-items: center">
+          <div class="text-subtitle2" style="margin-bottom: 12px">
+            {{ t('profile.session_title') }}
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: auto 1fr;
+              gap: 6px 16px;
+              font-size: 0.9em;
+              align-items: center;
+            "
+          >
+            <span style="color: #888">{{ t('profile.role') }}</span>
+            <span>
+              <q-badge color="primary" :label="profileRoleLabel" />
+            </span>
 
             <span style="color: #888">{{ t('profile.email_verified') }}</span>
             <span>
-              <q-badge v-if="profileData.emailVerified" color="positive" :label="t('profile.verified')" />
-              <q-badge v-else color="warning" text-color="black" :label="t('profile.not_verified')" />
+              <q-badge
+                v-if="profileData.emailVerified"
+                color="positive"
+                :label="t('profile.verified')"
+              />
+              <q-badge
+                v-else
+                color="warning"
+                text-color="black"
+                :label="t('profile.not_verified')"
+              />
             </span>
 
             <span style="color: #888">{{ t('profile.token_expires') }}</span>
@@ -45,7 +68,6 @@
 
             <span style="color: #888">{{ t('profile.next_refresh') }}</span>
             <span>{{ nextRefreshLabel }}</span>
-
           </div>
         </q-card-section>
         <q-card-actions>
@@ -78,7 +100,7 @@ const { t } = useI18n();
 const loading = ref(true);
 const refreshing = ref(false);
 const form = ref({ email: '', username: '', password: '' });
-const profileData = ref({ emailVerified: false });
+const profileData = ref({ emailVerified: false, role: 'user' as 'user' | 'admin' });
 const $q = useQuasar();
 
 // --- Token decode ---
@@ -86,7 +108,9 @@ function parseJwt(token: string): Record<string, any> | null {
   try {
     const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(atob(payload));
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 const now = ref(Math.floor(Date.now() / 1000));
@@ -96,6 +120,15 @@ const tokenPayload = computed(() => {
   const t = getToken();
   return t ? parseJwt(t) : null;
 });
+
+const profileRole = computed<'user' | 'admin'>(() => {
+  if (profileData.value.role === 'admin') return 'admin';
+  return tokenPayload.value?.role === 'admin' ? 'admin' : 'user';
+});
+
+const profileRoleLabel = computed(() =>
+  profileRole.value === 'admin' ? t('profile.role_admin') : t('profile.role_user'),
+);
 
 const tokenExpiresAt = computed(() => {
   const exp = tokenPayload.value?.exp;
@@ -158,9 +191,12 @@ async function fetchProfile() {
       form.value.email = data.email || '';
       form.value.username = data.username || '';
       profileData.value.emailVerified = data.emailVerified ?? false;
+      profileData.value.role = data.role === 'admin' ? 'admin' : 'user';
     }
-  } catch {}
-  finally { loading.value = false; }
+  } catch {
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function submit() {
@@ -172,7 +208,10 @@ async function submit() {
     const base = OpenAPI.BASE || (import.meta as any).env?.VITE_API_BASE || '';
     const res = await fetch(base + '/api/v1/users/me', {
       method: 'PUT',
-      headers: { Authorization: token ? `Bearer ${token}` : '', 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
       body: JSON.stringify(payload),
     });
@@ -183,8 +222,10 @@ async function submit() {
     } else {
       $q.notify({ type: 'negative', message: t('messages.save_failed') });
     }
-  } catch {}
-  finally { loading.value = false; }
+  } catch {
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function refreshNow() {
@@ -213,11 +254,15 @@ async function refreshNow() {
   }
 }
 
-function cancel() { router.push('/'); }
+function cancel() {
+  router.push('/');
+}
 
 onMounted(() => {
   fetchProfile();
-  clockTimer = setInterval(() => { now.value = Math.floor(Date.now() / 1000); }, 1000);
+  clockTimer = setInterval(() => {
+    now.value = Math.floor(Date.now() / 1000);
+  }, 1000);
 });
 
 onUnmounted(() => {

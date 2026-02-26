@@ -1,11 +1,80 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createRouter, createMemoryHistory, type Router } from 'vue-router'
+import type { Router } from 'vue-router'
 
 // Mock getToken function
 let mockToken: string | null = null
 vi.mock('../../src/auth/token', () => ({
   getToken: () => mockToken
 }))
+
+vi.mock('vue-router', () => {
+  return {
+    createMemoryHistory: () => ({}),
+    createRouter: (opts: any) => {
+      const routes = opts?.routes ?? []
+      const guards: Array<(to: any, from: any, next: (arg?: any) => void) => void> = []
+      const currentRoute = { value: { path: '/', fullPath: '/', query: {}, matched: [] as any[] } }
+
+      const findRoute = (path: string) => {
+        return routes.find((r: any) => {
+          if (r.path === path) return true
+          if (r.path?.includes('/:')) {
+            const base = String(r.path).split('/:')[0]
+            return path.startsWith(base + '/')
+          }
+          return false
+        })
+      }
+
+      return {
+        currentRoute,
+        beforeEach(fn: any) {
+          guards.push(fn)
+        },
+        getRoutes() {
+          return routes
+        },
+        async isReady() {
+          return
+        },
+        async push(path: string) {
+          const targetRoute = findRoute(path)
+          const to = {
+            path,
+            fullPath: path,
+            query: {},
+            matched: targetRoute ? [targetRoute] : [],
+          }
+          const from = currentRoute.value
+
+          let redirected: any = null
+          for (const guard of guards) {
+            guard(to, from, (arg?: any) => {
+              if (arg) redirected = arg
+            })
+            if (redirected) break
+          }
+
+          if (redirected) {
+            const redirectedPath = redirected.path ?? '/'
+            const redirectedRoute = findRoute(redirectedPath)
+            currentRoute.value = {
+              path: redirectedPath,
+              fullPath: redirectedPath,
+              query: redirected.query ?? {},
+              matched: redirectedRoute ? [redirectedRoute] : [],
+            }
+            return
+          }
+
+          currentRoute.value = to
+        },
+      }
+    },
+  }
+})
+
+import { createRouter, createMemoryHistory } from 'vue-router'
 
 // Mock all page components to avoid running their setup/onMounted code
 vi.mock('../../src/pages/Login.vue', () => ({ default: { name: 'Login', template: '<div>Login</div>' } }))

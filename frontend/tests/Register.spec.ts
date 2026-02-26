@@ -2,13 +2,12 @@ import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Mock the generated API client to avoid heavy import-time work during test evaluation
 vi.mock('../src/api-client/services/DefaultService', () => ({
-  postApiV1AuthRegister: vi.fn(),
   DefaultService: {
     postApiV1AuthRegister: vi.fn(),
   },
 }))
 import Register from '../src/pages/Register.vue'
-import * as DefaultService from '../src/api-client/services/DefaultService'
+import { DefaultService } from '../src/api-client/services/DefaultService'
 
 // the global setup covers vue-i18n and quasar components
 
@@ -58,7 +57,7 @@ describe('Register.vue', () => {
   })
 
   it('submits successfully and shows registered message', async () => {
-    (DefaultService as any).postApiV1AuthRegister = vi.fn().mockResolvedValue({})
+    const registerSpy = vi.spyOn(DefaultService, 'postApiV1AuthRegister').mockResolvedValue({} as any)
 
     const wrapper = mount(Register)
     const vm: any = wrapper.vm
@@ -67,7 +66,7 @@ describe('Register.vue', () => {
     vm.confirmPassword = 'longenough'
 
     await vm.onSubmit()
-    expect((DefaultService as any).postApiV1AuthRegister).toHaveBeenCalledWith({
+    expect(registerSpy).toHaveBeenCalledWith({
       email: 'user@foo.com',
       password: 'longenough',
       username: undefined,
@@ -76,8 +75,7 @@ describe('Register.vue', () => {
   })
 
   it('handles "already registered" error specially', async () => {
-    (DefaultService as any).postApiV1AuthRegister = vi
-      .fn()
+    vi.spyOn(DefaultService, 'postApiV1AuthRegister')
       .mockRejectedValue({ body: { message: 'Already registered' } })
 
     const wrapper = mount(Register)

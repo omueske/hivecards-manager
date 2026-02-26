@@ -32,6 +32,9 @@ vi.mock('vue-router', () => ({
 }))
 
 vi.mock('quasar', () => ({
+  useQuasar: () => ({
+    notify: vi.fn(),
+  }),
   Notify: {
     create: vi.fn()
   }

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
+export type UserRole = 'user' | 'admin';
 
 @Schema({ timestamps: true })
 export class User {
@@ -16,6 +17,9 @@ export class User {
 
   @Prop({ default: false })
   emailVerified!: boolean;
+
+  @Prop({ enum: ['user', 'admin'], default: 'user', index: true })
+  role!: UserRole;
 
   @Prop()
   emailVerificationToken?: string;

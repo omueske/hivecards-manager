@@ -8,8 +8,8 @@ export default defineConfig({
     setupFiles: './tests/setupTests.ts',
     globals: true,
     include: ['tests/**/*.spec.ts'],
-    pool: 'forks',
-    forks: { singleFork: true },
+    pool: 'threads',
+    singleThread: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
