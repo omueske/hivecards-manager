@@ -30,14 +30,15 @@ describe('HiveController (unit)', () => {
       expect(hiveService.create).toHaveBeenCalledWith(dto, 'uid');
     });
 
-    it('handles missing apiaryId by logging N/A and forwarding undefined', async () => {
-      const dto: any = { hiveNumber: 'H2' };
-      hiveService.create.mockResolvedValue({ id: 'h2' });
-      const spyDebug = jest.spyOn((controller as any).logger, 'debug');
-      const res = await controller.create(dto, user);
-      expect(res).toEqual({ id: 'h2' });
-      expect(hiveService.create).toHaveBeenCalledWith(dto, 'uid');
-      expect(spyDebug).toHaveBeenCalledWith(expect.stringContaining('apiaryId=N/A'));
+    it('throws if apiaryId missing', async () => {
+      await expect(
+        controller.create(
+          {
+            hiveNumber: 'H2',
+          } as any,
+          user,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 

@@ -1,9 +1,9 @@
-import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class CreateHiveDto {
-  @IsOptional()
   @IsString()
-  apiaryId?: string;
+  @IsNotEmpty()
+  apiaryId!: string;
 
   @IsString()
   hiveNumber!: string;

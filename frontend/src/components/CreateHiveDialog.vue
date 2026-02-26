@@ -12,7 +12,7 @@
               :options="apiaryOptions"
               option-label="label"
               option-value="value"
-              :label="t('form.location')"
+              :label="`${t('form.location')} *`"
               dense
               style="flex: 1"
               use-input
@@ -21,6 +21,7 @@
               emit-value
               map-options
               clearable
+              :rules="[(value) => !!String(value ?? '').trim() || t('form.required_field')]"
             />
             <input
               type="color"
@@ -32,10 +33,11 @@
           </div>
           <q-input
             v-model="form.hiveNumber"
-            :label="t('hive.create') + ' #'"
+            :label="`${t('hive.create')} # *`"
             type="number"
             min="1"
             required
+            :rules="[(value) => !!String(value ?? '').trim() || t('form.required_field')]"
             dense
           />
           <q-select
@@ -251,15 +253,15 @@ export default {
       localVisible.value = false;
     }
 
-      // local reference to instance if needed
-      const inst = getCurrentInstance()?.proxy as any
+    // local reference to instance if needed
+    const inst = getCurrentInstance()?.proxy as any;
 
     async function submit() {
       try {
-          const validator = formRef.value?.validate
-          const hasValidate = typeof validator === 'function'
-          const valid = hasValidate ? await validator() : true
-          if (hasValidate && valid !== true) return
+        const validator = formRef.value?.validate;
+        const hasValidate = typeof validator === 'function';
+        const valid = hasValidate ? await validator() : true;
+        if (hasValidate && valid !== true) return;
         // ensure date is ISO formatted if provided
         const payload = { ...form.value } as any;
         if (payload.installationDate) {
@@ -275,7 +277,7 @@ export default {
           if (valid !== false) emit('updated', res);
         } else {
           res = await DefaultService.postApiV1Hives(payload as any);
-          const newId = res ? ((res as any).id || (res as any)._id) : undefined;
+          const newId = res ? (res as any).id || (res as any)._id : undefined;
           if (newId) await applyQueenAssignment(newId, res);
           if (valid !== false) emit('created', res);
         }
@@ -296,41 +298,58 @@ export default {
 
     async function applyQueenAssignment(hiveId: string, _hiveRes: any) {
       // allow microtasks to settle so refs from tests/mount settle
-      await Promise.resolve()
+      await Promise.resolve();
       // debug logs to help tests determine why assignment may not run
       // eslint-disable-next-line no-console
-      console.log('applyQueenAssignment called', { hiveId, selected: selectedQueenId?.value, queens: queens?.value })
+      console.log('applyQueenAssignment called', {
+        hiveId,
+        selected: selectedQueenId?.value,
+        queens: queens?.value,
+      });
       // normalize selected id in case tests accidentally wrapped refs
-      let sel: any = (selectedQueenId as any)?.value
-      if (sel && typeof sel === 'object' && 'value' in sel) sel = sel.value
-      if (!sel) return
+      let sel: any = (selectedQueenId as any)?.value;
+      if (sel && typeof sel === 'object' && 'value' in sel) sel = sel.value;
+      if (!sel) return;
       // normalize queens list (handle nested ref-in-array shapes and ref-wrapped items)
-      let qlist: any = (queens as any).value
+      let qlist: any = (queens as any).value;
       // unwrap repeated nested single-element refs
-      while (Array.isArray(qlist) && qlist.length === 1 && qlist[0] && typeof qlist[0] === 'object' && 'value' in qlist[0]) {
-        qlist = qlist[0].value
+      while (
+        Array.isArray(qlist) &&
+        qlist.length === 1 &&
+        qlist[0] &&
+        typeof qlist[0] === 'object' &&
+        'value' in qlist[0]
+      ) {
+        qlist = qlist[0].value;
       }
-      if (!Array.isArray(qlist)) return
-      const qlistNormalized = qlist.map((it: any) => (it && typeof it === 'object' && 'value' in it ? it.value : it))
+      if (!Array.isArray(qlist)) return;
+      const qlistNormalized = qlist.map((it: any) =>
+        it && typeof it === 'object' && 'value' in it ? it.value : it,
+      );
       // debug normalized
       // eslint-disable-next-line no-console
-      console.log('applyQueenAssignment: normalized sel, qlist', sel, qlistNormalized)
-      const q = qlistNormalized.find((x: any) => (x.id === sel || x._id === sel || x.id === (sel && sel.toString && sel.toString())))
+      console.log('applyQueenAssignment: normalized sel, qlist', sel, qlistNormalized);
+      const q = qlistNormalized.find(
+        (x: any) =>
+          x.id === sel || x._id === sel || x.id === (sel && sel.toString && sel.toString()),
+      );
       if (!q) {
         // If we couldn't find a full queen object (tests may have set only the selected id
         // or the queens list was not populated), defensively attempt the assignment when a
         // selected id exists. This keeps tests deterministic without exposing test-only
         // helpers while preserving the normal flow when queen objects are available.
         // eslint-disable-next-line no-console
-        console.log('applyQueenAssignment: queen object not found, invoking fallback assign', sel, { hiveId })
-        await DefaultService.postApiV1QueensAssign(sel, { hiveId })
-        return
+        console.log('applyQueenAssignment: queen object not found, invoking fallback assign', sel, {
+          hiveId,
+        });
+        await DefaultService.postApiV1QueensAssign(sel, { hiveId });
+        return;
       }
-      const alreadyAssigned = (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to)
+      const alreadyAssigned = (q.hiveHistory ?? []).some((e: any) => e.hiveId === hiveId && !e.to);
       if (!alreadyAssigned) {
         // eslint-disable-next-line no-console
-        console.log('applyQueenAssignment: invoking postApiV1QueensAssign', sel, { hiveId })
-        await DefaultService.postApiV1QueensAssign(sel, { hiveId })
+        console.log('applyQueenAssignment: invoking postApiV1QueensAssign', sel, { hiveId });
+        await DefaultService.postApiV1QueensAssign(sel, { hiveId });
       }
     }
 
@@ -345,7 +364,9 @@ export default {
         const payload: any = { name };
         if (newApiaryColor.value) payload.color = newApiaryColor.value;
         const res = await DefaultService.postApiV1Apiaries(payload as any);
-        const id = res ? ((res as any).id || (res as any)._id || (res as any).id?.toString?.()) : undefined;
+        const id = res
+          ? (res as any).id || (res as any)._id || (res as any).id?.toString?.()
+          : undefined;
         form.value.apiaryId = id;
         // add to cached options
         apiaryOptions.value = [
@@ -391,9 +412,9 @@ export default {
       selectedQueenId,
       queenOptions,
       loadingQueens,
-    }
+    };
     // no test-only helpers exposed
-    return returned
+    return returned;
   },
 };
 </script>

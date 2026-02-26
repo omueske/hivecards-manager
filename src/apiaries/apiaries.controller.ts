@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, UseGuards, Logger, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Logger,
+  Param,
+  Put,
+  Delete,
+  BadRequestException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiariesService } from './apiaries.service';
 import { CreateApiaryDto } from './dto/create-apiary.dto';
 import { JwtGuard } from '../common/jwt.guard';
@@ -11,7 +23,14 @@ export class ApiariesController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async create(@Body() dto: CreateApiaryDto, @CurrentUser() user: { id: string }) {
+  async create(
+    @Body(new ValidationPipe({ whitelist: true })) dto: CreateApiaryDto,
+    @CurrentUser() user: { id: string },
+  ) {
+    if (!dto.name || !dto.name.trim()) {
+      this.logger.warn('Create apiary attempt missing name');
+      throw new BadRequestException('name required');
+    }
     this.logger.debug(`Create apiary request name=${dto.name} user=${user.id}`);
     const res = await this.apiariesService.create(dto, user.id);
     this.logger.log(`Created apiary id=${(res as any).id} name=${dto.name} user=${user.id}`);

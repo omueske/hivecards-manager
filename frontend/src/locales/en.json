@@ -167,6 +167,7 @@
         "cancel": "Cancel",
         "submit": "Create",
         "save": "Save",
+        "required_field": "Required field",
         "optional": "optional",
         "new_location": "New location name",
         "location": "Location",

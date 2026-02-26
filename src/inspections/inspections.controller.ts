@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { InspectionsService } from './inspections.service';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
@@ -28,6 +29,14 @@ export class InspectionsController {
     @Body() dto: CreateInspectionDto,
     @CurrentUser() user: { id: string },
   ) {
+    if (!dto.hiveId || !dto.hiveId.trim()) {
+      this.logger.warn('Create inspection attempt missing hiveId');
+      throw new BadRequestException('hiveId required');
+    }
+    if (!dto.date || !dto.date.trim()) {
+      this.logger.warn('Create inspection attempt missing date');
+      throw new BadRequestException('date required');
+    }
     this.logger.debug(`Create inspection request hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);
     const res = await this.svc.create(dto, user.id);
     this.logger.log(`Created inspection id=${(res as any).id} hiveId=${dto.hiveId} type=${dto.type ?? 'note'} user=${user.id}`);

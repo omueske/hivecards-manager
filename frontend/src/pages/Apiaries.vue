@@ -19,7 +19,7 @@
         <q-card-section class="q-pt-none q-gutter-sm">
           <q-input
             v-model="form.name"
-            :label="t('form.location')"
+            :label="`${t('form.location')} *`"
             dense
             autofocus
             @keyup.enter="save"

@@ -1,4 +1,5 @@
 import { ApiariesController } from '../../apiaries/apiaries.controller';
+import { BadRequestException } from '@nestjs/common';
 
 describe('ApiariesController (unit)', () => {
   let controller: ApiariesController;
@@ -22,6 +23,16 @@ describe('ApiariesController (unit)', () => {
     const res = await controller.create(dto, user);
     expect(res).toEqual({ id: 'a1' });
     expect(svc.create).toHaveBeenCalledWith(dto, 'uid');
+  });
+
+  it('create rejects missing name', async () => {
+    await expect(controller.create({} as any, user)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('create rejects blank name', async () => {
+    await expect(controller.create({ name: '   ' } as any, user)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 
   it('findAll returns list', async () => {

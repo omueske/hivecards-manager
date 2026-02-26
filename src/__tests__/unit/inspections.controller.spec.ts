@@ -1,4 +1,5 @@
 import { InspectionsController } from '../../inspections/inspections.controller';
+import { BadRequestException } from '@nestjs/common';
 
 describe('InspectionsController (unit)', () => {
   let ctrl: InspectionsController;
@@ -16,14 +17,26 @@ describe('InspectionsController (unit)', () => {
   });
 
   it('create forwards dto', async () => {
-    const dto = { hiveId: 'h1' } as any;
+    const dto = { hiveId: 'h1', date: '2026-02-26' } as any;
     svc.create.mockResolvedValue({ id: 'i1' });
     expect(await ctrl.create(dto, user)).toEqual({ id: 'i1' });
     expect(svc.create).toHaveBeenCalledWith(dto, 'uid');
   });
 
+  it('create rejects missing hiveId', async () => {
+    await expect(ctrl.create({ date: '2026-02-26' } as any, user)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+
+  it('create rejects missing date', async () => {
+    await expect(ctrl.create({ hiveId: 'h1' } as any, user)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+
   it('create logs and passes explicit type', async () => {
-    const dto: any = { hiveId: 'h2', type: 'inspection' };
+    const dto: any = { hiveId: 'h2', date: '2026-02-26', type: 'inspection' };
     svc.create.mockResolvedValue({ id: 'i2' });
     const spy = jest.spyOn((ctrl as any).logger, 'debug');
     await ctrl.create(dto, user);

@@ -1,206 +1,218 @@
 ﻿<template>
-  <q-dialog v-model="visible" teleport="body">
-    <q-card style="min-width: 320px; max-width: 95vw; width: 480px">
-      <q-card-section>
-        <div class="text-h6">{{ editing ? t('inspection.edit') : t('inspection.add') }}</div>
-      </q-card-section>
+  <div>
+    <q-dialog v-model="visible" teleport="body">
+      <q-card style="min-width: 320px; max-width: 95vw; width: 480px">
+        <q-card-section>
+          <div class="text-h6">{{ editing ? t('inspection.edit') : t('inspection.add') }}</div>
+        </q-card-section>
 
-      <q-card-section class="q-pt-none">
-        <q-form ref="formRef">
-          <!-- Datum + Uhrzeit -->
-          <div class="row q-col-gutter-sm q-mb-sm">
-            <div class="col-8">
-              <q-input
-                v-model="form.date"
-                :label="t('inspection.date')"
-                type="date"
-                dense
-                required
+        <q-card-section class="q-pt-none">
+          <q-form ref="formRef">
+            <!-- Datum + Uhrzeit -->
+            <div class="row q-col-gutter-sm q-mb-sm">
+              <div class="col-8">
+                <q-input
+                  v-model="form.date"
+                  :label="`${t('inspection.date')} *`"
+                  type="date"
+                  dense
+                  required
+                  :rules="[(value) => !!String(value ?? '').trim() || t('form.required_field')]"
+                />
+              </div>
+              <div class="col-4">
+                <q-input v-model="form.time" :label="t('inspection.time')" type="time" dense />
+              </div>
+            </div>
+
+            <!-- Typ -->
+            <q-select
+              v-model="form.type"
+              :options="typeOptions"
+              option-label="label"
+              option-value="value"
+              emit-value
+              map-options
+              :label="t('inspection.type')"
+              dense
+              class="q-mb-sm"
+            />
+
+            <!-- Nur bei Durchsicht -->
+            <template v-if="form.type === 'inspection'">
+              <q-toggle
+                v-model="form.queenSeen"
+                :label="t('inspection.queenSeen')"
+                class="q-mb-xs"
               />
-            </div>
-            <div class="col-4">
-              <q-input v-model="form.time" :label="t('inspection.time')" type="time" dense />
-            </div>
+
+              <!-- Brut -->
+              <div class="text-caption text-grey-7 q-mt-xs">{{ t('inspection.brood') }}</div>
+              <div class="row q-gutter-md q-mb-xs q-pl-sm">
+                <q-checkbox v-model="form.broodEgg" :label="t('inspection.broodEgg')" dense />
+                <q-checkbox v-model="form.broodLarva" :label="t('inspection.broodLarva')" dense />
+                <q-checkbox v-model="form.broodCapped" :label="t('inspection.broodCapped')" dense />
+              </div>
+              <q-input
+                :model-value="broodResultText"
+                :label="t('inspection.broodResult')"
+                dense
+                readonly
+                class="q-mb-sm"
+              />
+
+              <q-input
+                v-model.number="form.frameCount"
+                :label="t('inspection.frameCount')"
+                type="number"
+                dense
+                class="q-mb-sm"
+              />
+            </template>
+
+            <!-- Behandlung -->
+            <template v-if="form.type === 'treatment'">
+              <q-select
+                v-model="form.treatmentAgent"
+                :options="agentOptions"
+                :label="t('inspection.treatmentAgent')"
+                clearable
+                dense
+                class="q-mb-sm"
+              >
+                <template #after-options>
+                  <q-item clickable @click="openAddDialog('treatment')">
+                    <q-item-section avatar><q-icon name="add" /></q-item-section>
+                    <q-item-section>{{ t('inspection.addTreatmentAgent') }}</q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <q-input
+                v-model="form.treatmentAmount"
+                :label="t('inspection.treatmentAmount')"
+                dense
+                class="q-mb-sm"
+                placeholder="z.B. 150 ml"
+              />
+            </template>
+
+            <!-- Fuetterung -->
+            <template v-if="form.type === 'feeding'">
+              <q-select
+                v-model="form.feedingAgent"
+                :options="feedOptions"
+                :label="t('inspection.feedingAgent')"
+                clearable
+                dense
+                class="q-mb-sm"
+              >
+                <template #after-options>
+                  <q-item clickable @click="openAddDialog('feeding')">
+                    <q-item-section avatar><q-icon name="add" /></q-item-section>
+                    <q-item-section>{{ t('inspection.addFeedingAgent') }}</q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <q-input
+                v-model="form.feedingAmount"
+                :label="t('inspection.feedingAmount')"
+                dense
+                class="q-mb-sm"
+                placeholder="z.B. 1 kg"
+              />
+            </template>
+
+            <!-- Ernte -->
+            <template v-if="form.type === 'harvest'">
+              <q-input
+                v-model="form.harvestAmount"
+                :label="t('inspection.harvestAmount')"
+                dense
+                class="q-mb-sm"
+                placeholder="z.B. 5 kg"
+              />
+            </template>
+
+            <!-- Varroa bei Durchsicht + Behandlung -->
+            <template v-if="form.type === 'inspection' || form.type === 'treatment'">
+              <q-input
+                v-model.number="form.varroaCount"
+                :label="t('inspection.varroaCount')"
+                type="number"
+                dense
+                class="q-mb-sm"
+              />
+            </template>
+
+            <q-input
+              v-model="form.weather"
+              :label="t('inspection.weather')"
+              dense
+              class="q-mb-sm"
+            />
+
+            <q-input
+              v-model="form.notes"
+              :label="t('inspection.notes')"
+              type="textarea"
+              dense
+              autogrow
+              class="q-mb-sm"
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat :label="t('form.cancel')" @click="close" />
+          <q-btn
+            :label="editing ? t('form.save') : t('form.submit')"
+            color="primary"
+            icon="check"
+            rounded
+            @click="submit"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialog: neues Mittel / Futter hinzufuegen -->
+    <q-dialog v-model="showAddDialog">
+      <q-card style="min-width: 300px">
+        <q-card-section>
+          <div class="text-h6">
+            {{
+              addDialogCategory === 'feeding'
+                ? t('inspection.newFeedingAgentLabel')
+                : t('inspection.newTreatmentAgentLabel')
+            }}
           </div>
-
-          <!-- Typ -->
-          <q-select
-            v-model="form.type"
-            :options="typeOptions"
-            option-label="label"
-            option-value="value"
-            emit-value
-            map-options
-            :label="t('inspection.type')"
-            dense
-            class="q-mb-sm"
-          />
-
-          <!-- Nur bei Durchsicht -->
-          <template v-if="form.type === 'inspection'">
-            <q-toggle v-model="form.queenSeen" :label="t('inspection.queenSeen')" class="q-mb-xs" />
-
-            <!-- Brut -->
-            <div class="text-caption text-grey-7 q-mt-xs">{{ t('inspection.brood') }}</div>
-            <div class="row q-gutter-md q-mb-xs q-pl-sm">
-              <q-checkbox v-model="form.broodEgg" :label="t('inspection.broodEgg')" dense />
-              <q-checkbox v-model="form.broodLarva" :label="t('inspection.broodLarva')" dense />
-              <q-checkbox v-model="form.broodCapped" :label="t('inspection.broodCapped')" dense />
-            </div>
-            <q-input
-              :model-value="broodResultText"
-              :label="t('inspection.broodResult')"
-              dense
-              readonly
-              class="q-mb-sm"
-            />
-
-            <q-input
-              v-model.number="form.frameCount"
-              :label="t('inspection.frameCount')"
-              type="number"
-              dense
-              class="q-mb-sm"
-            />
-          </template>
-
-          <!-- Behandlung -->
-          <template v-if="form.type === 'treatment'">
-            <q-select
-              v-model="form.treatmentAgent"
-              :options="agentOptions"
-              :label="t('inspection.treatmentAgent')"
-              clearable
-              dense
-              class="q-mb-sm"
-            >
-              <template #after-options>
-                <q-item clickable @click="openAddDialog('treatment')">
-                  <q-item-section avatar><q-icon name="add" /></q-item-section>
-                  <q-item-section>{{ t('inspection.addTreatmentAgent') }}</q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-            <q-input
-              v-model="form.treatmentAmount"
-              :label="t('inspection.treatmentAmount')"
-              dense
-              class="q-mb-sm"
-              placeholder="z.B. 150 ml"
-            />
-          </template>
-
-          <!-- Fuetterung -->
-          <template v-if="form.type === 'feeding'">
-            <q-select
-              v-model="form.feedingAgent"
-              :options="feedOptions"
-              :label="t('inspection.feedingAgent')"
-              clearable
-              dense
-              class="q-mb-sm"
-            >
-              <template #after-options>
-                <q-item clickable @click="openAddDialog('feeding')">
-                  <q-item-section avatar><q-icon name="add" /></q-item-section>
-                  <q-item-section>{{ t('inspection.addFeedingAgent') }}</q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-            <q-input
-              v-model="form.feedingAmount"
-              :label="t('inspection.feedingAmount')"
-              dense
-              class="q-mb-sm"
-              placeholder="z.B. 1 kg"
-            />
-          </template>
-
-          <!-- Ernte -->
-          <template v-if="form.type === 'harvest'">
-            <q-input
-              v-model="form.harvestAmount"
-              :label="t('inspection.harvestAmount')"
-              dense
-              class="q-mb-sm"
-              placeholder="z.B. 5 kg"
-            />
-          </template>
-
-          <!-- Varroa bei Durchsicht + Behandlung -->
-          <template v-if="form.type === 'inspection' || form.type === 'treatment'">
-            <q-input
-              v-model.number="form.varroaCount"
-              :label="t('inspection.varroaCount')"
-              type="number"
-              dense
-              class="q-mb-sm"
-            />
-          </template>
-
-          <q-input v-model="form.weather" :label="t('inspection.weather')" dense class="q-mb-sm" />
-
+        </q-card-section>
+        <q-card-section class="q-pt-none">
           <q-input
-            v-model="form.notes"
-            :label="t('inspection.notes')"
-            type="textarea"
+            v-model="newAgentName"
+            :label="
+              addDialogCategory === 'feeding'
+                ? t('inspection.newFeedingAgentLabel')
+                : t('inspection.newTreatmentAgentLabel')
+            "
             dense
-            autogrow
-            class="q-mb-sm"
+            autofocus
+            @keyup.enter="saveNewAgent"
           />
-        </q-form>
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat :label="t('form.cancel')" @click="close" />
-        <q-btn
-          :label="editing ? t('form.save') : t('form.submit')"
-          color="primary"
-          icon="check"
-          rounded
-          @click="submit"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-
-  <!-- Dialog: neues Mittel / Futter hinzufuegen -->
-  <q-dialog v-model="showAddDialog">
-    <q-card style="min-width: 300px">
-      <q-card-section>
-        <div class="text-h6">
-          {{
-            addDialogCategory === 'feeding'
-              ? t('inspection.newFeedingAgentLabel')
-              : t('inspection.newTreatmentAgentLabel')
-          }}
-        </div>
-      </q-card-section>
-      <q-card-section class="q-pt-none">
-        <q-input
-          v-model="newAgentName"
-          :label="
-            addDialogCategory === 'feeding'
-              ? t('inspection.newFeedingAgentLabel')
-              : t('inspection.newTreatmentAgentLabel')
-          "
-          dense
-          autofocus
-          @keyup.enter="saveNewAgent"
-        />
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn flat :label="t('form.cancel')" v-close-popup />
-        <q-btn
-          color="primary"
-          :label="t('form.submit')"
-          :loading="addingAgent"
-          :disable="!newAgentName.trim()"
-          @click="saveNewAgent"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat :label="t('form.cancel')" v-close-popup />
+          <q-btn
+            color="primary"
+            :label="t('form.submit')"
+            :loading="addingAgent"
+            :disable="!newAgentName.trim()"
+            @click="saveNewAgent"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -299,7 +311,7 @@ export default {
             category === 'feeding'
               ? 'inspection.newFeedingAgentAdded'
               : 'inspection.newTreatmentAgentAdded';
-            $q.notify({ type: 'positive', message: t(msgKey) });
+          $q.notify({ type: 'positive', message: t(msgKey) });
         }
       } catch (e) {
         console.error('Failed to save agent', e);
@@ -409,6 +421,11 @@ export default {
 
     async function submit() {
       try {
+        const validator = formRef.value?.validate;
+        const hasValidate = typeof validator === 'function';
+        const valid = hasValidate ? await validator() : true;
+        if (hasValidate && valid !== true) return;
+
         const payload: any = {
           hiveId: props.hiveId,
           date: form.value.date,

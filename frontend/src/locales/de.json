@@ -167,6 +167,7 @@
         "cancel": "Abbrechen",
         "submit": "Anlegen",
         "save": "Speichern",
+        "required_field": "Pflichtfeld",
         "optional": "optional",
         "new_location": "Neuer Ort-Name",
         "location": "Ort",

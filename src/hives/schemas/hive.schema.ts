@@ -6,8 +6,8 @@ export type HiveDocument = Hive & Document;
 
 @Schema({ timestamps: true })
 export class Hive {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Apiary', required: false })
-  apiaryId?: Types.ObjectId | string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Apiary', required: true, index: true })
+  apiaryId!: Types.ObjectId | string;
 
   @Prop({ required: true, index: true })
   userId!: string;

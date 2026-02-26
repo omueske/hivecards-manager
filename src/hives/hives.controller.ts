@@ -20,6 +20,10 @@ export class HiveController {
       this.logger.warn('Create hive attempt missing hiveNumber');
       throw new BadRequestException('hiveNumber required');
     }
+    if (!dto.apiaryId) {
+      this.logger.warn('Create hive attempt missing apiaryId');
+      throw new BadRequestException('apiaryId required');
+    }
     this.logger.debug(`Create hive request hiveNumber=${dto.hiveNumber} apiaryId=${dto.apiaryId ?? 'N/A'} user=${user.id}`);
     const res = await this.hiveService.create(dto, user.id);
     this.logger.log(`Created hive id=${(res as any).id} hiveNumber=${dto.hiveNumber} apiaryId=${dto.apiaryId ?? 'N/A'} user=${user.id}`);
