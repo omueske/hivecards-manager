@@ -152,6 +152,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OpenAPI } from '../api-client/core/OpenAPI';
 import { DefaultService } from '../api-client/services/DefaultService';
+import { getToken } from '../auth/token';
 import { useQuasar } from 'quasar';
 import { apiaryColor } from '../utils/apiaryColor';
 
@@ -173,7 +174,6 @@ const deletingId = ref<string | null>(null);
 const form = ref({ name: '', color: '#FFCA28' });
 
 async function authedFetch(url: string, opts: RequestInit = {}) {
-  const { getToken } = await import('../auth/token');
   const tok = getToken();
   return window.fetch(OpenAPI.BASE + url, {
     ...opts,

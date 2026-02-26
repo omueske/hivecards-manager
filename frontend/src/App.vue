@@ -157,6 +157,7 @@
 import { useUserStore } from './stores/user';
 import { useRouter } from 'vue-router';
 import { onMounted, watch, computed, ref } from 'vue';
+import { DefaultService } from './api-client/services/DefaultService';
 import { setLocale } from './i18n';
 const store = useUserStore();
 const router = useRouter();
@@ -210,9 +211,7 @@ async function logout() {
 async function onLogoutClicked() {
   menu.value = false;
   try {
-    const mod = await import('./api-client/services/DefaultService');
-    const fn = (mod as any).postApiV1AuthLogout ?? (mod as any).DefaultService?.postApiV1AuthLogout;
-    if (fn) await fn();
+    await DefaultService.postApiV1AuthLogout();
   } catch (e) {
     // ignore
   }

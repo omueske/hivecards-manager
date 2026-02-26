@@ -425,6 +425,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import type { Hive } from '../api-client';
 import type { Inspection } from '../api-client/models/Inspection';
 import type { Queen } from '../api-client/models/Queen';
@@ -438,6 +439,7 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const { t } = useI18n();
+    const $q = useQuasar();
     const hiveId = route.params.id as string;
     const hive = ref<Hive | null>(null);
     const loading = ref(true);
@@ -557,15 +559,9 @@ export default {
         inspections.value = inspections.value.filter(
           (i: any) => i.id !== (pendingDelete.value as any).id,
         );
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'positive', message: t('inspection.deleted') }),
-        );
+        $q.notify({ type: 'positive', message: t('inspection.deleted') });
       } catch (e: any) {
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }),
-        );
+        $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
       } finally {
         deleteDialogVisible.value = false;
         pendingDelete.value = null;

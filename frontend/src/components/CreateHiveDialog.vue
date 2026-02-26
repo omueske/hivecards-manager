@@ -126,6 +126,7 @@
 <script lang="ts">
 import { ref, watch, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { DefaultService } from '../api-client/services/DefaultService';
 import type { Queen } from '../api-client/models/Queen';
 
@@ -134,6 +135,7 @@ export default {
   emits: ['update:visible', 'created', 'updated'],
   setup(props: any, { emit }: any) {
     const { t } = useI18n();
+    const $q = useQuasar();
     const localVisible = ref(!!props.visible);
 
     watch(
@@ -279,22 +281,16 @@ export default {
         }
         close();
         // notify success
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({
-            type: 'positive',
-            message: props.hive ? t('messages.hive_updated') : t('messages.hive_created'),
-          }),
-        );
+        $q.notify({
+          type: 'positive',
+          message: props.hive ? t('messages.hive_updated') : t('messages.hive_created'),
+        });
       } catch (e: any) {
         console.error('CreateHiveDialog submit error:', e);
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({
-            type: 'negative',
-            message: e?.response?.data?.message || e?.message || t('messages.failed'),
-          }),
-        );
+        $q.notify({
+          type: 'negative',
+          message: e?.response?.data?.message || e?.message || t('messages.failed'),
+        });
       }
     }
 
@@ -356,16 +352,10 @@ export default {
           { label: (res as any).name || (res as any).title || id, value: id },
           ...apiaryOptions.value,
         ];
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'positive', message: t('messages.location_created') }),
-        );
+        $q.notify({ type: 'positive', message: t('messages.location_created') });
       } catch (e: any) {
         console.error('createApiary error', e);
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }),
-        );
+        $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
       }
     }
 

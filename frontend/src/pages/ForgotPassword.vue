@@ -67,8 +67,7 @@
 <script lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-// DefaultService is imported dynamically in `onSubmit` to avoid test-time
-// import-time side-effects from the generated client.
+import { DefaultService } from '../api-client/services/DefaultService';
 
 export default {
   setup() {
@@ -87,10 +86,7 @@ export default {
           await testStub.postApiV1AuthForgotPassword({ email: email.value } as any);
           sent.value = true;
         } else {
-          const mod = await import('../api-client/services/DefaultService');
-          const fn =
-            (mod as any).postApiV1AuthForgotPassword ??
-            (mod as any).DefaultService?.postApiV1AuthForgotPassword;
+          const fn = DefaultService.postApiV1AuthForgotPassword;
           if (fn) {
             await fn({ email: email.value } as any);
             sent.value = true;

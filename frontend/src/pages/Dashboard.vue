@@ -110,6 +110,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { DefaultService } from '../api-client/services/DefaultService';
 
 export default {
   setup() {
@@ -120,9 +121,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const mod = await import('../api-client/services/DefaultService');
-        // support both shapes: module may export `DefaultService` namespace or top-level functions
-        const svc: any = mod?.DefaultService ?? mod;
+        const svc: any = DefaultService;
         const [hivesRes, apiariesRes, queensRes, insRes] = await Promise.allSettled([
           svc.getApiV1Hives?.() ?? Promise.resolve(undefined),
           svc.getApiV1Apiaries?.() ?? Promise.resolve(undefined),

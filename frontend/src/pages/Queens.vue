@@ -152,6 +152,7 @@
 <script lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { DefaultService } from '../api-client/services/DefaultService';
 import type { Queen } from '../api-client/models/Queen';
 import QueenDialog from '../components/QueenDialog.vue';
@@ -160,6 +161,7 @@ export default {
   components: { QueenDialog },
   setup() {
     const { t } = useI18n();
+    const $q = useQuasar();
 
     const queens = ref<Queen[]>([]);
     const hives = ref<any[]>([]);
@@ -254,11 +256,9 @@ export default {
         const idx = queens.value.findIndex((q) => (q as any).id === (assigningQueen.value as any).id);
         if (idx >= 0) queens.value.splice(idx, 1, updated as Queen);
         assignDialogVisible.value = false;
-        // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'positive', message: t('queen.assigned') }));
+        $q.notify({ type: 'positive', message: t('queen.assigned') });
       } catch (e: any) {
-        // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }));
+        $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
       } finally { assignSaving.value = false; }
     }
 
@@ -269,11 +269,9 @@ export default {
       try {
         await DefaultService.deleteApiV1Queens((deletingQueen.value as any).id);
         queens.value = queens.value.filter((q) => (q as any).id !== (deletingQueen.value as any).id);
-        // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'positive', message: t('queen.deleted') }));
+        $q.notify({ type: 'positive', message: t('queen.deleted') });
       } catch (e: any) {
-        // @ts-ignore
-        import('quasar').then(({ Notify }) => Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }));
+        $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
       } finally { deleteDialogVisible.value = false; deletingQueen.value = null; }
     }
 

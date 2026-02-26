@@ -107,6 +107,7 @@
 <script lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { DefaultService } from '../api-client/services/DefaultService';
 import type { Queen } from '../api-client/models/Queen';
 
@@ -115,6 +116,7 @@ export default {
   emits: ['update:visible', 'created', 'updated'],
   setup(props: any, { emit }: any) {
     const { t } = useI18n();
+    const $q = useQuasar();
     const saving = ref(false);
 
     const colorOptions = ['Weiß', 'Gelb', 'Rot', 'Grün', 'Blau'];
@@ -214,24 +216,15 @@ export default {
         if (props.queen) {
           const updated = await DefaultService.putApiV1Queens((props.queen as any).id, payload);
           emit('updated', updated);
-          // @ts-ignore
-          import('quasar').then(({ Notify }) =>
-            Notify.create({ type: 'positive', message: t('messages.updated') }),
-          );
+          $q.notify({ type: 'positive', message: t('messages.updated') });
         } else {
           const created = await DefaultService.postApiV1Queens(payload);
           emit('created', created);
-          // @ts-ignore
-          import('quasar').then(({ Notify }) =>
-            Notify.create({ type: 'positive', message: t('queen.created') }),
-          );
+          $q.notify({ type: 'positive', message: t('queen.created') });
         }
         emit('update:visible', false);
       } catch (e: any) {
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }),
-        );
+        $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
       } finally {
         saving.value = false;
       }

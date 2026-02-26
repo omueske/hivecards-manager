@@ -195,6 +195,7 @@
 <script lang="ts">
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { DefaultService } from '../api-client/services/DefaultService';
 
 export default {
   setup() {
@@ -236,11 +237,7 @@ export default {
 
       loading.value = true;
       try {
-        const mod = await import('../api-client/services/DefaultService');
-        const registerFn =
-          (mod as any).postApiV1AuthRegister ??
-          (mod as any).DefaultService?.postApiV1AuthRegister;
-        await registerFn({
+        await DefaultService.postApiV1AuthRegister({
           email: email.value,
           password: password.value,
           username: username.value.trim() || undefined,

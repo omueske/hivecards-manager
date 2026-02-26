@@ -27,13 +27,17 @@ const serviceEntries = serviceFiles.map((file) => {
   return { className, methods };
 });
 
-// Build lazy-method shim: each method will dynamically import its owning
-// service module when invoked to avoid import-time side-effects.
+const loaderLines = serviceEntries
+  .map(({ className }) => `  ${className}: () => import('./${className}'),`)
+  .join('\n');
+
+// Build lazy-method shim: each method will lazily call a static loader
+// (bundler-analyzable) to avoid import-time side-effects.
 const methodLines = serviceEntries
   .map(({ className, methods }) => {
     const tag = className.replace('Service', '');
     const lines = methods
-      .map((m) => `  ${m}: makeLazyMethod('./${className}', '${className}', '${m}'),`)
+      .map((m) => `  ${m}: makeLazyMethod(serviceLoaders.${className}, '${className}', '${m}'),`)
       .join('\n');
     return `  // ── ${tag} ${'-'.repeat(Math.max(0, 60 - tag.length))}\n${lines}`;
   })
@@ -53,13 +57,17 @@ const shim = `/* istanbul ignore file */
 
 type MethodFn = (...args: any[]) => Promise<any>
 
-function makeLazyMethod(modulePath: string, exportName: string, methodName: string): MethodFn {
+const serviceLoaders = {
+${loaderLines}
+};
+
+function makeLazyMethod(loader: () => Promise<any>, exportName: string, methodName: string): MethodFn {
   return async (...args: any[]) => {
-    const mod = await import(modulePath)
+    const mod = await loader()
     const svc = mod[exportName] ?? mod.default ?? mod
     const fn = svc?.[methodName]
     if (typeof fn !== 'function') {
-      throw new Error(methodName + ' is not available on ' + modulePath)
+      throw new Error(methodName + ' is not available on ' + exportName)
     }
     return fn.apply(svc, args)
   }
@@ -67,11 +75,11 @@ function makeLazyMethod(modulePath: string, exportName: string, methodName: stri
 
 const DefaultService: Record<string, MethodFn> = {
 ${methodLines}
-}
+};
 
 // Backwards-compat: some consumers import the module and expect a
 // \`DefaultService\` property on it (old shim). Provide it.
-(DefaultService as any).DefaultService = DefaultService
+;(DefaultService as any).DefaultService = DefaultService
 
 export { DefaultService }
 export default DefaultService

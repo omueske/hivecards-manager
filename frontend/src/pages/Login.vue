@@ -116,7 +116,9 @@
 <script lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import type { AuthLogin, AuthTokens } from '../api-client';
+import { DefaultService } from '../api-client/services/DefaultService';
 import { useUserStore } from '../stores/user';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -132,6 +134,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const { t } = useI18n();
+    const $q = useQuasar();
 
     const emailVerified = ref(route.query.verified === '1');
 
@@ -140,10 +143,7 @@ export default {
       emailNotVerified.value = false;
       loading.value = true;
       try {
-        const mod = await import('../api-client/services/DefaultService');
-        const fn =
-          (mod as any).postApiV1AuthLogin ?? (mod as any).DefaultService?.postApiV1AuthLogin;
-        const res = (await fn({
+        const res = (await DefaultService.postApiV1AuthLogin({
           email: email.value,
           password: password.value,
         } as AuthLogin)) as unknown as AuthTokens;
@@ -165,10 +165,7 @@ export default {
         } else {
           error.value = msg || t('auth.login_failed');
         }
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({ type: 'negative', message: error.value }),
-        );
+        $q.notify({ type: 'negative', message: error.value });
       } finally {
         loading.value = false;
       }

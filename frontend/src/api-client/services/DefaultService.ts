@@ -12,13 +12,23 @@
 
 type MethodFn = (...args: any[]) => Promise<any>
 
-function makeLazyMethod(modulePath: string, exportName: string, methodName: string): MethodFn {
+const serviceLoaders = {
+  ApiariesService: () => import('./ApiariesService'),
+  AuthService: () => import('./AuthService'),
+  HivesService: () => import('./HivesService'),
+  InspectionsService: () => import('./InspectionsService'),
+  QueensService: () => import('./QueensService'),
+  TreatmentAgentsService: () => import('./TreatmentAgentsService'),
+  UsersService: () => import('./UsersService'),
+};
+
+function makeLazyMethod(loader: () => Promise<any>, exportName: string, methodName: string): MethodFn {
   return async (...args: any[]) => {
-    const mod = await import(modulePath)
+    const mod = await loader()
     const svc = mod[exportName] ?? mod.default ?? mod
     const fn = svc?.[methodName]
     if (typeof fn !== 'function') {
-      throw new Error(methodName + ' is not available on ' + modulePath)
+      throw new Error(methodName + ' is not available on ' + exportName)
     }
     return fn.apply(svc, args)
   }
@@ -26,55 +36,55 @@ function makeLazyMethod(modulePath: string, exportName: string, methodName: stri
 
 const DefaultService: Record<string, MethodFn> = {
   // ── Apiaries ----------------------------------------------------
-  getApiV1Apiaries: makeLazyMethod('./ApiariesService', 'ApiariesService', 'getApiV1Apiaries'),
-  postApiV1Apiaries: makeLazyMethod('./ApiariesService', 'ApiariesService', 'postApiV1Apiaries'),
-  getApiV1Apiaries1: makeLazyMethod('./ApiariesService', 'ApiariesService', 'getApiV1Apiaries1'),
-  putApiV1Apiaries: makeLazyMethod('./ApiariesService', 'ApiariesService', 'putApiV1Apiaries'),
-  deleteApiV1Apiaries: makeLazyMethod('./ApiariesService', 'ApiariesService', 'deleteApiV1Apiaries'),
+  getApiV1Apiaries: makeLazyMethod(serviceLoaders.ApiariesService, 'ApiariesService', 'getApiV1Apiaries'),
+  postApiV1Apiaries: makeLazyMethod(serviceLoaders.ApiariesService, 'ApiariesService', 'postApiV1Apiaries'),
+  getApiV1Apiaries1: makeLazyMethod(serviceLoaders.ApiariesService, 'ApiariesService', 'getApiV1Apiaries1'),
+  putApiV1Apiaries: makeLazyMethod(serviceLoaders.ApiariesService, 'ApiariesService', 'putApiV1Apiaries'),
+  deleteApiV1Apiaries: makeLazyMethod(serviceLoaders.ApiariesService, 'ApiariesService', 'deleteApiV1Apiaries'),
 
   // ── Auth --------------------------------------------------------
-  postApiV1AuthRegister: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthRegister'),
-  postApiV1AuthLogin: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthLogin'),
-  postApiV1AuthRefresh: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthRefresh'),
-  postApiV1AuthLogout: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthLogout'),
-  postApiV1AuthForgotPassword: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthForgotPassword'),
-  postApiV1AuthResetPassword: makeLazyMethod('./AuthService', 'AuthService', 'postApiV1AuthResetPassword'),
-  getApiV1AuthVerifyEmail: makeLazyMethod('./AuthService', 'AuthService', 'getApiV1AuthVerifyEmail'),
+  postApiV1AuthRegister: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthRegister'),
+  postApiV1AuthLogin: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthLogin'),
+  postApiV1AuthRefresh: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthRefresh'),
+  postApiV1AuthLogout: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthLogout'),
+  postApiV1AuthForgotPassword: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthForgotPassword'),
+  postApiV1AuthResetPassword: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthResetPassword'),
+  getApiV1AuthVerifyEmail: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'getApiV1AuthVerifyEmail'),
 
   // ── Hives -------------------------------------------------------
-  getApiV1Hives: makeLazyMethod('./HivesService', 'HivesService', 'getApiV1Hives'),
-  postApiV1Hives: makeLazyMethod('./HivesService', 'HivesService', 'postApiV1Hives'),
-  getApiV1Hives1: makeLazyMethod('./HivesService', 'HivesService', 'getApiV1Hives1'),
-  putApiV1Hives: makeLazyMethod('./HivesService', 'HivesService', 'putApiV1Hives'),
-  deleteApiV1Hives: makeLazyMethod('./HivesService', 'HivesService', 'deleteApiV1Hives'),
+  getApiV1Hives: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'getApiV1Hives'),
+  postApiV1Hives: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'postApiV1Hives'),
+  getApiV1Hives1: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'getApiV1Hives1'),
+  putApiV1Hives: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'putApiV1Hives'),
+  deleteApiV1Hives: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'deleteApiV1Hives'),
 
   // ── Inspections -------------------------------------------------
-  getApiV1Inspections: makeLazyMethod('./InspectionsService', 'InspectionsService', 'getApiV1Inspections'),
-  postApiV1Inspections: makeLazyMethod('./InspectionsService', 'InspectionsService', 'postApiV1Inspections'),
-  putApiV1Inspections: makeLazyMethod('./InspectionsService', 'InspectionsService', 'putApiV1Inspections'),
-  deleteApiV1Inspections: makeLazyMethod('./InspectionsService', 'InspectionsService', 'deleteApiV1Inspections'),
+  getApiV1Inspections: makeLazyMethod(serviceLoaders.InspectionsService, 'InspectionsService', 'getApiV1Inspections'),
+  postApiV1Inspections: makeLazyMethod(serviceLoaders.InspectionsService, 'InspectionsService', 'postApiV1Inspections'),
+  putApiV1Inspections: makeLazyMethod(serviceLoaders.InspectionsService, 'InspectionsService', 'putApiV1Inspections'),
+  deleteApiV1Inspections: makeLazyMethod(serviceLoaders.InspectionsService, 'InspectionsService', 'deleteApiV1Inspections'),
 
   // ── Queens ------------------------------------------------------
-  getApiV1Queens: makeLazyMethod('./QueensService', 'QueensService', 'getApiV1Queens'),
-  postApiV1Queens: makeLazyMethod('./QueensService', 'QueensService', 'postApiV1Queens'),
-  getApiV1Queens1: makeLazyMethod('./QueensService', 'QueensService', 'getApiV1Queens1'),
-  putApiV1Queens: makeLazyMethod('./QueensService', 'QueensService', 'putApiV1Queens'),
-  deleteApiV1Queens: makeLazyMethod('./QueensService', 'QueensService', 'deleteApiV1Queens'),
-  postApiV1QueensAssign: makeLazyMethod('./QueensService', 'QueensService', 'postApiV1QueensAssign'),
-  postApiV1QueensRemoveFromHive: makeLazyMethod('./QueensService', 'QueensService', 'postApiV1QueensRemoveFromHive'),
+  getApiV1Queens: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'getApiV1Queens'),
+  postApiV1Queens: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'postApiV1Queens'),
+  getApiV1Queens1: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'getApiV1Queens1'),
+  putApiV1Queens: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'putApiV1Queens'),
+  deleteApiV1Queens: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'deleteApiV1Queens'),
+  postApiV1QueensAssign: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'postApiV1QueensAssign'),
+  postApiV1QueensRemoveFromHive: makeLazyMethod(serviceLoaders.QueensService, 'QueensService', 'postApiV1QueensRemoveFromHive'),
 
   // ── TreatmentAgents ---------------------------------------------
-  getApiV1TreatmentAgents: makeLazyMethod('./TreatmentAgentsService', 'TreatmentAgentsService', 'getApiV1TreatmentAgents'),
-  postApiV1TreatmentAgents: makeLazyMethod('./TreatmentAgentsService', 'TreatmentAgentsService', 'postApiV1TreatmentAgents'),
+  getApiV1TreatmentAgents: makeLazyMethod(serviceLoaders.TreatmentAgentsService, 'TreatmentAgentsService', 'getApiV1TreatmentAgents'),
+  postApiV1TreatmentAgents: makeLazyMethod(serviceLoaders.TreatmentAgentsService, 'TreatmentAgentsService', 'postApiV1TreatmentAgents'),
 
   // ── Users -------------------------------------------------------
-  getApiV1UsersMe: makeLazyMethod('./UsersService', 'UsersService', 'getApiV1UsersMe'),
-  putApiV1UsersMe: makeLazyMethod('./UsersService', 'UsersService', 'putApiV1UsersMe'),
-}
+  getApiV1UsersMe: makeLazyMethod(serviceLoaders.UsersService, 'UsersService', 'getApiV1UsersMe'),
+  putApiV1UsersMe: makeLazyMethod(serviceLoaders.UsersService, 'UsersService', 'putApiV1UsersMe'),
+};
 
 // Backwards-compat: some consumers import the module and expect a
 // `DefaultService` property on it (old shim). Provide it.
-(DefaultService as any).DefaultService = DefaultService
+;(DefaultService as any).DefaultService = DefaultService
 
 export { DefaultService }
 export default DefaultService

@@ -206,6 +206,7 @@
 <script lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { DefaultService } from '../api-client/services/DefaultService';
 import { OpenAPI } from '../api-client/core/OpenAPI';
 import { getToken } from '../auth/token';
@@ -222,6 +223,7 @@ export default {
 
   setup(props: any, { emit }: any) {
     const { t } = useI18n();
+    const $q = useQuasar();
 
     const visible = ref(!!props.visible);
     watch(
@@ -297,10 +299,7 @@ export default {
             category === 'feeding'
               ? 'inspection.newFeedingAgentAdded'
               : 'inspection.newTreatmentAgentAdded';
-          // @ts-ignore
-          import('quasar').then(({ Notify }) =>
-            Notify.create({ type: 'positive', message: t(msgKey) }),
-          );
+            $q.notify({ type: 'positive', message: t(msgKey) });
         }
       } catch (e) {
         console.error('Failed to save agent', e);
@@ -462,22 +461,16 @@ export default {
         }
 
         close();
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({
-            type: 'positive',
-            message: editing.value ? t('inspection.updated') : t('inspection.created'),
-          }),
-        );
+        $q.notify({
+          type: 'positive',
+          message: editing.value ? t('inspection.updated') : t('inspection.created'),
+        });
       } catch (e: any) {
         console.error('InspectionDialog submit error:', e);
-        // @ts-ignore
-        import('quasar').then(({ Notify }) =>
-          Notify.create({
-            type: 'negative',
-            message: e?.response?.data?.message || e?.message || t('messages.failed'),
-          }),
-        );
+        $q.notify({
+          type: 'negative',
+          message: e?.response?.data?.message || e?.message || t('messages.failed'),
+        });
       }
     }
 

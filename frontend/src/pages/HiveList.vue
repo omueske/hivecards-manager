@@ -158,6 +158,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, unref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import type { Hive } from '../api-client';
 import { DefaultService } from '../api-client/services/DefaultService';
 import { useUserStore } from '../stores/user';
@@ -166,6 +167,7 @@ import CreateHiveDialog from '../components/CreateHiveDialog.vue';
 import { apiaryColor } from '../utils/apiaryColor';
 
 const { t } = useI18n();
+const $q = useQuasar();
 const hives = ref<Hive[]>([]);
 const apiaries = ref<Record<string, any>>({});
 const editHive = ref<any | null>(null);
@@ -211,9 +213,7 @@ async function fetch() {
     }
   } catch (e: any) {
     console.error('HiveList.fetch error:', e);
-    import('quasar').then(({ Notify }) =>
-      Notify.create({ type: 'negative', message: e?.message || 'Failed to load hives' }),
-    );
+    $q.notify({ type: 'negative', message: e?.message || 'Failed to load hives' });
   } finally {
     loading.value = false;
   }
@@ -302,15 +302,11 @@ async function onDrop(e: DragEvent, key: string) {
   if ((current === '__no_location' ? null : current) === targetApiaryId) return;
   try {
     await DefaultService.putApiV1Hives(id, { apiaryId: targetApiaryId } as any);
-    import('quasar').then(({ Notify }) =>
-      Notify.create({ type: 'positive', message: t('messages.moved') }),
-    );
+    $q.notify({ type: 'positive', message: t('messages.moved') });
     fetch();
   } catch (err: any) {
     console.error('move hive error', err);
-    import('quasar').then(({ Notify }) =>
-      Notify.create({ type: 'negative', message: err?.message || t('messages.failed') }),
-    );
+    $q.notify({ type: 'negative', message: err?.message || t('messages.failed') });
   }
 }
 
@@ -327,9 +323,7 @@ function openCreate() {
 async function logout() {
   // call server to clear httpOnly refresh cookie, then clear access token
   try {
-    await (
-      await import('../api-client/services/DefaultService')
-    ).DefaultService.postApiV1AuthLogout();
+    await DefaultService.postApiV1AuthLogout();
   } catch (e) {
     // ignore
   }
@@ -339,16 +333,12 @@ async function logout() {
 
 function onCreated() {
   fetch();
-  import('quasar').then(({ Notify }) =>
-    Notify.create({ type: 'positive', message: t('messages.hive_created') }),
-  );
+  $q.notify({ type: 'positive', message: t('messages.hive_created') });
 }
 
 function onUpdated() {
   fetch();
-  import('quasar').then(({ Notify }) =>
-    Notify.create({ type: 'positive', message: t('messages.hive_updated') }),
-  );
+  $q.notify({ type: 'positive', message: t('messages.hive_updated') });
 }
 
 async function deleteHive(id: string) {
@@ -357,15 +347,11 @@ async function deleteHive(id: string) {
   if (!ok) return;
   try {
     await DefaultService.deleteApiV1Hives(id);
-    import('quasar').then(({ Notify }) =>
-      Notify.create({ type: 'positive', message: t('messages.hive_deleted') }),
-    );
+    $q.notify({ type: 'positive', message: t('messages.hive_deleted') });
     fetch();
   } catch (e: any) {
     console.error('deleteHive error', e);
-    import('quasar').then(({ Notify }) =>
-      Notify.create({ type: 'negative', message: e?.message || t('messages.failed') }),
-    );
+    $q.notify({ type: 'negative', message: e?.message || t('messages.failed') });
   }
 }
 </script>
