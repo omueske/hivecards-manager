@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.25] - 2026-02-26
+
+### Added
+- improve admin layout and fix tab panel rendering (b298ceb)
+
 ## [0.1.24] - 2026-02-26
 
 ### Added
