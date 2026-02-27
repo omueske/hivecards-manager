@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.28] - 2026-02-27
+
+### Added
+- add queen running number and improve breeding book/dashboard UX (910dc58)
+
 ## [0.1.27] - 2026-02-27
 
 ### Documentation
