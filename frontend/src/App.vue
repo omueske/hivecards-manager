@@ -72,6 +72,20 @@
               {{ $t ? $t('nav.queens') : 'Königinnen' }}
             </button>
             <button
+              class="burger-nav-item"
+              @click="
+                burgerMenu = false;
+                router.push('/breeding-book');
+              "
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z"
+                />
+              </svg>
+              {{ $t ? $t('nav.breeding_book') : 'Zuchtbuch' }}
+            </button>
+            <button
               v-if="isAdmin"
               class="burger-nav-item"
               @click="
@@ -167,6 +181,11 @@
           to="/apiaries"
           icon="location_on"
           :label="$t ? $t('nav.apiaries') : 'Locations'"
+        />
+        <q-route-tab
+          to="/breeding-book"
+          icon="menu_book"
+          :label="$t ? $t('nav.breeding_book') : 'Zuchtbuch'"
         />
       </q-tabs>
     </q-footer>

@@ -139,7 +139,7 @@ export default {
       const entry = COLOR_MAP[year % 10];
       return entry ? entry.name : null;
     }
-    const matingOptions = ['Standbegattet', 'Belegstelle', 'instrumentell'];
+    const matingOptions = ['Standbegattet', 'Belegstelle', 'instrumentell', 'Inselbegattung'];
     const statusOptions = [
       { label: t('queen.status_active'), value: 'active' },
       { label: t('queen.status_spare'), value: 'spare' },
@@ -150,7 +150,7 @@ export default {
     const defaultForm = () => ({
       name: '',
       queenYear: new Date().getFullYear() as number | null,
-      queenColor: '',
+      queenColor: yearToColor(new Date().getFullYear()) || '',
       queenOrigin: '',
       matingType: '',
       queenMarked: false,
@@ -159,13 +159,30 @@ export default {
     });
 
     const form = ref(defaultForm());
+    const colorManuallyEdited = ref(false);
+    const applyingAutoColor = ref(false);
 
-    // Auto-calculate color from year
+    // Auto-calculate color from year (only while user has not manually edited the color)
     watch(
       () => form.value.queenYear,
       (year) => {
+        if (colorManuallyEdited.value) return;
         const auto = yearToColor(year);
-        if (auto) form.value.queenColor = auto;
+        if (auto) {
+          applyingAutoColor.value = true;
+          form.value.queenColor = auto;
+        }
+      },
+    );
+
+    watch(
+      () => form.value.queenColor,
+      () => {
+        if (applyingAutoColor.value) {
+          applyingAutoColor.value = false;
+          return;
+        }
+        colorManuallyEdited.value = true;
       },
     );
 
@@ -191,8 +208,10 @@ export default {
               status: q.status || 'spare',
               notes: q.notes || '',
             };
+            colorManuallyEdited.value = Boolean(q.queenColor);
           } else {
             form.value = defaultForm();
+            colorManuallyEdited.value = false;
           }
         }
       },

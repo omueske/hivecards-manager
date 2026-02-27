@@ -16,6 +16,97 @@
                 type="password"
                 placeholder="(leave blank to keep)"
               />
+
+              <q-card flat bordered class="q-pa-md q-mt-sm bg-grey-1">
+                <div class="text-subtitle2 q-mb-sm">{{ t('profile.breeder_defaults') }}</div>
+                <div class="row q-col-gutter-sm">
+                  <div class="col-12 col-md-6">
+                    <q-select
+                      v-model="selectedAssociationCode"
+                      :options="associationOptions"
+                      :label="t('profile.breeder_association')"
+                      option-label="label"
+                      option-value="value"
+                      emit-value
+                      map-options
+                      clearable
+                      :disable="associationOptions.length === 0"
+                      :hint="associationOptions.length === 0 ? t('messages.loading') : ''"
+                      @update:model-value="onAssociationSelected"
+                      dense
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      :model-value="form.breederCountry || ''"
+                      :label="t('profile.breeder_country')"
+                      dense
+                      maxlength="2"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      :model-value="form.breederAssociation ?? ''"
+                      :label="t('profile.breeder_association_number')"
+                      type="number"
+                      dense
+                      readonly
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      v-model.number="form.breederNumber"
+                      :label="t('profile.breeder_number')"
+                      type="number"
+                      dense
+                    />
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      v-model.number="form.defaultApiaryNumber"
+                      :label="t('profile.default_apiary_number')"
+                      type="number"
+                      dense
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-select
+                      v-model="form.defaultMatingType"
+                      :options="matingTypeOptions"
+                      :label="t('profile.default_mating_type')"
+                      emit-value
+                      map-options
+                      dense
+                    />
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <q-toggle v-model="form.isObmann" :label="t('profile.is_obmann')" />
+                  </div>
+                  <div class="col-12 col-md-6" v-if="form.isObmann">
+                    <q-input
+                      v-model.number="form.obmannNumber"
+                      :label="t('profile.obmann_number')"
+                      type="number"
+                      dense
+                    />
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <q-select
+                      v-model="form.dateInputMode"
+                      :options="dateModeOptions"
+                      :label="t('profile.date_input_mode')"
+                      emit-value
+                      map-options
+                      dense
+                    />
+                  </div>
+                </div>
+              </q-card>
               <div>
                 <q-btn :label="t('form.save')" type="submit" color="primary" :disable="loading" />
                 <q-btn flat :label="t('form.cancel')" @click="cancel" :disable="loading" />
@@ -99,9 +190,135 @@ const router = useRouter();
 const { t } = useI18n();
 const loading = ref(true);
 const refreshing = ref(false);
-const form = ref({ email: '', username: '', password: '' });
+const form = ref({
+  email: '',
+  username: '',
+  password: '',
+  breederCountry: '',
+  breederAssociation: null as number | null,
+  breederNumber: null as number | null,
+  defaultApiaryNumber: null as number | null,
+  defaultMatingType: null as number | null,
+  isObmann: false,
+  obmannNumber: null as number | null,
+  dateInputMode: 'full' as 'full' | 'dayMonth' | 'week',
+});
+const associations = ref<
+  Array<{ code: string; country: string; associationNumber: number; name: string }>
+>([]);
 const profileData = ref({ emailVerified: false, role: 'user' as 'user' | 'admin' });
 const $q = useQuasar();
+
+const associationOptions = computed(() =>
+  associations.value.map((item) => ({
+    label: `${item.code} - ${item.name}`,
+    value: item.code,
+  })),
+);
+
+const selectedAssociationCode = ref<string | null>(null);
+
+function normalizeAssociationCode(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null && 'value' in value) {
+    const nested = (value as { value?: unknown }).value;
+    return typeof nested === 'string' ? nested : null;
+  }
+  return null;
+}
+
+function deriveAssociationCode(): string | null {
+  if (!form.value.breederCountry || !Number.isInteger(form.value.breederAssociation)) {
+    return null;
+  }
+  const code = `${form.value.breederCountry}-${form.value.breederAssociation}`;
+  return associations.value.some((item) => item.code === code) ? code : null;
+}
+
+function applyAssociationCode(code: string | null) {
+  if (!code) {
+    form.value.breederCountry = '';
+    form.value.breederAssociation = null;
+    return;
+  }
+  const selected = associations.value.find((item) => item.code === code);
+  if (!selected) return;
+  form.value.breederCountry = selected.country;
+  form.value.breederAssociation = selected.associationNumber;
+}
+
+function onAssociationSelected(value: unknown) {
+  const code = normalizeAssociationCode(value);
+  selectedAssociationCode.value = code;
+  applyAssociationCode(code);
+}
+
+const matingTypeOptions = computed(() => [
+  { label: t('profile.mating_type_1'), value: 1 },
+  { label: t('profile.mating_type_2'), value: 2 },
+  { label: t('profile.mating_type_3'), value: 3 },
+  { label: t('profile.mating_type_4'), value: 4 },
+]);
+
+const dateModeOptions = computed(() => [
+  { label: t('profile.date_mode_full'), value: 'full' },
+  { label: t('profile.date_mode_day_month'), value: 'dayMonth' },
+  { label: t('profile.date_mode_week'), value: 'week' },
+]);
+
+function getApiBase() {
+  return OpenAPI.BASE || (import.meta as any).env?.VITE_API_BASE || '';
+}
+
+async function tryRefreshAccessToken() {
+  const base = getApiBase();
+  const refreshRes = await fetch(base + '/api/v1/auth/refresh', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!refreshRes.ok) return false;
+  const body = await refreshRes.json();
+  if (!body?.accessToken) return false;
+  setToken(body.accessToken);
+  scheduleRefresh(body.accessToken);
+  return true;
+}
+
+async function authorizedFetch(path: string, init?: RequestInit): Promise<Response> {
+  const base = getApiBase();
+  const token = getToken();
+  const first = await fetch(base + path, {
+    ...init,
+    headers: {
+      ...(init?.headers as Record<string, string> | undefined),
+      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (first.status !== 401 && first.status !== 403) {
+    return first;
+  }
+
+  const refreshed = await tryRefreshAccessToken();
+  if (!refreshed) {
+    return first;
+  }
+
+  const retryToken = getToken();
+  return fetch(base + path, {
+    ...init,
+    headers: {
+      ...(init?.headers as Record<string, string> | undefined),
+      Authorization: retryToken ? `Bearer ${retryToken}` : '',
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+}
 
 // --- Token decode ---
 function parseJwt(token: string): Record<string, any> | null {
@@ -177,19 +394,31 @@ const nextRefreshLabel = computed(() => {
 async function fetchProfile() {
   loading.value = true;
   try {
-    const token = getToken();
-    const base = OpenAPI.BASE || (import.meta as any).env?.VITE_API_BASE || '';
-    const res = await fetch(base + '/api/v1/users/me', {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    });
+    const res = await authorizedFetch('/api/v1/users/me');
     if (res.ok) {
       const data = await res.json();
       form.value.email = data.email || '';
       form.value.username = data.username || '';
+      form.value.breederCountry = data.breederCountry || '';
+      form.value.breederAssociation = Number.isInteger(data.breederAssociation)
+        ? data.breederAssociation
+        : null;
+      form.value.breederNumber = Number.isInteger(data.breederNumber) ? data.breederNumber : null;
+      form.value.defaultApiaryNumber = Number.isInteger(data.defaultApiaryNumber)
+        ? data.defaultApiaryNumber
+        : null;
+      form.value.defaultMatingType = Number.isInteger(data.defaultMatingType)
+        ? data.defaultMatingType
+        : null;
+      form.value.isObmann = !!data.isObmann;
+      form.value.obmannNumber = Number.isInteger(data.obmannNumber) ? data.obmannNumber : null;
+      form.value.dateInputMode = ['full', 'dayMonth', 'week'].includes(data.dateInputMode)
+        ? data.dateInputMode
+        : 'full';
+      selectedAssociationCode.value =
+        typeof data.breederAssociationCode === 'string'
+          ? data.breederAssociationCode
+          : deriveAssociationCode();
       profileData.value.emailVerified = data.emailVerified ?? false;
       profileData.value.role = data.role === 'admin' ? 'admin' : 'user';
     }
@@ -199,20 +428,42 @@ async function fetchProfile() {
   }
 }
 
+async function fetchBreederAssociations() {
+  try {
+    const res = await authorizedFetch('/api/v1/users/breeder-associations');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        associations.value = data;
+        selectedAssociationCode.value = selectedAssociationCode.value || deriveAssociationCode();
+        applyAssociationCode(selectedAssociationCode.value);
+      }
+    } else {
+      $q.notify({ type: 'negative', message: t('messages.failed') });
+    }
+  } catch {
+    $q.notify({ type: 'negative', message: t('messages.failed') });
+  }
+}
+
 async function submit() {
   loading.value = true;
   try {
-    const token = getToken();
-    const payload: any = { username: form.value.username };
+    const payload: any = {
+      username: form.value.username,
+      breederAssociationCode: selectedAssociationCode.value ?? undefined,
+      breederCountry: form.value.breederCountry || undefined,
+      breederAssociation: form.value.breederAssociation ?? undefined,
+      breederNumber: form.value.breederNumber ?? undefined,
+      defaultApiaryNumber: form.value.defaultApiaryNumber ?? undefined,
+      defaultMatingType: form.value.defaultMatingType ?? undefined,
+      isObmann: !!form.value.isObmann,
+      obmannNumber: form.value.isObmann ? form.value.obmannNumber ?? undefined : undefined,
+      dateInputMode: form.value.dateInputMode,
+    };
     if (form.value.password?.length) payload.password = form.value.password;
-    const base = OpenAPI.BASE || (import.meta as any).env?.VITE_API_BASE || '';
-    const res = await fetch(base + '/api/v1/users/me', {
+    const res = await authorizedFetch('/api/v1/users/me', {
       method: 'PUT',
-      headers: {
-        Authorization: token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
       body: JSON.stringify(payload),
     });
     if (res.ok) {
@@ -259,6 +510,7 @@ function cancel() {
 }
 
 onMounted(() => {
+  fetchBreederAssociations();
   fetchProfile();
   clockTimer = setInterval(() => {
     now.value = Math.floor(Date.now() / 1000);

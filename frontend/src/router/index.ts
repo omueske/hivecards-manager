@@ -25,6 +25,7 @@ const routes = [
   { path: '/hives/:id', component: () => import('../pages/HiveDetail.vue'), meta: { requiresAuth: true } },
   { path: '/apiaries', component: () => import('../pages/Apiaries.vue'), meta: { requiresAuth: true } },
   { path: '/queens', component: () => import('../pages/Queens.vue'), meta: { requiresAuth: true } },
+  { path: '/breeding-book', component: () => import('../pages/BreedingBook.vue'), meta: { requiresAuth: true } },
   { path: '/admin', component: () => import('../pages/Admin.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/changelog', component: () => import('../pages/Changelog.vue') },
 ]

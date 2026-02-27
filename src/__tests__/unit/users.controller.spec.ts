@@ -24,7 +24,21 @@ describe('UsersController (unit)', () => {
     });
 
     it('returns user data when found', async () => {
-      const u = { _id: userId, email: 'a@b', username: 'u', emailVerified: true, role: 'admin' };
+      const u = {
+        _id: userId,
+        email: 'a@b',
+        username: 'u',
+        emailVerified: true,
+        role: 'admin',
+        breederCountry: 'DE',
+        breederAssociation: 12,
+        breederNumber: 345,
+        defaultApiaryNumber: 7,
+        defaultMatingType: 2,
+        isObmann: true,
+        obmannNumber: 88,
+        dateInputMode: 'full',
+      };
       userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(u) }) });
       const r = await controller.me(req);
       expect(r).toEqual({
@@ -33,6 +47,15 @@ describe('UsersController (unit)', () => {
         username: 'u',
         emailVerified: true,
         role: 'admin',
+        breederCountry: 'DE',
+        breederAssociation: 12,
+        breederAssociationCode: 'DE-12',
+        breederNumber: 345,
+        defaultApiaryNumber: 7,
+        defaultMatingType: 2,
+        isObmann: true,
+        obmannNumber: 88,
+        dateInputMode: 'full',
       });
     });
   });
@@ -40,7 +63,14 @@ describe('UsersController (unit)', () => {
   describe('updateMe', () => {
     it('updates username and email', async () => {
       userModel.findByIdAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
-      const updated = { _id: userId, email: 'new@e', username: 'new', emailVerified: true, role: 'user' };
+      const updated = {
+        _id: userId,
+        email: 'new@e',
+        username: 'new',
+        emailVerified: true,
+        role: 'user',
+        isObmann: false,
+      };
       userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(updated) }) });
       const r = await controller.updateMe(req, { username: 'new', email: 'new@e' });
       expect(r).toEqual({
@@ -49,8 +79,88 @@ describe('UsersController (unit)', () => {
         username: 'new',
         emailVerified: true,
         role: 'user',
+        breederCountry: undefined,
+        breederAssociation: undefined,
+        breederAssociationCode: undefined,
+        breederNumber: undefined,
+        defaultApiaryNumber: undefined,
+        defaultMatingType: undefined,
+        isObmann: false,
+        obmannNumber: undefined,
+        dateInputMode: undefined,
       });
       expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, { username: 'new', email: 'new@e' });
+    });
+
+    it('updates breeder profile defaults', async () => {
+      userModel.findByIdAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+      const updated = {
+        _id: userId,
+        email: 'e@e',
+        username: 'u',
+        emailVerified: true,
+        role: 'user',
+        breederCountry: 'DE',
+        breederAssociation: 1,
+        breederNumber: 2,
+        defaultApiaryNumber: 3,
+        defaultMatingType: 1,
+        isObmann: true,
+        obmannNumber: 4,
+        dateInputMode: 'week',
+      };
+      userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(updated) }) });
+
+      await controller.updateMe(req, {
+        breederCountry: 'de',
+        breederAssociation: 1,
+        breederNumber: 2,
+        defaultApiaryNumber: 3,
+        defaultMatingType: 1,
+        isObmann: true,
+        obmannNumber: 4,
+        dateInputMode: 'week',
+      });
+
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          breederCountry: 'DE',
+          breederAssociation: 1,
+          breederNumber: 2,
+          defaultApiaryNumber: 3,
+          defaultMatingType: 1,
+          isObmann: true,
+          obmannNumber: 4,
+          dateInputMode: 'week',
+        }),
+      );
+    });
+
+    it('updates breeder country and association by breederAssociationCode', async () => {
+      userModel.findByIdAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+      const updated = {
+        _id: userId,
+        email: 'e@e',
+        username: 'u',
+        emailVerified: true,
+        role: 'user',
+        breederCountry: 'DE',
+        breederAssociation: 12,
+      };
+      userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(updated) }) });
+
+      await controller.updateMe(req, {
+        breederAssociationCode: 'de-12',
+      });
+
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          breederCountry: 'DE',
+          breederAssociation: 12,
+        }),
+      );
     });
 
     it('hashes password when provided', async () => {
@@ -67,6 +177,32 @@ describe('UsersController (unit)', () => {
       userModel.findByIdAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
       userModel.findById.mockReturnValue({ lean: () => ({ exec: jest.fn().mockResolvedValue(null) }) });
       await expect(controller.updateMe(req, { username: 'x' } as any)).rejects.toThrow();
+    });
+
+    it('rejects invalid breeder profile values', async () => {
+      await expect(controller.updateMe(req, { breederAssociation: 0 })).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+      await expect(controller.updateMe(req, { breederAssociationCode: 'ZZ-1' })).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+      await expect(controller.updateMe(req, { obmannNumber: 1, isObmann: false })).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+    });
+
+    it('returns breeder association options', async () => {
+      const result = await controller.breederAssociations();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          code: expect.any(String),
+          country: expect.any(String),
+          associationNumber: expect.any(Number),
+          name: expect.any(String),
+        }),
+      );
     });
 
     it('updates role for target user', async () => {
