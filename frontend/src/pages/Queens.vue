@@ -28,7 +28,7 @@
     </div>
 
     <div v-else class="row q-col-gutter-md">
-      <div v-for="queen in filtered" :key="(queen as any).id" class="col-12 col-sm-6 col-md-4">
+      <div v-for="queen in filtered" :key="queenKey(queen)" class="col-12 col-sm-6 col-md-4">
         <q-card>
           <q-card-section>
             <div class="row items-center justify-between">
@@ -54,6 +54,10 @@
               <div class="col-6" v-if="queen.matingType">
                 <div class="text-caption text-grey">{{ t('hive.matingType') }}</div>
                 <div>{{ queen.matingType }}</div>
+              </div>
+              <div class="col-6" v-if="queenNumberOf(queen)">
+                <div class="text-caption text-grey">{{ t('queen.number') }}</div>
+                <div>{{ queenNumberOf(queen) }}</div>
               </div>
               <div class="col-6">
                 <div class="text-caption text-grey">{{ t('hive.queenMarked') }}</div>
@@ -256,6 +260,15 @@ export default {
       );
     }
 
+    function queenKey(queen: Queen): string {
+      return String((queen as any).id ?? (queen as any)._id ?? '');
+    }
+
+    function queenNumberOf(queen: Queen): number | null {
+      const value = Number((queen as any).queenNumber);
+      return Number.isFinite(value) && value > 0 ? value : null;
+    }
+
     function openCreate() {
       editingQueen.value = null;
       dialogVisible.value = true;
@@ -343,6 +356,8 @@ export default {
       pastHives,
       formatDate,
       statusColor,
+      queenKey,
+      queenNumberOf,
       openCreate,
       openEdit,
       openAssign,

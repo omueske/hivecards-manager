@@ -478,6 +478,70 @@ function buildCode1aFromForm(): string {
   return `${l1a}-${lv1a}-${z1a}-${nr1a}-${j1a}`;
 }
 
+function findQueenById(queenId: string | null | undefined): any | null {
+  if (!queenId) return null;
+  return (
+    queens.value.find((queen) => String(queen?.id ?? queen?._id ?? '') === String(queenId)) ?? null
+  );
+}
+
+function toAnpaarTypFromQueenMatingType(matingType?: string): number | null {
+  const normalized = String(matingType ?? '')
+    .trim()
+    .toLowerCase();
+  if (normalized === 'instrumentell') return 1;
+  if (normalized === 'belegstelle') return 2;
+  if (normalized === 'standbegattet') return 3;
+  if (normalized === 'inselbegattung') return 4;
+  return null;
+}
+
+function applySelectedQueenToCreateForm(queenId: string | null | undefined): void {
+  const queen = findQueenById(queenId);
+  if (!queen) return;
+
+  const queenName = String(queen.name ?? '').trim();
+  const codePattern = /^([A-Za-z]+)-(\d+)-(\d+)-(\d+)-(\d{4})$/;
+  const codeMatch = queenName.match(codePattern);
+
+  if (queenName) {
+    form.value.code1a = queenName.toUpperCase();
+  }
+
+  if (codeMatch) {
+    form.value.l1a = String(codeMatch[1] ?? '').toUpperCase();
+    form.value.lv1a = Number(codeMatch[2]);
+    form.value.z1a = Number(codeMatch[3]);
+    form.value.nr1a = Number(codeMatch[4]);
+    if (!Number.isInteger(form.value.j1a)) {
+      form.value.j1a = Number(codeMatch[5]);
+    }
+  }
+
+  if (queen.queenOrigin) {
+    form.value.l1a = String(queen.queenOrigin).trim().toUpperCase();
+  }
+  if (!Number.isInteger(form.value.nr1a) && Number.isInteger(queen.queenNumber)) {
+    form.value.nr1a = queen.queenNumber;
+  }
+  if (Number.isInteger(queen.queenYear)) {
+    form.value.j1a = queen.queenYear;
+  }
+
+  const mappedAnpaarTyp = toAnpaarTypFromQueenMatingType(queen.matingType);
+  if (mappedAnpaarTyp !== null) {
+    form.value.anpaarTyp = mappedAnpaarTyp;
+  }
+
+  if (!String(form.value.notes ?? '').trim() && String(queen.notes ?? '').trim()) {
+    form.value.notes = String(queen.notes).trim();
+  }
+
+  if (!form.value.code1a) {
+    form.value.code1a = buildCode1aFromForm();
+  }
+}
+
 function applyBreederDefaultsToCreateForm() {
   const defaults = breederDefaults.value;
   if (!defaults) return;
@@ -665,6 +729,14 @@ watch(
   () => {
     if (editing.value) return;
     form.value.code1a = buildCode1aFromForm();
+  },
+);
+
+watch(
+  () => form.value.queenId,
+  (queenId) => {
+    if (editing.value || !queenId) return;
+    applySelectedQueenToCreateForm(queenId);
   },
 );
 

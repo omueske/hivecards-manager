@@ -5,6 +5,8 @@ import {
   IsBoolean,
   IsIn,
   IsDateString,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class CreateQueenDto {
@@ -27,6 +29,12 @@ export class CreateQueenDto {
   @IsOptional()
   @IsString()
   matingType?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(99999)
+  queenNumber?: number;
 
   @IsOptional()
   @IsBoolean()

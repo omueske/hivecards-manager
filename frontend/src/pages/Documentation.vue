@@ -16,6 +16,9 @@
       <div v-for="item in topics" :key="item.slug" class="col-12 col-md-6">
         <q-card flat bordered class="full-height">
           <q-card-section>
+            <q-badge v-if="item.recommended" color="primary" class="q-mb-sm">
+              {{ t('docs.recommendedFirst') }}
+            </q-badge>
             <div class="text-subtitle1">{{ t(item.titleKey) }}</div>
             <div class="text-body2 q-mt-xs">{{ t(item.descKey) }}</div>
           </q-card-section>
@@ -45,13 +48,25 @@ const topics = [
     slug: 'getting-started',
     titleKey: 'docs.gettingStartedTitle',
     descKey: 'docs.gettingStartedDesc',
+    recommended: true,
   },
-  { slug: 'daily-work', titleKey: 'docs.dailyWorkTitle', descKey: 'docs.dailyWorkDesc' },
-  { slug: 'queens-guide', titleKey: 'docs.queensTitle', descKey: 'docs.queensDesc' },
+  {
+    slug: 'daily-work',
+    titleKey: 'docs.dailyWorkTitle',
+    descKey: 'docs.dailyWorkDesc',
+    recommended: true,
+  },
+  {
+    slug: 'queens-guide',
+    titleKey: 'docs.queensTitle',
+    descKey: 'docs.queensDesc',
+    recommended: true,
+  },
   {
     slug: 'breeding-book-guide',
     titleKey: 'docs.breedingBookTitle',
     descKey: 'docs.breedingBookDesc',
+    recommended: true,
   },
   { slug: 'faq', titleKey: 'docs.faqTitle', descKey: 'docs.faqDesc' },
   {

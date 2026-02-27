@@ -186,6 +186,92 @@ describe('BreedingBookService (unit)', () => {
     );
   });
 
+  it('inherits missing entry fields from selected existing queen', async () => {
+    const queenDoc = {
+      _id: 'q9',
+      name: 'DE-11-22-333-2024',
+      queenYear: 2024,
+      queenOrigin: 'DE',
+      matingType: 'Inselbegattung',
+      notes: 'Notiz aus Königin',
+      hiveHistory: [],
+      status: 'spare',
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+    queenModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(queenDoc) });
+    model.create.mockResolvedValue({ _id: 'b9', toObject: () => ({ ok: true }) });
+
+    await service.create(
+      { queenId: 'q9', nst: 7 } as any,
+      'u1',
+    );
+
+    expect(model.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queenId: 'q9',
+        code1a: 'DE-11-22-333-2024',
+        l1a: 'DE',
+        lv1a: 11,
+        z1a: 22,
+        nr1a: 333,
+        j1a: 2024,
+        anpaarTyp: 4,
+      }),
+    );
+  });
+
+  it('copies NR1A from breeding book into linked queen number when missing', async () => {
+    const queenDoc = {
+      _id: 'q10',
+      name: 'Q-10',
+      queenNumber: undefined,
+      hiveHistory: [],
+      status: 'spare',
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+    queenModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(queenDoc) });
+    model.create.mockResolvedValue({ _id: 'b10', toObject: () => ({ ok: true }) });
+
+    await service.create(
+      { queenId: 'q10', nr1a: 4711, nst: 7 } as any,
+      'u1',
+    );
+
+    expect(queenModel.updateOne).toHaveBeenCalledWith(
+      { _id: 'q10', userId: 'u1' },
+      {
+        $set: expect.objectContaining({
+          queenNumber: 4711,
+        }),
+      },
+    );
+  });
+
+  it('inherits NR1A from selected queen number when dto NR1A is missing', async () => {
+    const queenDoc = {
+      _id: 'q11',
+      name: 'Freitext-Queen',
+      queenNumber: 1234,
+      hiveHistory: [],
+      status: 'spare',
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+    queenModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(queenDoc) });
+    model.create.mockResolvedValue({ _id: 'b11', toObject: () => ({ ok: true }) });
+
+    await service.create(
+      { queenId: 'q11', nst: 7 } as any,
+      'u1',
+    );
+
+    expect(model.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queenId: 'q11',
+        nr1a: 1234,
+      }),
+    );
+  });
+
   it('imports CSV rows and maps mandatory fields', async () => {
     queenModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ _id: 'q3', name: 'DE-1-2-3-2024' }) });
     model.create.mockResolvedValue({ _id: 'b3', toObject: () => ({ ok: true }) });

@@ -27,6 +27,15 @@
             outlined
             clearable
           />
+          <q-input
+            v-model.number="form.queenNumber"
+            :label="t('queen.number')"
+            :hint="t('queen.number_hint')"
+            type="number"
+            dense
+            outlined
+            clearable
+          />
           <div class="row items-center q-gutter-sm">
             <q-select
               v-model="form.queenColor"
@@ -150,6 +159,7 @@ export default {
     const defaultForm = () => ({
       name: '',
       queenYear: new Date().getFullYear() as number | null,
+      queenNumber: null as number | null,
       queenColor: yearToColor(new Date().getFullYear()) || '',
       queenOrigin: '',
       matingType: '',
@@ -201,6 +211,7 @@ export default {
             form.value = {
               name: q.name || '',
               queenYear: q.queenYear ?? null,
+              queenNumber: (q as any).queenNumber ?? null,
               queenColor: q.queenColor || '',
               queenOrigin: q.queenOrigin || '',
               matingType: (q as any).matingType || '',
@@ -224,6 +235,7 @@ export default {
         const payload: any = {
           name: form.value.name || undefined,
           queenYear: form.value.queenYear ?? undefined,
+          queenNumber: form.value.queenNumber ?? undefined,
           queenColor: form.value.queenColor || undefined,
           queenOrigin: form.value.queenOrigin || undefined,
           matingType: form.value.matingType || undefined,

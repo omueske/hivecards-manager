@@ -30,6 +30,9 @@ export class Queen {
   @Prop()
   matingType?: string;
 
+  @Prop()
+  queenNumber?: number;
+
   @Prop({ default: false })
   queenMarked!: boolean;
 

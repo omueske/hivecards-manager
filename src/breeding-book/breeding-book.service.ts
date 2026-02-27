@@ -163,9 +163,43 @@ export class BreedingBookService {
       const queen = await this.queenModel.findOne({ _id: dto.queenId, userId }).exec();
       if (!queen) throw new NotFoundException('Queen not found');
 
+      const queenName = String(queen.name ?? '').trim();
+      const parsedFromName = this.parseCode1A(queenName);
+      if (!result.code1a && queenName) {
+        result.code1a = queenName.toUpperCase();
+      }
+      if (!result.l1a && queen.queenOrigin) {
+        result.l1a = String(queen.queenOrigin).trim().toUpperCase();
+      }
+      if (!result.nr1a && Number.isInteger(queen.queenNumber)) {
+        result.nr1a = queen.queenNumber;
+      }
+      if (!result.j1a && Number.isInteger(queen.queenYear)) {
+        result.j1a = queen.queenYear;
+      }
+      if (!result.anpaarTyp && !result.paarTyp) {
+        const mappedAnpaarTyp = this.fromQueenMatingType(queen.matingType);
+        if (mappedAnpaarTyp) {
+          result.anpaarTyp = mappedAnpaarTyp;
+        }
+      }
+      if (parsedFromName) {
+        if (!result.l1a) result.l1a = parsedFromName.l1a;
+        if (!result.lv1a) result.lv1a = parsedFromName.lv1a;
+        if (!result.z1a) result.z1a = parsedFromName.z1a;
+        if (!result.nr1a) result.nr1a = parsedFromName.nr1a;
+        if (!result.j1a) result.j1a = parsedFromName.j1a;
+      }
+      if (!result.code1a) {
+        result.code1a = this.buildCode1A(result);
+      }
+
       const queenUpdates: Record<string, unknown> = {};
       if (!queen.name && code1a) {
         queenUpdates.name = code1a;
+      }
+      if (!queen.queenNumber && result.nr1a) {
+        queenUpdates.queenNumber = result.nr1a;
       }
       if (matingType && queen.matingType !== matingType) {
         queenUpdates.matingType = matingType;
@@ -203,6 +237,9 @@ export class BreedingBookService {
       if (!existing.name && code1a) {
         queenUpdates.name = code1a;
       }
+      if (!existing.queenNumber && result.nr1a) {
+        queenUpdates.queenNumber = result.nr1a;
+      }
       if (matingType && existing.matingType !== matingType) {
         queenUpdates.matingType = matingType;
       }
@@ -232,6 +269,7 @@ export class BreedingBookService {
     const created = await this.queenModel.create({
       userId,
       name: code1a,
+      queenNumber: dto.nr1a,
       queenYear: dto.j1a,
       queenColor,
       queenOrigin,
@@ -337,6 +375,41 @@ export class BreedingBookService {
     if (type === 3) return 'Standbegattet';
     if (type === 4) return 'Inselbegattung';
     return undefined;
+  }
+
+  private fromQueenMatingType(matingType?: string): number | undefined {
+    const type = String(matingType ?? '')
+      .trim()
+      .toLowerCase();
+    if (type === 'instrumentell') return 1;
+    if (type === 'belegstelle') return 2;
+    if (type === 'standbegattet') return 3;
+    if (type === 'inselbegattung') return 4;
+    return undefined;
+  }
+
+  private parseCode1A(code1a?: string):
+    | {
+        l1a: string;
+        lv1a: number;
+        z1a: number;
+        nr1a: number;
+        j1a: number;
+      }
+    | undefined {
+    const raw = String(code1a ?? '')
+      .trim()
+      .toUpperCase();
+    const match = raw.match(/^([A-Z]+)-(\d+)-(\d+)-(\d+)-(\d{4})$/);
+    if (!match) return undefined;
+
+    return {
+      l1a: match[1],
+      lv1a: Number(match[2]),
+      z1a: Number(match[3]),
+      nr1a: Number(match[4]),
+      j1a: Number(match[5]),
+    };
   }
 
   private yearToQueenColor(year?: number): string | undefined {

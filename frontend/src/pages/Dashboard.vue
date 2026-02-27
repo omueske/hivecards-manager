@@ -54,22 +54,43 @@
       </div>
     </div>
 
-    <!-- Changelog teaser -->
-    <q-card
-      flat
-      bordered
-      class="changelog-teaser q-mb-xl cursor-pointer"
-      @click="router.push('/changelog')"
-    >
-      <q-card-section class="row items-center q-pa-md">
-        <q-icon name="history" size="1.6rem" color="amber-8" class="q-mr-md" />
-        <div class="col">
-          <div class="text-subtitle1 text-weight-bold">{{ t('dashboard.changelog_title') }}</div>
-          <div class="text-caption text-grey-6">{{ t('dashboard.changelog_subtitle') }}</div>
-        </div>
-        <q-icon name="chevron_right" color="grey-5" />
-      </q-card-section>
-    </q-card>
+    <!-- Quick access teasers -->
+    <div class="row q-col-gutter-md q-mb-xl">
+      <div class="col-12 col-md-6">
+        <q-card
+          flat
+          bordered
+          class="changelog-teaser cursor-pointer full-height"
+          @click="router.push('/changelog')"
+        >
+          <q-card-section class="row items-center q-pa-md">
+            <q-icon name="history" size="1.6rem" color="amber-8" class="q-mr-md" />
+            <div class="col">
+              <div class="text-subtitle1 text-weight-bold">{{ t('dashboard.changelog_title') }}</div>
+              <div class="text-caption text-grey-6">{{ t('dashboard.changelog_subtitle') }}</div>
+            </div>
+            <q-icon name="chevron_right" color="grey-5" />
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-12 col-md-6">
+        <q-card
+          flat
+          bordered
+          class="changelog-teaser cursor-pointer full-height"
+          @click="router.push('/breeding-book')"
+        >
+          <q-card-section class="row items-center q-pa-md">
+            <q-icon name="menu_book" size="1.6rem" color="blue-7" class="q-mr-md" />
+            <div class="col">
+              <div class="text-subtitle1 text-weight-bold">{{ t('dashboard.breeding_book_title') }}</div>
+              <div class="text-caption text-grey-6">{{ t('dashboard.breeding_book_subtitle') }}</div>
+            </div>
+            <q-icon name="chevron_right" color="grey-5" />
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
 
     <!-- Workflow Steps -->
     <div class="text-h6 q-mb-md">{{ t('dashboard.how_it_works') }}</div>
