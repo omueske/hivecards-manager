@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.27] - 2026-02-27
+
+### Documentation
+- add beginner documentation hub with subpages (fc19870)
+
 ## [0.1.26] - 2026-02-27
 
 ### Added
