@@ -8,7 +8,8 @@
         "apiaries": "Apiaries",
         "queens": "Queens",
         "breeding_book": "Breeding Book",
-        "changelog": "Changelog"
+        "changelog": "Changelog",
+        "documentation": "Documentation"
     },
     "apiary": {
         "title": "Locations",
@@ -286,6 +287,24 @@
         "previewErrors": "Errors (first 10)",
         "previewLine": "Line",
         "importConfirm": "Run import now"
+    },
+    "docs": {
+        "welcomeTitle": "Beginner User Help",
+        "welcomeText": "Choose a chapter. Texts are written in simple language for beginners and non-technical users.",
+        "openChapter": "Open chapter",
+        "gettingStartedTitle": "Getting started",
+        "gettingStartedDesc": "Be ready in 30 minutes: account, apiary, hive, and first entry.",
+        "dailyWorkTitle": "Daily work with hives",
+        "dailyWorkDesc": "Simple practical workflow for inspections, notes, and actions.",
+        "queensTitle": "Managing queens",
+        "queensDesc": "Status, origin, assignment, and history explained simply.",
+        "breedingBookTitle": "Breeding Book explained",
+        "breedingBookDesc": "Core fields, 1A logic, additional fields, and CSV without technical jargon.",
+        "faqTitle": "Help & FAQ",
+        "faqDesc": "Quick answers to common day-to-day questions.",
+        "completeManualTitle": "Complete manual",
+        "completeManualDesc": "Full, comprehensive documentation on one page.",
+        "topicNotFound": "Chapter not found"
     },
     "messages": {
         "created": "Created",

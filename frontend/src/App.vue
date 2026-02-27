@@ -86,6 +86,20 @@
               {{ $t ? $t('nav.breeding_book') : 'Zuchtbuch' }}
             </button>
             <button
+              class="burger-nav-item"
+              @click="
+                burgerMenu = false;
+                router.push('/documentation');
+              "
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 2H8c-1.1 0-2 .9-2 2v16a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V4c0-1.1-.9-2-2-2zM8 0h11a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm2 7h7v2h-7V7zm0 4h7v2h-7v-2zm0 4h5v2h-5v-2z"
+                />
+              </svg>
+              {{ $t ? $t('nav.documentation') : 'Dokumentation' }}
+            </button>
+            <button
               v-if="isAdmin"
               class="burger-nav-item"
               @click="
@@ -142,6 +156,9 @@
           <div v-if="menu" class="avatar-menu" role="menu">
             <button class="avatar-menu-item" @click="(menu = false), router.push('/profile')">
               {{ $t ? $t('auth.profile') : 'Profile' }}
+            </button>
+            <button class="avatar-menu-item" @click="(menu = false), router.push('/documentation')">
+              {{ $t ? $t('nav.documentation') : 'Dokumentation' }}
             </button>
             <button
               v-if="isAdmin"

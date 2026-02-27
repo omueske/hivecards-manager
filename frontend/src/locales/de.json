@@ -8,7 +8,8 @@
         "apiaries": "Standorte",
         "queens": "Königinnen",
         "breeding_book": "Zuchtbuch",
-        "changelog": "Changelog"
+        "changelog": "Changelog",
+        "documentation": "Dokumentation"
     },
     "apiary": {
         "title": "Standorte",
@@ -286,6 +287,24 @@
         "previewErrors": "Fehler (erste 10)",
         "previewLine": "Zeile",
         "importConfirm": "Import jetzt ausführen"
+    },
+    "docs": {
+        "welcomeTitle": "Benutzerhilfe für Einsteiger",
+        "welcomeText": "Wähle ein Kapitel aus. Alle Texte sind bewusst einfach formuliert – speziell für Anfänger und Nicht-ITler.",
+        "openChapter": "Kapitel öffnen",
+        "gettingStartedTitle": "Erste Schritte",
+        "gettingStartedDesc": "In 30 Minuten startklar: Konto, Standort, Volk und erster Eintrag.",
+        "dailyWorkTitle": "Tägliche Arbeit mit Völkern",
+        "dailyWorkDesc": "Einfacher Praxisablauf für Durchsicht, Notizen und Maßnahmen.",
+        "queensTitle": "Königinnen verwalten",
+        "queensDesc": "Status, Herkunft, Zuordnung und Historie leicht erklärt.",
+        "breedingBookTitle": "Zuchtbuch einfach erklärt",
+        "breedingBookDesc": "Kernfelder, 1A-Logik, weitere Felder und CSV ohne Fach-IT-Sprache.",
+        "faqTitle": "Hilfe & FAQ",
+        "faqDesc": "Schnelle Antworten auf typische Alltagsfragen.",
+        "completeManualTitle": "Vollständiges Handbuch",
+        "completeManualDesc": "Die komplette, ausführliche Benutzerdokumentation auf einer Seite.",
+        "topicNotFound": "Kapitel nicht gefunden"
     },
     "messages": {
         "created": "Erstellt",

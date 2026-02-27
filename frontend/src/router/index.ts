@@ -28,6 +28,8 @@ const routes = [
   { path: '/breeding-book', component: () => import('../pages/BreedingBook.vue'), meta: { requiresAuth: true } },
   { path: '/admin', component: () => import('../pages/Admin.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/changelog', component: () => import('../pages/Changelog.vue') },
+  { path: '/documentation', component: () => import('../pages/Documentation.vue') },
+  { path: '/documentation/:topic', component: () => import('../pages/DocumentationTopic.vue') },
 ]
 
 const router = createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes })
