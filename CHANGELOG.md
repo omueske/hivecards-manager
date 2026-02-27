@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.26] - 2026-02-27
+
+### Added
+- breeding book and queen sync improvements (6b2eeac)
+
 ## [0.1.25] - 2026-02-26
 
 ### Added
