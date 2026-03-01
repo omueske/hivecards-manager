@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.29] - 2026-03-01
+
+### Other
+- Fix queen assignment dialog filtering and queen number labels (2857184)
+
 ## [0.1.28] - 2026-02-27
 
 ### Added
