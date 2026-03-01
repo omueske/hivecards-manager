@@ -6,6 +6,7 @@ import { createPinia } from 'pinia'
 vi.mock('../../src/api-client/services/DefaultService', () => {
   const DefaultService = {
     getApiV1Queens: vi.fn().mockResolvedValue([{ id: 'q1', name: 'Q1', status: 'active', hiveHistory: [] }]),
+    getApiV1Apiaries: vi.fn().mockResolvedValue([]),
     getApiV1Hives: vi.fn().mockResolvedValue({ items: [{ _id: 'h1', hiveNumber: 'H-1' }] }),
     deleteApiV1Queens: vi.fn().mockResolvedValue({}),
     postApiV1QueensAssign: vi.fn().mockResolvedValue({ id: 'q1', name: 'Q1', status: 'active' }),

@@ -9,6 +9,7 @@ vi.mock('vue-i18n', () => ({
 }))
 
 const mockGetQueens = vi.fn()
+const mockGetApiaries = vi.fn()
 const mockGetHives = vi.fn()
 const mockPostQueenAssign = vi.fn()
 const mockDeleteQueen = vi.fn()
@@ -16,7 +17,8 @@ const mockDeleteQueen = vi.fn()
 vi.mock('../../src/api-client/services/DefaultService', () => ({
   DefaultService: {
     getApiV1Queens: () => mockGetQueens(),
-    getApiV1Hives: (a?: any, b?: any, c?: any, d?: any) => mockGetHives(a, b, c, d),
+    getApiV1Apiaries: () => mockGetApiaries(),
+    getApiV1Hives: (a?: any, b?: any, c?: any, d?: any, e?: any) => mockGetHives(a, b, c, d, e),
     postApiV1QueensAssign: (id: string, data: any) => mockPostQueenAssign(id, data),
     deleteApiV1Queens: (id: string) => mockDeleteQueen(id),
   },
@@ -37,6 +39,7 @@ describe('Queens Interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetQueens.mockResolvedValue([])
+    mockGetApiaries.mockResolvedValue([])
     mockGetHives.mockResolvedValue({ items: [] })
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})

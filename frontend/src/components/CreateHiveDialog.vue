@@ -228,10 +228,14 @@ export default {
               return true;
             return false;
           })
-          .map((q: Queen) => ({
-            label: `${q.name || `K-${q.queenYear ?? '?'}`} (${q.queenColor || '–'})`,
-            value: (q as any).id as string,
-          }));
+          .map((q: Queen) => {
+            const queenNumber = Number((q as any).queenNumber);
+            const queenNumberLabel = Number.isFinite(queenNumber) && queenNumber > 0 ? queenNumber : '–';
+            return {
+              label: `${q.name || `K-${q.queenYear ?? '?'}`} (${t('queen.number')}: ${queenNumberLabel}, ${q.queenColor || '–'})`,
+              value: (q as any).id as string,
+            };
+          });
         // Pre-select current queen if editing
         if (hiveId) {
           const current = all.find((q: Queen) =>

@@ -6,6 +6,7 @@ vi.mock('../../src/api-client/services/DefaultService', () => {
   return {
     DefaultService: {
       getApiV1Queens: vi.fn(() => Promise.resolve({ items: [{ id: 'q1', name: 'Q1' }] })),
+      getApiV1Apiaries: vi.fn(() => Promise.resolve([])),
       getApiV1Hives: vi.fn(() => Promise.resolve({ items: [{ id: '1', hiveNumber: 'H-001' }] })),
     },
   }

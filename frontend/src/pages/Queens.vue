@@ -120,8 +120,8 @@
         <q-card-section class="text-h6">{{ t('queen.assign') }}</q-card-section>
         <q-card-section class="q-gutter-sm">
           <q-select
-            v-model="assignHiveId"
-            :options="hiveOptions"
+            v-model="assignApiaryId"
+            :options="apiaryOptions"
             :label="t('form.location')"
             option-label="label"
             option-value="value"
@@ -129,6 +129,19 @@
             map-options
             dense
             outlined
+            clearable
+          />
+          <q-select
+            v-model="assignHiveId"
+            :options="filteredHiveOptions"
+            :label="t('breedingBook.hive')"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            dense
+            outlined
+            :disable="filteredHiveOptions.length === 0"
           />
           <q-input
             v-model="assignDate"
@@ -165,7 +178,7 @@
 </template>
 
 <script lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { DefaultService } from '../api-client/services/DefaultService';
@@ -179,6 +192,7 @@ export default {
     const $q = useQuasar();
 
     const queens = ref<Queen[]>([]);
+    const apiaries = ref<any[]>([]);
     const hives = ref<any[]>([]);
     const loading = ref(true);
     const activeFilter = ref<string | null>(null);
@@ -187,6 +201,7 @@ export default {
     const editingQueen = ref<Queen | null>(null);
     const assignDialogVisible = ref(false);
     const assigningQueen = ref<Queen | null>(null);
+    const assignApiaryId = ref('');
     const assignHiveId = ref('');
     const assignDate = ref(new Date().toISOString().slice(0, 10));
     const assignSaving = ref(false);
@@ -210,18 +225,45 @@ export default {
       hives.value.map((h) => ({ label: h.hiveNumber, value: String(h._id || h.id) })),
     );
 
+    const apiaryOptions = computed(() =>
+      apiaries.value.map((a) => ({
+        label: a.name || a.title || String(a.id || a._id),
+        value: String(a.id || a._id),
+      })),
+    );
+
+    const filteredHiveOptions = computed(() => {
+      if (!assignApiaryId.value) return hiveOptions.value;
+      const selectedApiaryId = String(assignApiaryId.value);
+      return hives.value
+        .filter((h) => String(h.apiaryId ?? '') === selectedApiaryId)
+        .map((h) => ({ label: h.hiveNumber, value: String(h._id || h.id) }));
+    });
+
     onMounted(async () => {
       loading.value = true;
       try {
-        const [qRes, hRes] = await Promise.allSettled([
+        const [qRes, aRes, hRes] = await Promise.allSettled([
           DefaultService.getApiV1Queens(),
-          DefaultService.getApiV1Hives(undefined, undefined, 1, 200),
+          DefaultService.getApiV1Apiaries(),
+          DefaultService.getApiV1Hives(undefined, undefined, undefined, 1, 200),
         ]);
         queens.value = (qRes.status === 'fulfilled' ? qRes.value : []) as Queen[];
+        apiaries.value = (aRes.status === 'fulfilled' ? aRes.value : []) as any[];
         const hivesRaw = hRes.status === 'fulfilled' ? (hRes.value as any) : null;
         hives.value = hivesRaw?.items ?? (Array.isArray(hivesRaw) ? hivesRaw : []);
       } finally {
         loading.value = false;
+      }
+    });
+
+    watch(assignApiaryId, () => {
+      if (!assignHiveId.value) return;
+      const stillAvailable = filteredHiveOptions.value.some(
+        (option) => option.value === assignHiveId.value,
+      );
+      if (!stillAvailable) {
+        assignHiveId.value = '';
       }
     });
 
@@ -280,6 +322,7 @@ export default {
 
     function openAssign(q: Queen) {
       assigningQueen.value = q;
+      assignApiaryId.value = '';
       assignHiveId.value = '';
       assignDate.value = new Date().toISOString().slice(0, 10);
       assignDialogVisible.value = true;
@@ -338,15 +381,19 @@ export default {
     return {
       t,
       queens,
+      apiaries,
       hives,
       loading,
       activeFilter,
       filtered,
       statusFilters,
       hiveOptions,
+      apiaryOptions,
+      filteredHiveOptions,
       dialogVisible,
       editingQueen,
       assignDialogVisible,
+      assignApiaryId,
       assignHiveId,
       assignDate,
       assignSaving,

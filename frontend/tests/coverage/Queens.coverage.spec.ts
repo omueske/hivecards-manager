@@ -5,6 +5,7 @@ import { shallowMount } from '@vue/test-utils'
 vi.mock('../../src/api-client/services/DefaultService', () => ({
   DefaultService: {
     getApiV1Queens: async () => [],
+    getApiV1Apiaries: async () => [],
     getApiV1Hives: async () => ({ items: [] }),
     postApiV1QueensAssign: async () => ({}),
     deleteApiV1Queens: async () => ({}),
