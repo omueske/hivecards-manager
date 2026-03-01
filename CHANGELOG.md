@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.30] - 2026-03-01
+
+- minor improvements
+
 ## [0.1.29] - 2026-03-01
 
 ### Other
