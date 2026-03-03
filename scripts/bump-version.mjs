@@ -32,6 +32,10 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isBumpCommit(message) {
+  return /^chore:\s+bump version\s+/i.test(message);
+}
+
 // Maps Conventional Commits type → changelog section heading
 const TYPE_MAP = {
   feat: '### Added',
@@ -105,6 +109,32 @@ function groupByType(rawLines) {
   }
 
   return sections.join('\n\n');
+}
+
+// ── Early exits to avoid recursive push bumps ───────────────────────────────
+
+let headMessage = '';
+try {
+  headMessage = run('git log -1 --format=%s');
+} catch {
+  // keep default empty
+}
+
+if (headMessage && isBumpCommit(headMessage)) {
+  console.log('\n  Skip version bump: HEAD is already a bump commit.\n');
+  process.exit(0);
+}
+
+let aheadCount = 0;
+try {
+  aheadCount = Number(run('git rev-list --count @{u}..HEAD'));
+} catch {
+  // no upstream configured; continue with bump logic
+}
+
+if (aheadCount === 0) {
+  console.log('\n  Skip version bump: no commits ahead of upstream.\n');
+  process.exit(0);
 }
 
 // ── Read current version ────────────────────────────────────────────────────
