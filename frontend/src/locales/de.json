@@ -343,6 +343,8 @@
         "queensDesc": "Status, Herkunft, Zuordnung und Historie leicht erklärt.",
         "breedingBookTitle": "Zuchtbuch einfach erklärt",
         "breedingBookDesc": "Kernfelder, 1A-Logik, weitere Felder und CSV ohne Fach-IT-Sprache.",
+        "bestandsbuchTitle": "Bestandsbuch (Arzneimittel)",
+        "bestandsbuchDesc": "Ausführliche Anleitung zu Erfassung, Synchronisierung, Sortierung und Druck.",
         "faqTitle": "Hilfe & FAQ",
         "faqDesc": "Schnelle Antworten auf typische Alltagsfragen.",
         "completeManualTitle": "Vollständiges Handbuch",

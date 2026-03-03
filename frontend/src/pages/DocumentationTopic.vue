@@ -34,6 +34,8 @@ import queensGuideDe from '../docs/queens-guide.de.md?raw';
 import queensGuideEn from '../docs/queens-guide.en.md?raw';
 import breedingBookDe from '../docs/breeding-book-guide.de.md?raw';
 import breedingBookEn from '../docs/breeding-book-guide.en.md?raw';
+import bestandsbuchGuideDe from '../docs/bestandsbuch-guide.de.md?raw';
+import bestandsbuchGuideEn from '../docs/bestandsbuch-guide.en.md?raw';
 import faqDe from '../docs/faq.de.md?raw';
 import faqEn from '../docs/faq.en.md?raw';
 import manualDe from '../docs/user-manual.de.md?raw';
@@ -63,6 +65,11 @@ const docsBySlug: Record<string, { de: string; en: string; titleKey: string }> =
     de: breedingBookDe,
     en: breedingBookEn,
     titleKey: 'docs.breedingBookTitle',
+  },
+  'bestandsbuch-guide': {
+    de: bestandsbuchGuideDe,
+    en: bestandsbuchGuideEn,
+    titleKey: 'docs.bestandsbuchTitle',
   },
   faq: {
     de: faqDe,

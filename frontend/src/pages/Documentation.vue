@@ -68,6 +68,12 @@ const topics = [
     descKey: 'docs.breedingBookDesc',
     recommended: true,
   },
+  {
+    slug: 'bestandsbuch-guide',
+    titleKey: 'docs.bestandsbuchTitle',
+    descKey: 'docs.bestandsbuchDesc',
+    recommended: true,
+  },
   { slug: 'faq', titleKey: 'docs.faqTitle', descKey: 'docs.faqDesc' },
   {
     slug: 'complete-manual',

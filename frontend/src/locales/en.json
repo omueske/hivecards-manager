@@ -343,6 +343,8 @@
         "queensDesc": "Status, origin, assignment, and history explained simply.",
         "breedingBookTitle": "Breeding Book explained",
         "breedingBookDesc": "Core fields, 1A logic, additional fields, and CSV without technical jargon.",
+        "bestandsbuchTitle": "Bestandsbuch (Medication Register)",
+        "bestandsbuchDesc": "Detailed guide for entries, synchronization, sorting, and printing.",
         "faqTitle": "Help & FAQ",
         "faqDesc": "Quick answers to common day-to-day questions.",
         "completeManualTitle": "Complete manual",
