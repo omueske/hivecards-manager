@@ -183,7 +183,31 @@ Wenn im Eintrag ein Volk ausgewählt ist, wird die Königin automatisch diesem V
 
 ---
 
-## 9. Datumsmodi
+## 9. Bestandsbuch (Arzneimittel)
+
+Das Bestandsbuch dokumentiert die Arzneimittelanwendung pro Volk und Jahr.
+
+Kernfunktionen:
+
+- Jahresansicht mit sortierbaren Spalten
+- strukturierter Erfassungsdialog mit Vorbelegungen aus Profil/Volk
+- bidirektionale Synchronisation mit Behandlungen in der Stockkarte
+- druckoptimierte Jahresansicht (u. a. Querformat)
+
+Empfohlene Praxis:
+
+1. Behandlung zeitnah erfassen (in Stockkarte oder Bestandsbuch).
+2. Synchronisierung im jeweils anderen Bereich kurz prüfen.
+3. Vor Monats- oder Jahresabschluss nach Datum/Volk sortieren und stichprobenartig kontrollieren.
+4. Jahresansicht drucken oder als PDF archivieren.
+
+Ausführliche Schritt-für-Schritt-Anleitung:
+
+- [Bestandsbuch (Arzneimittel) – Ausführliche Anleitung](/documentation/bestandsbuch-guide)
+
+---
+
+## 10. Datumsmodi
 
 Je nach Einstellung im Profil können Datumsangaben in unterschiedlichen Modi erfasst werden:
 
@@ -195,7 +219,7 @@ Wähle den Modus passend zu deinem Erfassungsprozess.
 
 ---
 
-## 10. Admin-Bereich
+## 11. Admin-Bereich
 
 Der Admin-Bereich ist nur für Benutzer mit Admin-Rolle sichtbar.
 
@@ -206,7 +230,7 @@ Typische Aufgaben:
 
 ---
 
-## 11. Tipps für den Praxisbetrieb
+## 12. Tipps für den Praxisbetrieb
 
 - Erfasse Durchsichten möglichst zeitnah.
 - Nutze einheitliche Notizkonventionen (z. B. Kurzpräfixe).
@@ -215,7 +239,7 @@ Typische Aufgaben:
 
 ---
 
-## 12. Fehlerbehebung (FAQ)
+## 13. Fehlerbehebung (FAQ)
 
 ### Ich sehe keine Daten nach dem Login
 
@@ -236,7 +260,7 @@ Typische Aufgaben:
 
 ---
 
-## 13. Datenschutz und Datenqualität
+## 14. Datenschutz und Datenqualität
 
 - Erfasse nur notwendige personenbezogene Daten.
 - Prüfe Einträge regelmäßig auf Vollständigkeit.
@@ -244,13 +268,13 @@ Typische Aufgaben:
 
 ---
 
-## 14. Release-Infos
+## 15. Release-Infos
 
 Technische Änderungen und neue Features findest du zusätzlich im **Changelog**.
 
 ---
 
-## 15. Kurz-Glossar
+## 16. Kurz-Glossar
 
 - **Apiary / Standort**: Physischer Bienenstand
 - **Volk**: Eine Bienenkolonie

@@ -182,7 +182,31 @@ If a hive is selected in the entry, the queen is automatically assigned to that 
 
 ---
 
-## 9. Date Input Modes
+## 9. Bestandsbuch (Medication Register)
+
+Bestandsbuch documents medication use per hive and year.
+
+Core capabilities:
+
+- yearly view with sortable columns
+- structured entry form with profile/hive defaults
+- bidirectional synchronization with hive-log treatment entries
+- print-optimized yearly view (including landscape default)
+
+Recommended workflow:
+
+1. Record treatment promptly (in hive log or Bestandsbuch).
+2. Quickly verify synchronization in the other module.
+3. Before month/year close, sort by date/hive and perform spot checks.
+4. Print yearly records or archive as PDF.
+
+Detailed step-by-step guide:
+
+- [Bestandsbuch (Medication Register) – Detailed Guide](/documentation/bestandsbuch-guide)
+
+---
+
+## 10. Date Input Modes
 
 Profile settings support different date modes:
 
@@ -194,7 +218,7 @@ Choose the mode that best fits your field workflow.
 
 ---
 
-## 10. Admin Area
+## 11. Admin Area
 
 Visible only for admin users.
 
@@ -205,7 +229,7 @@ Typical tasks:
 
 ---
 
-## 11. Best Practices
+## 12. Best Practices
 
 - log inspections shortly after work is done
 - use consistent note conventions
@@ -214,7 +238,7 @@ Typical tasks:
 
 ---
 
-## 12. Troubleshooting (FAQ)
+## 13. Troubleshooting (FAQ)
 
 ### I cannot see my data after login
 
@@ -235,7 +259,7 @@ Typical tasks:
 
 ---
 
-## 13. Data Quality and Privacy
+## 14. Data Quality and Privacy
 
 - store only necessary personal data
 - review records periodically for completeness
@@ -243,13 +267,13 @@ Typical tasks:
 
 ---
 
-## 14. Release Notes
+## 15. Release Notes
 
 Use **Changelog** for technical changes and release-by-release details.
 
 ---
 
-## 15. Short Glossary
+## 16. Short Glossary
 
 - **Apiary**: physical beekeeping location
 - **Hive**: one bee colony
