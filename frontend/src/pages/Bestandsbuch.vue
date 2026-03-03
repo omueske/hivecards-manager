@@ -38,7 +38,8 @@
       row-key="id"
       flat
       bordered
-      :pagination="{ rowsPerPage: 20 }"
+      :pagination="{ rowsPerPage: 20, sortBy: 'applicationDate', descending: true }"
+      :binary-state-sort="true"
     >
       <template #body-cell-applicationDate="props">
         <q-td :props="props">{{ formatDate(props.row.applicationDate) }}</q-td>
@@ -330,28 +331,55 @@ const selectedApiaryId = ref<string | undefined>(undefined);
 const DEFAULT_TREATMENT_AGENTS = ['Ameisensäure 60%', 'Ameisensäure 85%', 'Oxuvar', 'Bienenwohl'];
 
 const columns = computed(() => [
-  { name: 'sequenceNo', label: t('bestandsbuch.sequenceNo'), field: 'sequenceNo', align: 'left' },
+  {
+    name: 'sequenceNo',
+    label: t('bestandsbuch.sequenceNo'),
+    field: 'sequenceNo',
+    align: 'left',
+    sortable: true,
+  },
   {
     name: 'applicationDate',
     label: t('bestandsbuch.applicationDate'),
     field: 'applicationDate',
     align: 'left',
+    sortable: true,
   },
-  { name: 'hiveLabel', label: t('bestandsbuch.hiveLabel'), field: 'hiveLabel', align: 'left' },
+  {
+    name: 'hiveLabel',
+    label: t('bestandsbuch.hiveLabel'),
+    field: 'hiveLabel',
+    align: 'left',
+    sortable: true,
+  },
   {
     name: 'medicineName',
     label: t('bestandsbuch.medicineName'),
     field: 'medicineName',
     align: 'left',
+    sortable: true,
   },
   {
     name: 'administrationType',
     label: t('bestandsbuch.administrationType'),
     field: 'administrationType',
     align: 'left',
+    sortable: true,
   },
-  { name: 'amount', label: t('bestandsbuch.amount'), field: 'amount', align: 'left' },
-  { name: 'treatedBy', label: t('bestandsbuch.treatedBy'), field: 'treatedBy', align: 'left' },
+  {
+    name: 'amount',
+    label: t('bestandsbuch.amount'),
+    field: 'amount',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    name: 'treatedBy',
+    label: t('bestandsbuch.treatedBy'),
+    field: 'treatedBy',
+    align: 'left',
+    sortable: true,
+  },
   { name: 'actions', label: '', field: 'actions', align: 'right' },
 ]);
 
@@ -599,9 +627,30 @@ function formatDate(value?: string) {
 </script>
 
 <style scoped>
+@page {
+  size: landscape;
+}
+
 @media print {
   .no-print {
     display: none !important;
+  }
+
+  :deep(.q-table__container),
+  :deep(.q-table__middle) {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  :deep(.q-table) {
+    width: 100% !important;
+    table-layout: fixed;
+  }
+
+  :deep(.q-table th),
+  :deep(.q-table td) {
+    white-space: normal !important;
+    word-break: break-word;
   }
 
   :deep(.q-table__bottom) {
