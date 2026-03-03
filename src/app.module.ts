@@ -7,6 +7,7 @@ import { InspectionsModule } from './inspections/inspections.module';
 import { QueensModule } from './queens/queens.module';
 import { TreatmentAgentsModule } from './treatment-agents/treatment-agents.module';
 import { BreedingBookModule } from './breeding-book/breeding-book.module';
+import { BestandsbuchModule } from './bestandsbuch/bestandsbuch.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BreedingBookModule } from './breeding-book/breeding-book.module';
     QueensModule,
     TreatmentAgentsModule,
     BreedingBookModule,
+    BestandsbuchModule,
   ],
 })
 export class AppModule {}

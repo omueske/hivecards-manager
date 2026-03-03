@@ -89,6 +89,20 @@
               class="burger-nav-item"
               @click="
                 burgerMenu = false;
+                router.push('/bestandsbuch');
+              "
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm1 3v10h14V7H5zm2 2h10v2H7V9zm0 4h6v2H7v-2z"
+                />
+              </svg>
+              {{ $t ? $t('nav.bestandsbuch') : 'Bestandsbuch' }}
+            </button>
+            <button
+              class="burger-nav-item"
+              @click="
+                burgerMenu = false;
                 router.push('/documentation');
               "
             >
@@ -203,6 +217,11 @@
           to="/breeding-book"
           icon="menu_book"
           :label="$t ? $t('nav.breeding_book') : 'Zuchtbuch'"
+        />
+        <q-route-tab
+          to="/bestandsbuch"
+          icon="description"
+          :label="$t ? $t('nav.bestandsbuch') : 'Bestandsbuch'"
         />
       </q-tabs>
     </q-footer>

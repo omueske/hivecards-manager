@@ -107,6 +107,47 @@ export class UsersController {
     return update;
   }
 
+  private normalizeProfileContact(body: any): any {
+    const update: any = {};
+
+    if (body?.streetHouseNumber !== undefined) {
+      if (typeof body.streetHouseNumber !== 'string') {
+        throw new BadRequestException('streetHouseNumber must be a string');
+      }
+      update.streetHouseNumber = body.streetHouseNumber.trim();
+    }
+
+    if (body?.postalCode !== undefined) {
+      if (typeof body.postalCode !== 'string') {
+        throw new BadRequestException('postalCode must be a string');
+      }
+      update.postalCode = body.postalCode.trim();
+    }
+
+    if (body?.city !== undefined) {
+      if (typeof body.city !== 'string') {
+        throw new BadRequestException('city must be a string');
+      }
+      update.city = body.city.trim();
+    }
+
+    if (body?.phone !== undefined) {
+      if (typeof body.phone !== 'string') {
+        throw new BadRequestException('phone must be a string');
+      }
+      update.phone = body.phone.trim();
+    }
+
+    if (body?.operationNumber !== undefined) {
+      if (typeof body.operationNumber !== 'string') {
+        throw new BadRequestException('operationNumber must be a string');
+      }
+      update.operationNumber = body.operationNumber.trim();
+    }
+
+    return update;
+  }
+
   private toUserResponse(u: any): any {
     return {
       id: u._id.toString(),
@@ -114,6 +155,11 @@ export class UsersController {
       username: u.username,
       emailVerified: !!u.emailVerified,
       role: (u as any).role === 'admin' ? 'admin' : 'user',
+      streetHouseNumber: u.streetHouseNumber,
+      postalCode: u.postalCode,
+      city: u.city,
+      phone: u.phone,
+      operationNumber: u.operationNumber,
       breederCountry: u.breederCountry,
       breederAssociation: u.breederAssociation,
       breederAssociationCode: findBreederAssociation(u.breederCountry, u.breederAssociation)?.code,
@@ -155,6 +201,7 @@ export class UsersController {
       const saltRounds = 10;
       update.passwordHash = await bcrypt.hash(body.password, saltRounds);
     }
+    Object.assign(update, this.normalizeProfileContact(body));
     Object.assign(update, this.normalizeBreederProfile(body));
     await this.userModel.findByIdAndUpdate(uid, update).exec();
     const u = await this.userModel.findById(uid).lean().exec();

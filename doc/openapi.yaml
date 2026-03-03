@@ -257,6 +257,79 @@ components:
         feedingAmount:   { type: string }
         harvestAmount:   { type: string }
 
+    #  Bestandsbuch (Arzneimittel) 
+    BestandsbuchEntry:
+      type: object
+      properties:
+        id:                  { type: string }
+        userId:              { type: string }
+        inspectionId:        { type: string }
+        hiveId:              { type: string }
+        year:                { type: integer }
+        beekeeperName:       { type: string }
+        streetHouseNumber:   { type: string }
+        postalCode:          { type: string }
+        city:                { type: string }
+        phone:               { type: string }
+        apiaryName:          { type: string }
+        operationNumber:     { type: string }
+        sheetNumber:         { type: integer }
+        sequenceNo:          { type: integer }
+        applicationDate:     { type: string, format: date }
+        hiveLabel:           { type: string }
+        medicineName:        { type: string }
+        supplierNameAddress: { type: string }
+        administrationType:  { type: string }
+        amount:              { type: string }
+        withdrawalPeriod:    { type: string }
+        treatedBy:           { type: string }
+        prescribingVet:      { type: string }
+        purchaseReceipt:     { type: string }
+        treatmentDuration:   { type: string }
+        notes:               { type: string }
+        source:              { type: string, enum: [manual, inspection-sync] }
+        createdAt:           { type: string, format: date-time }
+        updatedAt:           { type: string, format: date-time }
+      example:
+        id: "66bb3f77bcf86cd7994390ee"
+        hiveId: "624b2f9a9c0a4b6e8f7d1234"
+        applicationDate: "2026-03-03"
+        year: 2026
+        sequenceNo: 1
+        medicineName: "Ameisensaeure 60%"
+        amount: "150 ml"
+        administrationType: "verdunsten"
+        treatedBy: "Max Mustermann"
+
+    CreateBestandsbuchEntryRequest:
+      type: object
+      properties:
+        source:              { type: string, enum: [manual, inspection-sync], default: manual }
+        inspectionId:        { type: string }
+        hiveId:              { type: string }
+        beekeeperName:       { type: string }
+        streetHouseNumber:   { type: string }
+        postalCode:          { type: string }
+        city:                { type: string }
+        phone:               { type: string }
+        apiaryName:          { type: string }
+        operationNumber:     { type: string }
+        sheetNumber:         { type: integer, minimum: 1, maximum: 999 }
+        sequenceNo:          { type: integer, minimum: 1, maximum: 9999 }
+        applicationDate:     { type: string, format: date }
+        year:                { type: integer, minimum: 2000, maximum: 2100 }
+        hiveLabel:           { type: string }
+        medicineName:        { type: string }
+        supplierNameAddress: { type: string }
+        administrationType:  { type: string }
+        amount:              { type: string }
+        withdrawalPeriod:    { type: string }
+        treatedBy:           { type: string }
+        prescribingVet:      { type: string }
+        purchaseReceipt:     { type: string }
+        treatmentDuration:   { type: string }
+        notes:               { type: string }
+
     #  Treatment Agents 
     TreatmentAgent:
       type: object
@@ -783,6 +856,86 @@ paths:
           description: Deleted
         '404':
           $ref: '#/components/responses/NotFound'
+
+  #  Bestandsbuch (Arzneimittel) 
+  /api/v1/bestandsbuch:
+    get:
+      summary: List bestandsbuch entries (optionally filtered by year/hiveId)
+      tags: [Bestandsbuch]
+      parameters:
+        - name: year
+          in: query
+          schema: { type: integer }
+        - name: hiveId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of bestandsbuch entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BestandsbuchEntry' }
+    post:
+      summary: Create a bestandsbuch entry
+      tags: [Bestandsbuch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateBestandsbuchEntryRequest' }
+      responses:
+        '201':
+          description: Created bestandsbuch entry
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BestandsbuchEntry' }
+
+  /api/v1/bestandsbuch/years:
+    get:
+      summary: List available years with bestandsbuch entries
+      tags: [Bestandsbuch]
+      responses:
+        '200':
+          description: Years in descending order
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: integer }
+
+  /api/v1/bestandsbuch/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    put:
+      summary: Update a bestandsbuch entry
+      tags: [Bestandsbuch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateBestandsbuchEntryRequest' }
+      responses:
+        '200':
+          description: Updated bestandsbuch entry
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BestandsbuchEntry' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a bestandsbuch entry
+      tags: [Bestandsbuch]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
 
   #  Treatment Agents 
   /api/v1/treatment-agents:

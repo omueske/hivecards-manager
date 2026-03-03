@@ -9,7 +9,9 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { Apiary } from './models/Apiary';
 export type { AssignQueenRequest } from './models/AssignQueenRequest';
 export type { AuthResponse } from './models/AuthResponse';
+export { BestandsbuchEntry } from './models/BestandsbuchEntry';
 export type { CreateApiaryRequest } from './models/CreateApiaryRequest';
+export { CreateBestandsbuchEntryRequest } from './models/CreateBestandsbuchEntryRequest';
 export { CreateHiveRequest } from './models/CreateHiveRequest';
 export { CreateInspectionRequest } from './models/CreateInspectionRequest';
 export { CreateQueenRequest } from './models/CreateQueenRequest';
@@ -31,6 +33,7 @@ export type { User } from './models/User';
 
 export { ApiariesService } from './services/ApiariesService';
 export { AuthService } from './services/AuthService';
+export { BestandsbuchService } from './services/BestandsbuchService';
 export { HivesService } from './services/HivesService';
 export { InspectionsService } from './services/InspectionsService';
 export { QueensService } from './services/QueensService';

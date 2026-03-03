@@ -26,6 +26,10 @@ describe('Profile.vue', () => {
     const user = { email: 'foo@bar.com', username: 'bee' }
     ;(global.fetch as any).mockResolvedValueOnce({
       ok: true,
+      json: async () => [],
+    })
+    ;(global.fetch as any).mockResolvedValueOnce({
+      ok: true,
       json: async () => user,
     })
 

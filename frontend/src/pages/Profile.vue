@@ -17,6 +17,35 @@
                 placeholder="(leave blank to keep)"
               />
 
+              <q-card flat bordered class="q-pa-md q-mt-sm">
+                <div class="text-subtitle2 q-mb-sm">{{ t('profile.contact_data') }}</div>
+                <div class="row q-col-gutter-sm">
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      v-model="form.streetHouseNumber"
+                      :label="t('profile.street_house_number')"
+                      dense
+                    />
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <q-input v-model="form.postalCode" :label="t('profile.postal_code')" dense />
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <q-input v-model="form.city" :label="t('profile.city')" dense />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-input v-model="form.phone" :label="t('profile.phone')" dense />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-input
+                      v-model="form.operationNumber"
+                      :label="t('profile.operation_number')"
+                      dense
+                    />
+                  </div>
+                </div>
+              </q-card>
+
               <q-card flat bordered class="q-pa-md q-mt-sm bg-grey-1">
                 <div class="text-subtitle2 q-mb-sm">{{ t('profile.breeder_defaults') }}</div>
                 <div class="row q-col-gutter-sm">
@@ -194,6 +223,11 @@ const form = ref({
   email: '',
   username: '',
   password: '',
+  streetHouseNumber: '',
+  postalCode: '',
+  city: '',
+  phone: '',
+  operationNumber: '',
   breederCountry: '',
   breederAssociation: null as number | null,
   breederNumber: null as number | null,
@@ -400,6 +434,11 @@ async function fetchProfile() {
       form.value.email = data.email || '';
       form.value.username = data.username || '';
       form.value.breederCountry = data.breederCountry || '';
+      form.value.streetHouseNumber = data.streetHouseNumber || '';
+      form.value.postalCode = data.postalCode || '';
+      form.value.city = data.city || '';
+      form.value.phone = data.phone || '';
+      form.value.operationNumber = data.operationNumber || '';
       form.value.breederAssociation = Number.isInteger(data.breederAssociation)
         ? data.breederAssociation
         : null;
@@ -451,6 +490,11 @@ async function submit() {
   try {
     const payload: any = {
       username: form.value.username,
+      streetHouseNumber: form.value.streetHouseNumber || undefined,
+      postalCode: form.value.postalCode || undefined,
+      city: form.value.city || undefined,
+      phone: form.value.phone || undefined,
+      operationNumber: form.value.operationNumber || undefined,
       breederAssociationCode: selectedAssociationCode.value ?? undefined,
       breederCountry: form.value.breederCountry || undefined,
       breederAssociation: form.value.breederAssociation ?? undefined,

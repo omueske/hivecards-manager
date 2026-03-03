@@ -5,11 +5,13 @@ import { InspectionsController } from './inspections.controller';
 import { Inspection, InspectionSchema } from './schemas/inspection.schema';
 import { AuthModule } from '../auth/auth.module';
 import { JwtGuard } from '../common/jwt.guard';
+import { BestandsbuchModule } from '../bestandsbuch/bestandsbuch.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Inspection.name, schema: InspectionSchema }]),
     AuthModule,
+    BestandsbuchModule,
   ],
   controllers: [InspectionsController],
   providers: [InspectionsService, JwtGuard],

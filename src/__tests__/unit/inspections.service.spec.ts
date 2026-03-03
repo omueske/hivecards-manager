@@ -3,9 +3,14 @@ import { getModelToken } from '@nestjs/mongoose';
 import { InspectionsService } from '../../inspections/inspections.service';
 import { NotFoundException } from '@nestjs/common';
 import mongoose from 'mongoose';
+import { BestandsbuchService } from '../../bestandsbuch/bestandsbuch.service';
 
 describe('InspectionsService (unit)', () => {
   let service: InspectionsService;
+  const bestandsbuchService = {
+    syncFromInspection: jest.fn().mockResolvedValue(undefined),
+    removeByInspectionId: jest.fn().mockResolvedValue(undefined),
+  };
   const mockModel = jest.fn().mockImplementation(function (this: any, data: any) {
     Object.assign(this, data);
     this.save = jest.fn().mockResolvedValue(this);
@@ -18,9 +23,11 @@ describe('InspectionsService (unit)', () => {
   (mockModel as any).countDocuments = jest.fn();
   (mockModel as any).findOne = jest.fn();
   (mockModel as any).findOneAndUpdate = jest.fn();
-  (mockModel as any).deleteOne = jest.fn();
+  (mockModel as any).findOneAndDelete = jest.fn();
 
   beforeEach(async () => {
+    bestandsbuchService.syncFromInspection.mockClear();
+    bestandsbuchService.removeByInspectionId.mockClear();
     // make ObjectId just echo so we don't need valid IDs
     jest.spyOn(mongoose.Types, 'ObjectId').mockImplementation((x: any) => x as any);
 
@@ -28,6 +35,7 @@ describe('InspectionsService (unit)', () => {
       providers: [
         InspectionsService,
         { provide: getModelToken('Inspection'), useValue: mockModel },
+        { provide: BestandsbuchService, useValue: bestandsbuchService },
       ],
     }).compile();
 
@@ -38,6 +46,12 @@ describe('InspectionsService (unit)', () => {
     const dto = { hiveId: 'h', type: 'note' } as any;
     const res = await service.create(dto, 'u');
     expect(res).toHaveProperty('id');
+  });
+
+  it('create syncs treatment to bestandsbuch', async () => {
+    const dto = { hiveId: 'h', type: 'treatment', date: '2026-01-01' } as any;
+    await service.create(dto, 'u');
+    expect(bestandsbuchService.syncFromInspection).toHaveBeenCalled();
   });
 
   it('create respects default type value', async () => {
@@ -68,21 +82,16 @@ describe('InspectionsService (unit)', () => {
   });
 
   it('remove throws when not found', async () => {
-    (mockModel as any).deleteOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 0 }) });
+    (mockModel as any).findOneAndDelete.mockReturnValue({
+      lean: () => ({ exec: jest.fn().mockResolvedValue(null) }),
+    });
     await expect(service.remove('x', 'u')).rejects.toThrow(NotFoundException);
   });
 
   it('remove succeeds when deletedCount >0', async () => {
-    (mockModel as any).deleteOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 1 }) });
+    (mockModel as any).findOneAndDelete.mockReturnValue({
+      lean: () => ({ exec: jest.fn().mockResolvedValue({ _id: 'x', type: 'note' }) }),
+    });
     await expect(service.remove('x', 'u')).resolves.toBeUndefined();
-  });
-  it('update throws when not found', async () => {
-    (mockModel as any).findOneAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
-    await expect(service.update('x', {} as any, 'u')).rejects.toThrow(NotFoundException);
-  });
-
-  it('remove throws when not found', async () => {
-    (mockModel as any).deleteOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 0 }) });
-    await expect(service.remove('x', 'u')).rejects.toThrow(NotFoundException);
   });
 });

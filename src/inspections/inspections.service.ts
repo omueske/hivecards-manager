@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Inspection, InspectionDocument } from './schemas/inspection.schema';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
+import { BestandsbuchService } from '../bestandsbuch/bestandsbuch.service';
 
 @Injectable()
 export class InspectionsService {
@@ -11,6 +12,7 @@ export class InspectionsService {
 
   constructor(
     @InjectModel(Inspection.name) private inspectionModel: Model<InspectionDocument>,
+    private readonly bestandsbuchService: BestandsbuchService,
   ) {}
 
   async create(dto: CreateInspectionDto, userId: string): Promise<any> {
@@ -23,7 +25,11 @@ export class InspectionsService {
     });
     await doc.save();
     this.logger.log(`Created inspection id=${doc._id} hiveId=${dto.hiveId}`);
-    return this.toResponse(doc);
+    const response = this.toResponse(doc);
+    if (response.type === 'treatment') {
+      await this.bestandsbuchService.syncFromInspection(response, userId);
+    }
+    return response;
   }
 
   async findAll(hiveId: string, userId: string, page = 1, limit = 50): Promise<any> {
@@ -63,15 +69,24 @@ export class InspectionsService {
       throw new NotFoundException('Inspection not found');
     }
     this.logger.debug(`Updated inspection id=${id}`);
-    return { ...(doc as any), id: (doc as any)._id };
+    const response = { ...(doc as any), id: (doc as any)._id };
+    if (response.type === 'treatment') {
+      await this.bestandsbuchService.syncFromInspection(response, userId);
+    } else {
+      await this.bestandsbuchService.removeByInspectionId(id, userId);
+    }
+    return response;
   }
 
   async remove(id: string, userId: string): Promise<void> {
     this.logger.log(`Deleting inspection id=${id}`);
-    const res = await this.inspectionModel.deleteOne({ _id: id, userId }).exec();
-    if (res.deletedCount === 0) {
+    const deleted = await this.inspectionModel.findOneAndDelete({ _id: id, userId }).lean().exec();
+    if (!deleted) {
       this.logger.warn(`Inspection not found or not owned for delete id=${id}`);
       throw new NotFoundException('Inspection not found');
+    }
+    if ((deleted as any).type === 'treatment') {
+      await this.bestandsbuchService.removeByInspectionId(id, userId);
     }
     this.logger.debug(`Deleted inspection id=${id}`);
   }

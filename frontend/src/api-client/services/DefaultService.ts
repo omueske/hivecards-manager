@@ -15,6 +15,7 @@ type MethodFn = (...args: any[]) => Promise<any>
 const serviceLoaders = {
   ApiariesService: () => import('./ApiariesService'),
   AuthService: () => import('./AuthService'),
+  BestandsbuchService: () => import('./BestandsbuchService'),
   HivesService: () => import('./HivesService'),
   InspectionsService: () => import('./InspectionsService'),
   QueensService: () => import('./QueensService'),
@@ -50,6 +51,13 @@ const DefaultService: Record<string, MethodFn> = {
   postApiV1AuthForgotPassword: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthForgotPassword'),
   postApiV1AuthResetPassword: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'postApiV1AuthResetPassword'),
   getApiV1AuthVerifyEmail: makeLazyMethod(serviceLoaders.AuthService, 'AuthService', 'getApiV1AuthVerifyEmail'),
+
+  // ── Bestandsbuch ------------------------------------------------
+  getApiV1Bestandsbuch: makeLazyMethod(serviceLoaders.BestandsbuchService, 'BestandsbuchService', 'getApiV1Bestandsbuch'),
+  postApiV1Bestandsbuch: makeLazyMethod(serviceLoaders.BestandsbuchService, 'BestandsbuchService', 'postApiV1Bestandsbuch'),
+  getApiV1BestandsbuchYears: makeLazyMethod(serviceLoaders.BestandsbuchService, 'BestandsbuchService', 'getApiV1BestandsbuchYears'),
+  putApiV1Bestandsbuch: makeLazyMethod(serviceLoaders.BestandsbuchService, 'BestandsbuchService', 'putApiV1Bestandsbuch'),
+  deleteApiV1Bestandsbuch: makeLazyMethod(serviceLoaders.BestandsbuchService, 'BestandsbuchService', 'deleteApiV1Bestandsbuch'),
 
   // ── Hives -------------------------------------------------------
   getApiV1Hives: makeLazyMethod(serviceLoaders.HivesService, 'HivesService', 'getApiV1Hives'),

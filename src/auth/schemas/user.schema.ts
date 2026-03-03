@@ -15,6 +15,21 @@ export class User {
   @Prop()
   username?: string;
 
+  @Prop()
+  streetHouseNumber?: string;
+
+  @Prop()
+  postalCode?: string;
+
+  @Prop()
+  city?: string;
+
+  @Prop()
+  phone?: string;
+
+  @Prop()
+  operationNumber?: string;
+
   @Prop({ default: false })
   emailVerified!: boolean;
 
