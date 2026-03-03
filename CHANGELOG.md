@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.31] - 2026-03-03
+
+### Added
+- improve bestandsbuch print layout and table sorting (a883ea5)
+- add bestandsbuch module, sync, ui and profile refinements (e8d1e48)
+
 ## [0.1.30] - 2026-03-01
 
 - minor improvements
