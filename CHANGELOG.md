@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.32] - 2026-03-03
+## [0.1.32] - 2026-07-21
 
 ### Security
 - update backend and frontend dependencies to patched versions (NestJS, mailer stack, axios, vue/vite)
