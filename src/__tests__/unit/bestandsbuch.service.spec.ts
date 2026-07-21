@@ -24,7 +24,11 @@ describe('BestandsbuchService (unit)', () => {
 
     hiveModel = {
       findOne: jest.fn().mockReturnValue({
-        lean: () => ({ exec: jest.fn().mockResolvedValue({ _id: 'h1', hiveNumber: 'V-01', apiaryId: 'a1' }) }),
+        lean: () => ({
+          exec: jest
+            .fn()
+            .mockResolvedValue({ _id: '507f1f77bcf86cd799439011', hiveNumber: 'V-01', apiaryId: 'a1' }),
+        }),
       }),
     };
 
@@ -67,7 +71,7 @@ describe('BestandsbuchService (unit)', () => {
   it('fills hive/apiary/user fields on create', async () => {
     const result = await service.create(
       {
-        hiveId: 'h1',
+        hiveId: '507f1f77bcf86cd799439011',
         applicationDate: '2026-03-03',
         medicineName: 'Oxalsäure',
       },
@@ -75,7 +79,7 @@ describe('BestandsbuchService (unit)', () => {
       { skipInspectionSync: true },
     );
 
-    expect(result.hiveLabel).toBe('V-01');
+    expect(result.hiveLabel).toBe('Heimstand - V-01');
     expect(result.apiaryName).toBe('Heimstand');
     expect(result.beekeeperName).toBe('Oliver Imker');
     expect(result.treatedBy).toBe('Oliver Imker');
@@ -88,7 +92,7 @@ describe('BestandsbuchService (unit)', () => {
       {
         id: 'i55',
         type: 'treatment',
-        hiveId: 'h1',
+        hiveId: '507f1f77bcf86cd799439011',
         date: '2026-03-01',
         treatmentAgent: 'Ameisensäure 60%',
         treatmentAmount: '150 ml',
@@ -104,7 +108,7 @@ describe('BestandsbuchService (unit)', () => {
 
     await service.create(
       {
-        hiveId: 'h1',
+        hiveId: '507f1f77bcf86cd799439011',
         applicationDate: '2026-03-02',
         medicineName: 'Oxuvar',
         amount: '30 ml',

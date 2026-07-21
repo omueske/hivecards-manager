@@ -18,29 +18,29 @@
     "start:prod": "node dist/main.js"
   },
   "dependencies": {
-    "@nestjs-modules/mailer": "^2.0.2",
-    "@nestjs/common": "^11.1.14",
-    "@nestjs/core": "^11.1.14",
+    "@nestjs-modules/mailer": "^2.3.7",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
     "@nestjs/mongoose": "^11.0.4",
-    "@nestjs/platform-express": "^11.1.14",
-    "@nestjs/serve-static": "^5.0.4",
-    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/serve-static": "^5.0.5",
+    "@nestjs/swagger": "^11.4.6",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.0.0",
-    "handlebars": "^4.7.8",
+    "handlebars": "^4.7.9",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.0",
-    "nodemailer": "^8.0.1",
+    "nodemailer": "^9.0.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^4.6.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@nestjs/testing": "^11.1.14",
+    "@nestjs/testing": "^11.1.28",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^4.17.17",
@@ -56,7 +56,7 @@
     "globals": "^17.3.0",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^30.2.0",
-    "mongodb-memory-server": "^8.12.1",
+    "mongodb-memory-server": "^11.2.0",
     "prettier": "^2.8.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.0",
@@ -64,5 +64,11 @@
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.6",
     "typescript-eslint": "^8.56.0"
+  },
+  "overrides": {
+    "brace-expansion@^1.1.7": "1.1.16",
+    "mailparser": "3.9.14",
+    "linkify-it": "5.0.2",
+    "uuid": "11.1.1"
   }
 }

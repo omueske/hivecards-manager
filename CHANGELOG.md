@@ -2,7 +2,16 @@
 
 ## [0.1.32] - 2026-03-03
 
-- minor improvements
+### Security
+- update backend and frontend dependencies to patched versions (NestJS, mailer stack, axios, vue/vite)
+- add npm overrides for vulnerable transitive packages (brace-expansion, mailparser, linkify-it, uuid)
+
+### Fixed
+- switch mailer Handlebars adapter import to exported module path
+
+### Tests
+- align Bestandsbuch unit/integration expectations with composed hive label format
+- use valid ObjectId test data to ensure treatment sync assertions execute reliably
 
 ## [0.1.31] - 2026-03-03
 

@@ -108,7 +108,7 @@ describe('Bestandsbuch sync integration', () => {
     expect(syncedEntry).toBeTruthy();
     expect(syncedEntry.medicineName).toBe('Ameisensäure 60%');
     expect(syncedEntry.amount).toBe('150 ml');
-    expect(syncedEntry.hiveLabel).toBe(hiveRes.body.hiveNumber);
+    expect(syncedEntry.hiveLabel).toBe(`${apiaryRes.body.name} - ${hiveRes.body.hiveNumber}`);
     expect(syncedEntry.apiaryName).toBe(apiaryRes.body.name);
 
     const manualBestandsbuchRes: any = await request(app.getHttpServer())
